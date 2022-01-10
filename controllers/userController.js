@@ -182,7 +182,7 @@ const findOne = async (req, res) => {
 
 const update = async (req, res) => {
   const updates = Object.keys(req.body);
-  const allowedUpdates = ["name","number","website","bio"];
+  const allowedUpdates = ["name","number","website","bio", "username"];
   const isValidOpration = updates.every((update) =>
     allowedUpdates.includes(update)
   );
@@ -258,7 +258,78 @@ const remove = async (req, res) => {
   }
 };
 
+const updatePassword = async (req,res) => {
+  oldpass = req.body.oldpass;
+  newpass = req.body.newpass;
+  const user = await User.findOne({uuid: req.user.uuid});
+  const isMatch= await bcrypt.compare(oldpass,user.password);
+  if(!isMatch){
+      res.status(400).json({
+        status: false,
+        message: "Invalid Password!",
+        errors: [],
+        data: {},
+      });
+  }
+  try {
+    await User.updateOne({uuid: req.user.uuid},{password:newpass});
+    res.status(201).json({
+      status: true,
+      message: "Updated successfully!",
+      errors: [],
+      data: {},
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: false,
+      message: "Error in updating password.",
+      errors: error,
+      data: {},
+    });
+  }
+  
+}
+
+const updateEmail = async (req, res) => {
+  newEmail = req.body.email;
+  myCache.set(req.user.uuid + '_email', newEmail);
+  res.redirect('user/mail/'+req.user.uuid);
+}
 //Twilio otp
+
+const verifyEmail = async (req, res) => {
+  const newEmail = myCache.get(req.params.uuid + "_email");
+  const isValid = totp.check(req.body.totp, secret);
+  if (req.user && isValid == true) {
+    try {
+      await User.updateOne({uuid: req.user.uuid},{
+        email:newEmail
+      });
+      res.status(201).json({
+        status: true,
+        message: "Email updated",
+        errors: [],
+        data: {},
+      });
+      myCache.take(user.uuid);
+    } catch (error) {
+      res.status(400).json({
+        status: false,
+        message: "Error in updating email",
+        errors: error,
+        data: {},
+      });
+    }
+  } else {
+    res.send("unathenticated");
+    res.status(400).json({
+      status: false,
+      message: "Unauthenticated",
+      errors: error,
+      data: {},
+    });
+  }
+}
 
 const mail = async (req, res) => {
   req.user = myCache.get(req.params.uuid);
@@ -353,6 +424,27 @@ const messageGenerate = (name, otp) => {
   return message;
 };
 
+const checkUser = async (req, res) => {
+  const found = await User.findOne({username: req.params.user})
+  if(found) {
+    res.status(400).json({
+      status: false,
+      message: "Username already exist.",
+      errors: [],
+      data: {},
+    });
+  } else {
+    const arr = ["That's a great one!", "Damn, that's a new one!", "Nice choice!", "Here you go!", "Good to go!", "Awesome!"];
+    res.status(201).json({
+      status: true,
+      message: arr[Math.floor(Math.random()*arr.length)],
+      errors: [],
+      data: {},
+    });
+  }
+}
+
+
 module.exports = {
   remove,
   update,
@@ -365,4 +457,8 @@ module.exports = {
   logoutAll,
   mail,
   twoStepVerification,
+  updatePassword,
+  updateEmail,
+  verifyEmail,
+  checkUser
 };

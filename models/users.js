@@ -19,7 +19,6 @@ const userSchema=new mongoose.Schema({
         unique:true,
         required:true,
         trim:true,
-        lowercase:true,
         minLength:6,
         validate(value){
             if(!validator.isAlphanumeric(value)){
