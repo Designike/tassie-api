@@ -1,6 +1,7 @@
 require('dotenv').config();
 const mongoose=require('mongoose')
-const db="mongodb+srv://rishabh:rishabh@cluster0.58od3.mongodb.net/Users?retryWrites=true&w=majority";
+const db="mongodb+srv://designike:"+ process.env.MONGO_PASS +"@designike.czxau.mongodb.net/"+ process.env.MONGO_DB +"?retryWrites=true&w=majority";
+
 // const db=process.env.URI;
 
 mongoose.connect(db,{
