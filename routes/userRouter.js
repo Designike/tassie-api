@@ -32,6 +32,8 @@ router.patch('/verifyEmail',userController.verifyEmail);
 
 router.get('/username/:user',userController.checkUser);
 
+router.get('/checkEmail/:user',userController.checkEmail);
+
 router.post('/', userController.register);
 
 

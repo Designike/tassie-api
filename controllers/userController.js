@@ -455,6 +455,24 @@ const checkUser = async (req, res) => {
     });
   }
 }
+const checkEmail = async (req, res) => {
+  const found = await User.findOne({email: req.params.user})
+  if(found) {
+    res.status(400).json({
+      status: false,
+      message: "Email is already in use.",
+      errors: [],
+      data: {},
+    });
+  } else {
+    res.status(201).json({
+      status: true,
+      message: "",
+      errors: [],
+      data: {},
+    });
+  }
+}
 
 
 module.exports = {
@@ -472,5 +490,6 @@ module.exports = {
   updatePassword,
   updateEmail,
   verifyEmail,
-  checkUser
+  checkUser,
+  checkEmail,
 };
