@@ -34,7 +34,6 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   let user;
-  console.log('0');
   try {
     if(req.body.email){  
     user = await User.findByCredentials(
