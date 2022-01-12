@@ -80,12 +80,12 @@ const userSchema=new mongoose.Schema({
 
 userSchema.methods.generateAuthToken=async function(){
     const user=this
-
+    console.log('5');
     const token=jwt.sign({_id:user._id.toString()},'tassie')
     
     user.tokens=user.tokens.concat({token})
     await user.save()
-    
+    console.log('6');
     return token
 }
 
@@ -96,10 +96,9 @@ userSchema.statics.findByCredentials=async(email,username,password)=>{
 }else if(username.length>0){
     user=await User.findOne({username:username});
 }
-    if(user!=undefined){
+    if(user == undefined){
         throw new Error('Invalid Email or Username!')
     }
-
     const isMatch= await bcrypt.compare(password,user.password)
 
     if(!isMatch){
