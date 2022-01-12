@@ -21,7 +21,8 @@ const register = async (req, res) => {
   try {
     const userToRegister = uuid;
     myCache.set(userToRegister, user);
-    res.redirect("user/mail/" + uuid);
+    // res.redirect("user/mail/" + uuid);
+    await mail(req, res, uuid);
   } catch (error) {
     res.status(400).json({
       status: false,
@@ -343,8 +344,8 @@ const verifyEmail = async (req, res) => {
   }
 }
 
-const mail = async (req, res) => {
-  req.user = myCache.get(req.params.uuid);
+const mail = async (req, res, uid) => {
+  req.user = myCache.get(uid);
   if (req.user) {
     const toptToken = totp.generate(secret);
     const toUser = req.user.email;
@@ -474,6 +475,9 @@ const checkEmail = async (req, res) => {
   }
 }
 
+const sendmail = (req, res) => {
+  mail(req, res, req.params.uuid);
+}
 
 module.exports = {
   remove,
@@ -485,7 +489,7 @@ module.exports = {
   login,
   logout,
   logoutAll,
-  mail,
+  sendmail,
   twoStepVerification,
   updatePassword,
   updateEmail,

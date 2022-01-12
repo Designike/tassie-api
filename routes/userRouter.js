@@ -20,7 +20,7 @@ router.patch('/:id',userController.update);
 
 router.delete('/:id',userController.remove);
 
-router.get('/mail/:uuid',userController.mail);
+router.get('/mail/:uuid',userController.sendmail);
 
 router.post('/tsa/:uuid',userController.twoStepVerification);
 
