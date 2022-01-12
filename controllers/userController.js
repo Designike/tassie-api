@@ -33,11 +33,23 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
+  let user;
   try {
-    const user = await User.findByCredentials(
-      req.body
+    if(req.body.email){  
+    user = await User.findByCredentials(
+      req.body.email,
+      "",
+      req.body.password
     );
-  
+  }else if(req.body.username){
+    user = await User.findByCredentials(
+      "",
+      req.body.username,
+      req.body.password
+    );
+  }else{
+    throw new Error('Incomplete parameters');
+  }
     const token = await user.generateAuthToken();
     // res.status(200).send({ user, token });
     res.status(200).json({
