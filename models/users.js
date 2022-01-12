@@ -14,6 +14,16 @@ const userSchema=new mongoose.Schema({
        required:true,
        trim:true
     },
+    gender:{
+        type:String,
+        trim:true,
+        validate(value){
+            gender = ['Male','Female','Other']
+            if(!(value in gender)){
+                throw new Error('Enter a valid gender')
+            }
+        }
+     },
     username:{
         type:String,
         unique:true,
@@ -25,12 +35,6 @@ const userSchema=new mongoose.Schema({
                 throw new Error('Enter a valid username')
             }
         }
-    },
-    number:{
-        type:Number,
-        required:true,
-        trim:true,
-        length:10
     },
     email:{
        type:String,
