@@ -89,19 +89,35 @@ userSchema.methods.generateAuthToken=async function(){
     return token
 }
 
-userSchema.statics.findByCredentials=async(email,password)=>{
-    const user=await User.findOne({email})
+userSchema.statics.findByCredentials=async(user1)=>{
+    if(user1.email){
+        const user=await User.findOne({email: user1.email});
+        if(!user){
+            throw new Error('Invalid Email!');
+        }
+    
+        const isMatch= await bcrypt.compare(password,user.password)
+    
+        if(!isMatch){
+            throw new Error('Invalid Password!');
+        }
+        return user;
+    }else if(user1.username){
+        const user=await User.findOne({username: user1.username});if(!user){
+            throw new Error('Invalid Username!');
+        }
+    
+        const isMatch= await bcrypt.compare(password,user.password)
+    
+        if(!isMatch){
+            throw new Error('Invalid Password!');
+        }
+        return user;
 
-    if(!user){
-        throw new Error('Invalid Email!')
+    }else{
+        throw new Error('Invalid parameters');
     }
-
-    const isMatch= await bcrypt.compare(password,user.password)
-
-    if(!isMatch){
-        throw new Error('Invalid Password!')
-    }
-    return user
+    
 }
 
 //Hashing the plain text before saving

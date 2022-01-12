@@ -35,9 +35,9 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   try {
     const user = await User.findByCredentials(
-      req.body.email,
-      req.body.password
+      req.body
     );
+  
     const token = await user.generateAuthToken();
     // res.status(200).send({ user, token });
     res.status(200).json({
