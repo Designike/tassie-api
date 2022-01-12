@@ -36,18 +36,21 @@ const login = async (req, res) => {
   let user;
   try {
     if(req.body.email){  
+      console.log('1');
     user = await User.findByCredentials(
       req.body.email,
       "",
       req.body.password
     );
   }else if(req.body.username){
+    console.log('2');
     user = await User.findByCredentials(
       "",
       req.body.username,
       req.body.password
     );
   }else{
+    console.log('3');
     throw new Error('Incomplete parameters');
   }
     const token = await user.generateAuthToken();
