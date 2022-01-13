@@ -20,7 +20,7 @@ const postSchema=new mongoose.Schema({
         required:true
     },
     time:{
-        type:Timestamp,
+        type:String,
         required:true
     },
     likes:{
