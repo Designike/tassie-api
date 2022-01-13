@@ -19,7 +19,7 @@ const load = async (req,res) => {
             status: true,
             message: "",
             errors: [],
-            data: {post,nameList},
+            data: {post:post,nameList:nameList},
           });
     }
     else{
