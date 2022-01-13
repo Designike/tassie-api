@@ -2,21 +2,24 @@ const User = require("../models/users.js");
 const Post = require("../models/post.js");
 const Subscribed = require("../models/subscribed.js");
 
-const load = (req,res) => {
+const load = async (req,res) => {
 
     let post = [];
+    let nameList = [];
     uuid = req.user.uuid;
-    const found = Subscribed.findOne({user:uuid})
+    const found = await Subscribed.findOne({user:uuid})
     if(found){
-        found.subscribed.forEach(element => {
-            const find = Post.find({userUuid:element});
+        await found.subscribed.forEach(element => {
+            const find = await Post.find({userUuid:element});
             post.push(find);
+            let name = await User.findOne({uuid:element});
+            nameList.push(name);
         });
         res.status(201).json({
             status: true,
             message: "",
             errors: [],
-            data: post,
+            data: {post,nameList},
           });
     }
     else{
