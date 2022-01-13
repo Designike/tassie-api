@@ -5,3 +5,5 @@ const feedController = require('../controllers/feedController');
 const auth = require('../middleware/auth');
 
 router.post('/',auth,userController.load);
+
+module.exports = router;
