@@ -9,7 +9,7 @@ const load = async (req,res) => {
     uuid = req.user.uuid;
     const found = await Subscribed.findOne({user:uuid})
     if(found){
-        await found.subscribed.forEach(element => {
+        await found.subscribed.forEach(async (element) => {
             const find = await Post.find({userUuid:element});
             post.push(find);
             let name = await User.findOne({uuid:element});
