@@ -14,13 +14,23 @@ const load = async (req,res) => {
             post.push(find);
             let name = await User.findOne({uuid:element});
             nameList.push(name);
+
+            if(found.subscribed.length > 0 && found.subscribed.indexOf(element) == found.subscribed.length - 1) {
+                res.status(201).json({
+                    status: true,
+                    message: "",
+                    errors: [],
+                    data: {post:post,nameList:nameList},
+                  });
+            } else if (found.subscribed.length == 0) {
+                res.status(201).json({
+                    status: true,
+                    message: "No results found",
+                    errors: [],
+                    data: {post:post,nameList:nameList},
+                  });
+            }
         });
-        res.status(201).json({
-            status: true,
-            message: "",
-            errors: [],
-            data: {post:post,nameList:nameList},
-          });
     }
     else{
         res.status(201).json({
