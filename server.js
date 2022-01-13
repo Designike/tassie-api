@@ -1,6 +1,7 @@
 const express=require('express')
 const mongoose=require('./db/db.js')
 const userRouter=require('./routes/userRouter')
+const feedRouter=require('./routes/feedRouter')
 
 const app=express()
 const port=process.env.PORT||3000
