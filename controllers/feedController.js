@@ -48,7 +48,6 @@ const load = async (req,res) => {
 }
 
 const loadfeed = (req, res) => {
-    console.log(res.paginatedResults);
     res.status(201).json({
         status: true,
         message: "",
@@ -121,13 +120,20 @@ const createPost = async (req, res) =>{
               });
         }
     });
+}
 
-
-
+const loadcomment = (req,res) => {
+    res.status(201).json({
+        status: true,
+        message: "",
+        errors: [],
+        data: {posts: res.paginatedResults},
+      });
 }
 
 module.exports = {
     load,
     trialLoad: loadfeed,
+    loadcomment,
     createPost,
 };
