@@ -14,6 +14,9 @@ const userSchema=new mongoose.Schema({
        required:true,
        trim:true
     },
+    profilePic:{
+        type:String,
+    },
     gender:{
         type:String,
         trim:true,
@@ -59,6 +62,10 @@ const userSchema=new mongoose.Schema({
                 throw new Error('Password cannot contain password')
             }
         }
+    },
+    profilePic:{
+        type:String,
+        required:true
     },
     website:{
         type:String,

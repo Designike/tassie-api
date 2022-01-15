@@ -1,4 +1,4 @@
-const { Timestamp } = require("mongodb")
+// const { Timestamp } = require("mongodb")
 const mongoose=require('mongoose')
 
 const postSchema=new mongoose.Schema({
@@ -6,6 +6,15 @@ const postSchema=new mongoose.Schema({
         type:String,
         required:true,
         unique:true
+    },
+    username:{
+        type:String,
+        required:true,
+        trim:true,
+    },
+    profilePic:{
+        type:String,
+        required:true
     },
     userUuid:{
         type:String,
@@ -20,10 +29,6 @@ const postSchema=new mongoose.Schema({
         type:String,
         required:true
     },
-    time:{
-        type:String,
-        required:true
-    },
     likes:{
         type:[String],
         required:true
@@ -34,6 +39,10 @@ const postSchema=new mongoose.Schema({
                 type:String,
                 required:true,
             },
+            username:{
+                type:String,
+                required:true,
+            },
             comment:{
                 type:String,
                 required:true,
@@ -41,7 +50,7 @@ const postSchema=new mongoose.Schema({
         }],
         required:true
     }
-})
+}, {timestamps: true});
 
 const Post=mongoose.model('post',postSchema)
 module.exports=Post
