@@ -127,7 +127,7 @@ const loadcomment = (req,res) => {
         status: true,
         message: "",
         errors: [],
-        data: {posts: res.paginatedResults},
+        data: {comments: res.paginatedComments},
       });
 }
 
