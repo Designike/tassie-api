@@ -9,12 +9,14 @@ const lazyfeed = async (req,res,next) => {
     const limit = 1;
     const startIndex = (page - 1)*limit;
     // console.log(startIndex);
+    
     const endIndex = page*limit;
     const results = {}
-
+    // console.log(endIndex);
     uuid = req.user.uuid;
     const found = await Subscribed.findOne({user:uuid},'-_id subscribed')
-    // console.log(await Post.find({userUuid:{$in: found.subscribed}}).countDocuments().exec());
+    
+    // console.log(await Post.find({userUuid:{$in: found.subscribed}},'-_id username profilePic url createdAt updatedAt'));
     if (endIndex < await Post.find({userUuid:{$in: found.subscribed}}).sort('-createdAt').countDocuments().exec()) {
         results.next = {
           page: page + 1,
@@ -31,9 +33,33 @@ const lazyfeed = async (req,res,next) => {
 
       try {
         // console.log(startIndex);
-        results.results = await Post.find({userUuid:{$in: found.subscribed}}).sort('-createdAt').limit(limit).skip(startIndex).exec();
-        res.paginatedResults = results
-        next()
+        // let x = await Post.aggregate([{$match: {userUuid:{$in: found.subscribed}}},{$project: {count: { $size:"$comments" }}},{ $limit:limit },{ $skip:1 }]).exec()
+        // console.log(x);
+        results.results = await Post.find({userUuid:{$in: found.subscribed}},'-_id uuid userUuid username profilePic url createdAt updatedAt').sort('-createdAt').limit(limit).skip(startIndex).exec();
+        // results.results['noOfComments'] = x.count;
+        // console.log(results.results);
+        let uuids = [];
+        
+        if(results.results.length == 0){
+          res.paginatedResults = results;
+          next()
+        }
+        
+        await results.results.forEach(async element => {
+          uuids.push(element.uuid);
+          
+          // console.log(element);
+          if(results.results.indexOf(element) == results.results.length-1) {
+            let x = await Post.aggregate([{$match: {uuid:element.uuid}},{$project: {count: { $size:"$comments" }}}]).exec()
+            results.noOfComments = x;
+            // console.log(results);
+            res.paginatedResults = results;
+            next()
+          }
+        });
+      
+        
+        
       } catch (e) {
         // res.status(500).json({ message: e.message })
         res.status(201).json({

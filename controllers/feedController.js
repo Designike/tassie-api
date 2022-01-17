@@ -49,6 +49,7 @@ const load = async (req,res) => {
 }
 
 const loadfeed = (req, res) => {
+    console.log(res.paginatedResults);
     res.status(201).json({
         status: true,
         message: "",

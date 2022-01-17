@@ -127,7 +127,7 @@ const deleteFile = async (fileId) => {
           role: 'reader',
           type: 'anyone',
         },
-      }).then(() => {
+      }).then( async () => {
         await drive.files.get({
           fileId: fileId,
           fields: 'webContentLink',
@@ -143,5 +143,5 @@ const deleteFile = async (fileId) => {
   // generatePublicUrl();
 
 module.exports = {
-    uploadFile, generatePublicUrl, createFolder, driveUpload
+    generatePublicUrl, createFolder, driveUpload
 };

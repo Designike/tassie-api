@@ -1,5 +1,5 @@
 require('dotenv').config();
-
+const Post = require("./models/post.js");
 const { google } = require('googleapis');
 const path = require('path');
 const fs = require('fs');
@@ -69,3 +69,11 @@ const createFolder = async () => {
   // '
 //   '1hfwjdy0Ap9KD2hr9cLjkxD0Wrw3NVhXi'
 // createFolder()
+const check = async () => {
+  // let x = await Post.aggregate([{$match: {userUuid:'5f9ca685-d00a-43b5-b7e7-0cab79f86fe3_Sommy21'}},{$project: { metadata: [{count: { $size:"$comments" }}]},data: [{ $limit:1 },{ $skip:2 }]}]).exec()
+
+let x = await Post.aggregate([{ '$match' : {userUuid:'5f9ca685-d00a-43b5-b7e7-0cab79f86fe3_Sommy21'}},{ '$facet' : { metadata: [{count: { $size:"$comments" }}]},data: [{ $limit:1 },{ $skip:2}]}]).exec()
+console.log(x);        // console.log(x);
+}
+
+check();
