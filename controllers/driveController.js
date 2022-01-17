@@ -4,6 +4,7 @@ const { google } = require('googleapis');
 const path = require('path');
 const fs = require('fs');
 const stream = require('stream');
+const { v4: uuidv4 } = require("uuid");
 
 const oauth2Client = new google.auth.OAuth2(
     process.env.CLIENT_ID,
@@ -39,15 +40,19 @@ const uploadFil = (req,res) => {
 const uploadFile = async (req,res) => {
     try{
         let file = req.file;
-        console.log(file.path.split(/\\(.+)/)[2]);
+        // console.log(file.path.split("\\",1));
         const response = await drive.files.create({
             media:{
                 mimeType: file.mimeType,
                 body: fs.createReadStream(file.path),
+            }, 
+            requestBody: {
+              name: req.user.uuid+'_'+uuidv4()+'.'+file.path.split(".")[1], 
+              mimeType: file.mimeType,
             },
-            resource: {
-              name: file.path.split(/\\(.+)/,3)[2],
-            }
+            // resource: {
+            //   name: file.path.split(/\\(.+)/,3)[2],
+            // }
         })
         if(response.status == 200){
         res.status(201).json({
