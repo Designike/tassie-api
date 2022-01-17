@@ -3,6 +3,7 @@ require('dotenv').config();
 const { google } = require('googleapis');
 const path = require('path');
 const fs = require('fs');
+const stream = require('stream');
 
 const oauth2Client = new google.auth.OAuth2(
     process.env.CLIENT_ID,
@@ -20,21 +21,97 @@ const drive = google.drive({
 
 // const filePath = path.join(__dirname,'designike_logo.png');
 
-async function uploadFile(){
+const upload = (req,res) => {
+    console.log(req.body);
+    console.log(req.image);
+    console.log(req.body.image);
+    console.log(req.file);
+    upload(req,res,req.file);
+    
+}
+
+const uploadFile = async (req,res) => {
     try{
+        let file = req.file;
+        let bufferStream = new stream.PassThrough();
+        bufferStream.end(file.buffer);
         const response = await drive.files.create({
-            requestBody:{
-                name:'logo.png',
-                mimeType: 'image/png'
-            },
             media:{
-                mimeType:'image/png',
-                body:fs.createReadStream(filePath),
+                mimeType: file.mimeType,
+                body: bufferStream,
             },
+            resource: {
+              name: file.orignalname
+            }
         })
+        if(response.status == 200){
+        res.status(201).json({
+            status: true,
+            message: "done",
+            errors: [],
+            data: {},
+          });
+        }
+        else{
+            res.status(201).json({
+                status: false,
+                message: "error 1",
+                errors: [],
+                data: {},
+              });
+        }
     }catch(err){
         console.log(err);
+        res.status(201).json({
+            status: false,
+            message: "error 2",
+            errors: [],
+            data: {},
+          });
     }
 }
 
-uploadFile();
+// uploadFile();
+async function deleteFile() {
+    try {
+      const response = await drive.files.delete({
+        fileId: 'YOUR FILE ID',
+      });
+      console.log(response.data, response.status);
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+  
+  // deleteFile();
+  
+  async function generatePublicUrl() {
+    try {
+      const fileId = 'YOUR FILE ID';
+      await drive.permissions.create({
+        fileId: fileId,
+        requestBody: {
+          role: 'reader',
+          type: 'anyone',
+        },
+      });
+  
+      /* 
+      webViewLink: View the file in browser
+      webContentLink: Direct download link 
+      */
+      const result = await drive.files.get({
+        fileId: fileId,
+        fields: 'webViewLink, webContentLink',
+      });
+      console.log(result.data);
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+  
+  // generatePublicUrl();
+
+module.exports = {
+    uploadFile,
+};
