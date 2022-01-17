@@ -1,6 +1,7 @@
 const User = require("../models/users.js");
 const Post = require("../models/post.js");
 const Subscribed = require("../models/subscribed.js");
+const { driveUpload, generatePublicUrl } = require("../controllers/driveController.js");
 const { v4: uuidv4 } = require("uuid");
 const e = require("express");
 
@@ -56,7 +57,14 @@ const loadfeed = (req, res) => {
       });
 }
 
-
+const loadcomment = (req, res) => {
+    res.status(201).json({
+        status: true,
+        message: "",
+        errors: [],
+        data: {comments: res.paginatedComments},
+      });
+}
 // const lazyload = async (req,res,next) => {
 //     const page = parseInt(req.params.page);
 //     const limit = 4;
@@ -92,26 +100,45 @@ const loadfeed = (req, res) => {
 // }
 
 const createPost = async (req, res) =>{
-    const userUuid = req.user.uuid;
-    const post = new Post({username:req.user.username,
-        profilePic:req.user.profilePic,
-        userUuid:req.user.uuid,
-        description:req.body.desc,
-        url:req.body.url,
-        likes:[],
-        comments:[],
-        uuid:userUuid+'_'+uuidv4()});
 
-    post.save((err)=>{
-        if(!err){
-            res.status(201).json({
-                status: true,
-                message: "Saved successfully",
-                errors: [],
-                data: {},
-              });
-        }
-        else{
+    const userUuid = req.user.uuid;
+    const postID = await driveUpload(userUuid, req.file);
+
+    if(postID.status == true) {
+        const postURL = await generatePublicUrl(postID.response.id);
+
+        if(postURL.status == true) {
+            const post = new Post({
+                username:req.user.username,
+                profilePic:req.user.profilePic,
+                userUuid:req.user.uuid,
+                description:req.body.desc,
+                url:postURL.response.webContentLink,
+                likes:[],
+                comments:[],
+                uuid:postID.name,
+                postID: postID.response.id
+            });
+        
+            post.save((err)=>{
+                if(!err){
+                    res.status(201).json({
+                        status: true,
+                        message: "Saved successfully",
+                        errors: [],
+                        data: {},
+                      });
+                }
+                else{
+                    res.status(201).json({
+                        status: false,
+                        message: "Error while saving",
+                        errors: [],
+                        data: {},
+                      });
+                }
+            });
+        } else {
             res.status(201).json({
                 status: false,
                 message: "Error while saving",
@@ -119,17 +146,19 @@ const createPost = async (req, res) =>{
                 data: {},
               });
         }
-    });
+        
+    } else {
+        res.status(201).json({
+            status: false,
+            message: "Error while saving",
+            errors: [],
+            data: {},
+          });
+    }
+    
 }
 
-const loadcomment = (req,res) => {
-    res.status(201).json({
-        status: true,
-        message: "",
-        errors: [],
-        data: {comments: res.paginatedComments},
-      });
-}
+
 
 module.exports = {
     load,

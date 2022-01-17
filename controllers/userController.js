@@ -390,23 +390,51 @@ const twoStepVerification = async (req, res) => {
   if (req.user && isValid == true) {
     try {
       const user = req.user;
-      const newUser = new User(user);
-      const token = await newUser.generateAuthToken();
-      await newUser.save();
-      //    res.status(201).send({newUser,token})
-      res.status(201).json({
-        status: true,
-        message: "User has been saved",
-        errors: [],
-        data: {
-          uuid: user.uuid,
-          token: token,
-        },
-      });
-      myCache.take(user.uuid);
+      const postFolder = await createFolder(req.user.uuid, true);
+      
+      if (postFolder.status == true) {
+        const recipeFolder = await createFolder(req.user.uuid, false);
+
+        if (recipeFolder.status == true) {
+          user.postFolder = postFolder.response.id;
+          user.recipeFolder = recipeFolder.response.id;
+
+          const newUser = new User(user);
+          const token = await newUser.generateAuthToken();
+          await newUser.save();
+          
+          
+          //    res.status(201).send({newUser,token})
+          res.status(201).json({
+            status: true,
+            message: "User has been saved",
+            errors: [],
+            data: {
+              uuid: user.uuid,
+              token: token,
+            },
+          });
+          myCache.take(user.uuid);
+        } else {
+          res.status(500).json({
+            status: false,
+            message: "Error registering user",
+            errors: [],
+            data: {},
+          })
+        }
+      } else {
+        res.status(500).json({
+          status: false,
+          message: "Error registering user",
+          errors: [],
+          data: {},
+        })
+      }
+
     } catch (error) {
       //    res.status(400).send(error)
-      res.status(400).json({
+      res.status(201).json({
         status: false,
         message: "Incorrect OTP",
         errors: error,
@@ -414,8 +442,8 @@ const twoStepVerification = async (req, res) => {
       });
     }
   } else {
-    res.send("unathenticated");
-    res.status(400).json({
+    // res.send("unathenticated");
+    res.status(201).json({
       status: false,
       message: "Unauthenticated",
       errors: error,

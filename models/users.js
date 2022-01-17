@@ -81,6 +81,14 @@ const userSchema=new mongoose.Schema({
         type:String,
         trim:true
      },
+     postFolder:{
+        type:String,
+        required:true
+     },
+     recipeFolder:{
+        type:String,
+        required:true
+     },
     tokens:[{
         token:{
             type:String,
