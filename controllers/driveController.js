@@ -21,27 +21,32 @@ const drive = google.drive({
 
 // const filePath = path.join(__dirname,'designike_logo.png');
 
-const upload = (req,res) => {
+const uploadFil = (req,res) => {
     console.log(req.body);
     console.log(req.image);
     console.log(req.body.image);
     console.log(req.file);
-    upload(req,res,req.file);
+    // upload(req,res,req.file);
+    res.status(201).json({
+      status: true,
+      message: "done",
+      errors: [],
+      data: {},
+    });
     
 }
 
 const uploadFile = async (req,res) => {
     try{
         let file = req.file;
-        let bufferStream = new stream.PassThrough();
-        bufferStream.end(file.buffer);
+        console.log(file.path.split(/\\(.+)/)[2]);
         const response = await drive.files.create({
             media:{
                 mimeType: file.mimeType,
-                body: bufferStream,
+                body: fs.createReadStream(file.path),
             },
             resource: {
-              name: file.orignalname
+              name: file.path.split(/\\(.+)/,3)[2],
             }
         })
         if(response.status == 200){
