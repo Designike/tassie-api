@@ -14,11 +14,11 @@ const load = async (req,res) => {
     if(found){
         await found.subscribed.forEach(async (element) => {
             const find = await Post.find({userUuid:element});
-            console.log(find);
+            // console.log(find);
             post.push(find);
             let name = await User.findOne({uuid:element});
             nameList.push(name.name);
-            console.log(name.name);
+            // console.log(name.name);
 
             if(found.subscribed.length > 0 && found.subscribed.indexOf(element) == found.subscribed.length - 1) {
                 res.status(201).json({
@@ -49,7 +49,7 @@ const load = async (req,res) => {
 }
 
 const loadfeed = (req, res) => {
-    console.log(res.paginatedResults);
+    // console.log(res.paginatedResults);
     res.status(201).json({
         status: true,
         message: "",
@@ -103,11 +103,12 @@ const loadcomment = (req, res) => {
 const createPost = async (req, res) =>{
 
     const userUuid = req.user.uuid;
-    const postID = await driveUpload(userUuid, req.file);
-
+    const postID = await driveUpload(userUuid, req.file, req.user.postFolder);
+    console.log(postID);
     if(postID.status == true) {
+        console.log('1a');
         const postURL = await generatePublicUrl(postID.response.id);
-
+        console.log(postURL);
         if(postURL.status == true) {
             const post = new Post({
                 username:req.user.username,
@@ -117,10 +118,11 @@ const createPost = async (req, res) =>{
                 url:postURL.response.webContentLink,
                 likes:[],
                 comments:[],
-                uuid:postID.name,
+                uuid:postID.filename,
                 postID: postID.response.id
             });
-        
+            console.log('2a');
+            console.log(post);
             post.save((err)=>{
                 if(!err){
                     res.status(201).json({
@@ -131,6 +133,7 @@ const createPost = async (req, res) =>{
                       });
                 }
                 else{
+                    console.log(err);
                     res.status(201).json({
                         status: false,
                         message: "Error while saving",
@@ -159,6 +162,29 @@ const createPost = async (req, res) =>{
     
 }
 
+const addLike = async (req,res) => {
+    try{
+    userUuid = req.user.uuid;
+    postUuid = req.body.uuid;
+    const post = Post.findOne({uuid:postUuid});
+    post.likes.push(userUuid);
+    post.save();
+    res.status(201).json({
+        status: true,
+        message: "Liked",
+        errors: [],
+        data: {},
+      });
+    }catch(err){
+        res.status(201).json({
+            status: false,
+            message: "error liking it",
+            errors: [],
+            data: {},
+          });
+    }
+
+}
 
 
 module.exports = {
@@ -166,4 +192,5 @@ module.exports = {
     trialLoad: loadfeed,
     loadcomment,
     createPost,
+    addLike,
 };

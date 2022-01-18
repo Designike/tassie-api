@@ -38,41 +38,44 @@ const drive = google.drive({
     
 // }
 
-const driveUpload = async (uuid, file) => {
-  const name = uuid+'_post_' + uuidv4();
-  await drive.files.create({
-    media:{
-        mimeType: file.mimeType,
-        body: fs.createReadStream(file.path),
-    }, 
-    requestBody: {
-      name: name + path.extname(file.originalname),
-      mimeType: file.mimeType,
-    },
-    
-  }).then(response => {
+const driveUpload = async (uuid, file, folder) => {
+  try {
+    const name = uuid+'_post_' + uuidv4();
+    var fileMetadata = {
+      'name': name + path.extname(file.originalname),
+      parents: [folder]
+    };
+    const response = await drive.files.create({
+      media:{
+          mimeType: file.mimeType,
+          body: fs.createReadStream(file.path),
+      }, 
+      resource : fileMetadata
+    })
     return {response: response.data, status: true, filename: name};
-  }).catch(err => {
-    return {error: err, status: false}
-  })
+  } catch (error) {
+    return {error: error, status: false};
+  }
 
 }
 
 const createFolder = async (folderName, isPost) => {
-  let parent = isPost ? process.env.POST_FOLDER : process.env.RECIPE_FOLDER;
-  var fileMetadata = {
-    'name': folderName,
-    'mimeType': 'application/vnd.google-apps.folder',
-    parents: [parent]
-  };
-  await drive.files.create({
-    resource: fileMetadata,
-    fields: 'id'
-  }).then(response => {
+  try {
+    let parent = isPost ? process.env.POST_FOLDER : process.env.RECIPE_FOLDER;
+    var fileMetadata = {
+      'name': folderName,
+      'mimeType': 'application/vnd.google-apps.folder',
+      parents: [parent]
+    };
+    const response = await drive.files.create({
+      resource: fileMetadata,
+      fields: 'id'
+    })
     return {response: response.data, status: true};
-  }).catch(err => {
-    return {error: err, status: false}
-  })
+  } catch (error) {
+    return {error: error, status: false};
+  }
+ 
 }
 
 // const uploadFile = async (uuid, file) => {
@@ -108,37 +111,37 @@ const createFolder = async (folderName, isPost) => {
 
 // uploadFile();
 const deleteFile = async (fileId) => {
-      await drive.files.delete({
-        fileId: fileId,
-      }).then(response => {
-        return {response: response.data, status: true};
-      }).catch(err => {
-        return {error: err, status: false}
-      })
+  try {
+    const response = await drive.files.delete({
+      fileId: fileId,
+    })
+    return {response: response.data, status: true};
+  } catch (error) {
+    return {error: error, status: false}
+  }
 }
 
   // deleteFile();
   
-  const generatePublicUrl = async (fileId) => {
-    
-      await drive.permissions.create({
-        fileId: fileId,
-        requestBody: {
-          role: 'reader',
-          type: 'anyone',
-        },
-      }).then( async () => {
-        await drive.files.get({
-          fileId: fileId,
-          fields: 'webContentLink',
-        }).then(response => {
-          return {response: response.data, status: true};
-        }).catch(err => {
-          return {error: err, status: false}
-        })
-      })    
+const generatePublicUrl = async (fileId) => {
+  try {
+    await drive.permissions.create({
+      fileId: fileId,
+      requestBody: {
+        role: 'reader',
+        type: 'anyone',
+      },
+    })
+    const response = await drive.files.get({
+      fileId: fileId,
+      fields: 'webContentLink',
+    })
+    return {response: response.data, status: true};
+  } catch (error) {
+    return {error: err, status: false}
+  }   
 
-  }
+}
   
   // generatePublicUrl();
 

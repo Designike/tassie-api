@@ -9,7 +9,7 @@ var storage = multer.diskStorage({
     },
     filename: function(req, file, cb) {
         let ext = path.extname(file.originalname);
-        console.log(file);
+        // console.log(file);
         cb(null, Date.now() + Math.floor(Date.now() * Math.random()).toString() + ext);
     }
 })
@@ -19,7 +19,7 @@ var upload = (req, res, next) => {
     const uploadFile = multer({
             storage: storage,
             fileFilter: function(req, file, callback) {
-                console.log(file);
+                // console.log(file);
                 if(
                     file.mimetype == "image/png" ||
                     file.mimetype == "image/jpg" ||

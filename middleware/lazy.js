@@ -9,11 +9,10 @@ const lazyfeed = async (req,res,next) => {
     const limit = 1;
     const startIndex = (page - 1)*limit;
     // console.log(startIndex);
-    
     const endIndex = page*limit;
     const results = {}
     // console.log(endIndex);
-    uuid = req.user.uuid;
+    let uuid = req.user.uuid;
     const found = await Subscribed.findOne({user:uuid},'-_id subscribed')
     
     // console.log(await Post.find({userUuid:{$in: found.subscribed}},'-_id username profilePic url createdAt updatedAt'));
@@ -36,6 +35,7 @@ const lazyfeed = async (req,res,next) => {
         // let x = await Post.aggregate([{$match: {userUuid:{$in: found.subscribed}}},{$project: {count: { $size:"$comments" }}},{ $limit:limit },{ $skip:1 }]).exec()
         // console.log(x);
         results.results = await Post.find({userUuid:{$in: found.subscribed}},'-_id uuid userUuid username profilePic url description createdAt updatedAt').sort('-createdAt').limit(limit).skip(startIndex).exec();
+        // if(await Post.findOne({userUuid:{$in: found.subscribed}},'-_id likes').sort('-createdAt').limit(limit).skip(startIndex).exec()){}
         // results.results['noOfComments'] = x.count;
         // console.log(results.results);
         let uuids = [];
