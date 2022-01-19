@@ -8,7 +8,8 @@ const lazy = require('../middleware/lazy');
 
 // // router.post('/',auth,feedController.load);
 router.get('/lazyrecs/:page', [auth, lazy.lazyrec], recsController.loadRecs);
-router.post('/createRecipe',auth,recsController.createRecipe)
+router.get('/createRecipe', auth, recsController.createRecipe);
+router.get('/deleteRecipe', auth, recsController.deleteRecipe);
 // router.get('/lazycomment/:uuid/:userUuid/:page',lazy.lazycomment,feedController.loadcomment);
 // router.post('/post', auth, feedController.createPost);
 

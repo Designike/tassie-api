@@ -36,7 +36,28 @@ const createRecipe = async (req,res) => {
     });
 }
 
+const deleteRecipe = async (req,res) => {
+    try {
+        const uuid = req.user.uuid
+        await Recipe.findOneAndDelete({uuid: uuid});
+        res.status(201).json({
+            status: true,
+            message: "deleted",
+            errors: [],
+            data: {recUuid:uuid},
+        });
+    } catch (error) {
+        res.status(201).json({
+            status: false,
+            message: "Error deleting",
+            errors: [],
+            data: {},
+        });
+    }
+}
+
 module.exports = {
     loadRecs,
     createRecipe,
+    deleteRecipe
 };
