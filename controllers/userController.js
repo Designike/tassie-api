@@ -489,7 +489,7 @@ const checkEmail = async (req, res) => {
   if(found) {
     res.status(400).json({
       status: false,
-      message: "Email is already in use.",
+      message: "Email is already in use",
       errors: [],
       data: {},
     });

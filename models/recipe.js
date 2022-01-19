@@ -9,55 +9,53 @@ const recipeSchema=new mongoose.Schema({
     },
     username:{
         type:String,
-        required:true,
         trim:true,
     },
     profilePic:{
         type:String,
-        required:true
+        
     },
     userUuid:{
         type:String,
-        required:true,
     },
     url:{
         type:String,
-        required:true
+        
     },
     likes:{
         type:[String],
-        required:true
+        
     },
     comments:{
         type:[{
             uuid:{
                 type:String,
-                required:true,
+                
             },
             username:{
                 type:String,
-                required:true,
+                
             },
             comment:{
                 type:String,
-                required:true,
+                
             },
         }],
-        required:true
+        
     },
     name:{
         type:String,
-        required:true
+        
     },
     ingredients:{
         type:[{
             url:{
                 type:String,
-                required:true
+                
             },
             name:{
                 type:String,
-                required:true
+                
             }
         }]
     },
@@ -65,11 +63,11 @@ const recipeSchema=new mongoose.Schema({
         type:[{
             url:{
                 type:String,
-                required:true
+                
             },
             name:{
                 type:String,
-                required:true
+                
             }
         }]
     },
