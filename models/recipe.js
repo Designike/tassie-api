@@ -47,30 +47,16 @@ const recipeSchema=new mongoose.Schema({
         type:String,
         
     },
-    ingredients:{
-        type:[{
-            url:{
-                type:String,
-                
-            },
-            name:{
-                type:String,
-                
-            }
-        }]
-    },
-    steps:{
-        type:[{
-            url:{
-                type:String,
-                
-            },
-            name:{
-                type:String,
-                
-            }
-        }]
-    },
+    ingredients:[String],
+    ingredientPics:[{
+        index:String,
+        url:String
+    }],
+    steps:[String],
+    stepPics:[{
+        index:String,
+        url:String
+    }],
     recipeFolder:{
         type:String,
         required:true

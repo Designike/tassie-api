@@ -81,7 +81,21 @@ const updateRecipe = async (req,res) => {
             if(imgURL.status == true) {
                 const recs = await Recipe.findOne({uuid:req.body.uuid});
                 updates.forEach((update) => (recs[update] = req.body[update]));
-                recs.url = imgURL.response.webContentLink;
+                const imgMap = imgName.split('_');
+                
+                if(imgMap[0] == 'r') {
+                    recs.url = imgURL.response.webContentLink;
+                } else if( imgMap[0] == 'i'){
+                    recs.ingredientPics.push({
+                        index: imgMap[1],
+                        url: imgURL.response.webContentLink
+                    });   
+                } else {
+                    recs.stepPics.push({
+                        index: imgMap[1],
+                        url: imgURL.response.webContentLink
+                    });
+                }
                 await recs.save();
                 
                 // res.status(200).send(user);
@@ -108,6 +122,10 @@ const updateRecipe = async (req,res) => {
                 data: {}
             })
         }
+    } else {
+        const recs = await Recipe.findOne({uuid:req.body.uuid});
+        updates.forEach((update) => (recs[update] = req.body[update]));
+        await recs.save();
     }
     
   } catch (error) {
