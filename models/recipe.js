@@ -71,6 +71,10 @@ const recipeSchema=new mongoose.Schema({
             }
         }]
     },
+    recipeFolder:{
+        type:String,
+        required:true
+     },
 }, {timestamps: true});
 
 const Recipe=mongoose.model('recipe',recipeSchema)

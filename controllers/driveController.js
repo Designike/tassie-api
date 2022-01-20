@@ -38,7 +38,7 @@ const drive = google.drive({
     
 // }
 
-const driveUpload = async (uuid, file, folder) => {
+const drivePostUpload = async (uuid, file, folder) => {
   try {
     const name = uuid+'_post_' + uuidv4();
     var fileMetadata = {
@@ -53,6 +53,27 @@ const driveUpload = async (uuid, file, folder) => {
       resource : fileMetadata
     })
     return {response: response.data, status: true, filename: name};
+  } catch (error) {
+    return {error: error, status: false};
+  }
+
+}
+
+const driveRecipeUpload = async (suffixName, file, folder) => {
+  try {
+    // const name = uuid + suffixName;
+    var fileMetadata = {
+      'name': suffixName + path.extname(file.originalname),
+      parents: [folder]
+    };
+    const response = await drive.files.create({
+      media:{
+          mimeType: file.mimeType,
+          body: fs.createReadStream(file.path),
+      }, 
+      resource : fileMetadata
+    })
+    return {response: response.data, status: true};
   } catch (error) {
     return {error: error, status: false};
   }
@@ -78,6 +99,24 @@ const createFolder = async (folderName, isPost) => {
  
 }
 
+
+const createRecipeFolder = async (folderName, parent) => {
+  try {
+    var fileMetadata = {
+      'name': folderName,
+      'mimeType': 'application/vnd.google-apps.folder',
+      parents: [parent]
+    };
+    const response = await drive.files.create({
+      resource: fileMetadata,
+      fields: 'id'
+    })
+    return {response: response.data, status: true};
+  } catch (error) {
+    return {error: error, status: false};
+  }
+ 
+}
 // const uploadFile = async (uuid, file) => {
 //     try{
 //         await driveUpload(req.user.uuid, file);
@@ -146,5 +185,5 @@ const generatePublicUrl = async (fileId) => {
   // generatePublicUrl();
 
 module.exports = {
-    generatePublicUrl, createFolder, driveUpload
+    generatePublicUrl, createFolder, drivePostUpload, deleteFile, createRecipeFolder, driveRecipeUpload
 };

@@ -1,7 +1,7 @@
 const User = require("../models/users.js");
 const Post = require("../models/post.js");
 const Subscribed = require("../models/subscribed.js");
-const { driveUpload, generatePublicUrl } = require("../controllers/driveController.js");
+const { drivePostUpload, generatePublicUrl } = require("../controllers/driveController.js");
 const { v4: uuidv4 } = require("uuid");
 const e = require("express");
 
@@ -103,7 +103,7 @@ const loadcomment = (req, res) => {
 const createPost = async (req, res) =>{
 
     const userUuid = req.user.uuid;
-    const postID = await driveUpload(userUuid, req.file, req.user.postFolder);
+    const postID = await drivePostUpload(userUuid, req.file, req.user.postFolder);
     console.log(postID);
     if(postID.status == true) {
         console.log('1a');
