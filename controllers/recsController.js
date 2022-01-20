@@ -36,15 +36,42 @@ const createRecipe = async (req,res) => {
     });
 }
 
+const updateRecipe = async (req,res) => {
+    const updates = Object.keys(req.body);
+  try {
+    const recs = await Recipe.findOne({uuid:req.body.uuid});
+
+    updates.forEach((update) => (recs[update] = req.body[update]));
+
+    await recs.save();
+
+    // res.status(200).send(user);
+    res.status(201).json({
+        status: true,
+        message: "Your recipe is saved",
+        errors:[],
+        data: {}
+    })
+  } catch (error) {
+    // res.status(500).send(error);
+    res.status(201).json({
+        status: false,
+        message: "Unable to update your recipe !!!",
+        errors:error,
+        data: {}
+    })
+  }
+}
+
 const deleteRecipe = async (req,res) => {
     try {
-        const uuid = req.user.uuid
+        const uuid = req.body.uuid
         await Recipe.findOneAndDelete({uuid: uuid});
         res.status(201).json({
             status: true,
             message: "deleted",
             errors: [],
-            data: {recUuid:uuid},
+            data: {},
         });
     } catch (error) {
         res.status(201).json({
@@ -59,5 +86,6 @@ const deleteRecipe = async (req,res) => {
 module.exports = {
     loadRecs,
     createRecipe,
-    deleteRecipe
+    deleteRecipe,
+    updateRecipe
 };
