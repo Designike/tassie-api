@@ -1,10 +1,10 @@
-const User = require("../models/users.js");
-const Recs = require("../models/recipe.js");
-const Subscribed = require("../models/subscribed.js");
+// const User = require("../models/users.js");
+// const Recs = require("../models/recipe.js");
+// const Subscribed = require("../models/subscribed.js");
 const { v4: uuidv4 } = require("uuid");
 const Recipe = require("../models/recipe.js");
 const { driveRecipeUpload, deleteFile, createRecipeFolder, generatePublicUrl } = require('./driveController');
-
+const ingredients = require("../ingredients.json");
 
 const loadRecs = (req, res) => {
     res.status(201).json({
@@ -169,9 +169,28 @@ const deleteRecipe = async (req,res) => {
     }
 }
 
+const getIng = (req,res) => {
+    try {
+        res.status(201).json({
+            status: true,
+            message: "deleted",
+            errors: [],
+            data: {"ingredients": ingredients},
+        });
+    } catch (error) {
+        res.status(201).json({
+            status: false,
+            message: "unable to fetch data",
+            errors: [],
+            data: {},
+        });
+    }
+}
+
 module.exports = {
     loadRecs,
     createRecipe,
     deleteRecipe,
-    updateRecipe
+    updateRecipe,
+    getIng
 };

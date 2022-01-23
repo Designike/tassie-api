@@ -8,6 +8,7 @@ const lazy = require('../middleware/lazy');
 const upload = require('../middleware/upload');
 
 // // router.post('/',auth,feedController.load);
+router.get('/getIng', auth, recsController.getIng);
 router.get('/lazyrecs/:page', [auth, lazy.lazyrec], recsController.loadRecs);
 router.get('/createRecipe', auth, recsController.createRecipe);
 router.post('/deleteRecipe', auth, recsController.deleteRecipe);

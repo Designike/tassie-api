@@ -22,6 +22,9 @@ const recipeSchema=new mongoose.Schema({
         type:String,
         
     },
+    youtubeLink:{
+        type:String,
+    },
     likes:{
         type:[String],
         
