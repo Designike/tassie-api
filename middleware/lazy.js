@@ -51,11 +51,12 @@ const lazyfeed = async (req,res,next) => {
           // console.log(element);
           if(results.results.indexOf(element) == results.results.length-1) {
             let x = await Post.aggregate([{$match: {uuid:element.uuid}},{$project: {count: { $size:"$comments" }}}]).exec()
-            let y = await Post.aggregate([{$match: {uuid:element.uuid}},{$project: {count: { $size:"$likes" }}}]).exec()
+            let y = await Post.aggregate([{$match: {uuid:element.uuid}},{$project: {count: { $size:"$likes" }, "isLiked" : { "$in" : [ uuid, "$likes" ]}}}]).exec()
             results.noOfComments = x;
             results.noOfLikes = y;
             // console.log(results);
             res.paginatedResults = results;
+            // console.log(results);
             next()
           }
         });

@@ -1,44 +1,45 @@
-// require('dotenv').config();
-// const Post = require("./models/post.js");
-// const { google } = require('googleapis');
-// const path = require('path');
-// const fs = require('fs');
-// const stream = require('stream');
-// const { v4: uuidv4 } = require("uuid");
+require('dotenv').config();
+const Post = require("./models/post.js");
+const { google } = require('googleapis');
+const path = require('path');
+const fs = require('fs');
+const stream = require('stream');
+const { v4: uuidv4 } = require("uuid");
 const mongoose=require('./db/db.js')
+const Recipe = require("./models/recipe.js");
 
-// const oauth2Client = new google.auth.OAuth2(
-//     process.env.CLIENT_ID,
-//     process.env.CLIENT_SECRET,
-//     process.env.REDIRECT_URI
-// );
+const oauth2Client = new google.auth.OAuth2(
+    process.env.CLIENT_ID,
+    process.env.CLIENT_SECRET,
+    process.env.REDIRECT_URI
+);
 
-// oauth2Client.setCredentials({refresh_token:process.env.REFRESH_TOKEN});
+oauth2Client.setCredentials({refresh_token:process.env.REFRESH_TOKEN});
 
-// const drive = google.drive({
-//     version:'v3',
-//     auth:oauth2Client
-// });
+const drive = google.drive({
+    version:'v3',
+    auth:oauth2Client
+});
 
 
-// const createFolder = async () => {
-//     var fileMetadata = {
-//       'name': 'parth',
-//       'mimeType': 'application/vnd.google-apps.folder',
-//       parents: [['1Ou0zXM6cUjVOiCLO1u5GQWXLE9ETDpvb','1K9lBqOZaMLWlt5lKRN80fvXyM6okGOvP']]
-//     };
-//     drive.files.create({
-//       resource: fileMetadata,
-//       fields: 'id'
-//     }, function (err, file) {
-//       if (err) {
-//         // Handle error
-//         console.error(err);
-//       } else {
-//         console.log('Folder Id: ', file.data.id);
-//       }
-//     });
-//   }
+const createFolder = async () => {
+    var fileMetadata = {
+      'name': 'parth',
+      'mimeType': 'application/vnd.google-apps.folder',
+      // parents: ['1Ou0zXM6cUjVOiCLO1u5GQWXLE9ETDpvb']
+    };
+    drive.files.create({
+      resource: fileMetadata,
+      fields: 'id'
+    }, function (err, file) {
+      if (err) {
+        // Handle error
+        console.error(err);
+      } else {
+        console.log('Folder Id: ', file.data.id);
+      }
+    });
+  }
   
 //   async function generatePublicUrl(fileId) {
 //     try {
@@ -79,7 +80,8 @@ const mongoose=require('./db/db.js')
 
 // check();
 
-const mongo = require('mongoose')
+const mongo = require('mongoose');
+const { query } = require('express');
 
 
 
@@ -124,4 +126,52 @@ const henlo2 = async () => {
 console.log(find.person);
 }
 
-henlo2();
+// henlo2();
+
+function sortQuery(db,query){
+  let temp=[];
+  let mark={};
+  query.forEach(element => {
+      mark[element] = true;
+  });
+  
+  db.forEach(element => {
+   let ct=0;
+  
+   if(element.ingredients){
+   element.ingredients.forEach(e => {
+       if(mark[e]){
+           ct+=1;
+       }
+   });
+  }
+   if(ct>0){
+      temp.push([ct,element]);   
+   }
+  });
+
+  return temp.sort(function(a,b){return b[0]-a[0]});
+
+}
+
+// let db = [
+//   ['hello','bye','henlo','hi','nice'],
+//   ['welcome','bye','hello','ty'],
+//   ['get lost','fo','hello'],
+//   ['welcome','bye','henlo','fo'],
+//   ['hi']
+// ];
+
+let q = ['Rice'];
+
+// console.log(sortQuery(db,q));
+
+
+async function test(){
+const recipe = await Recipe.find({},'-_id ingredients');
+// if(recipe)
+// sortQuery(recipe,q);
+console.log(sortQuery(recipe,q));
+// console.log(recipe);
+}
+test()

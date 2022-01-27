@@ -64,6 +64,18 @@ const recipeSchema=new mongoose.Schema({
         type:String,
         required:true
      },
+    veg:{
+        type:Boolean
+    },
+    flavour:{
+        type:String
+    },
+    course:{
+        type:String
+    },
+    estimatedTime:{
+        type:Number
+    },
 }, {timestamps: true});
 
 const Recipe=mongoose.model('recipe',recipeSchema)

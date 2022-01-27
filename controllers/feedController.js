@@ -163,12 +163,20 @@ const createPost = async (req, res) =>{
 }
 
 const addLike = async (req,res) => {
+    // console.log('hello');
     try{
-    userUuid = req.user.uuid;
-    postUuid = req.body.uuid;
-    const post = Post.findOne({uuid:postUuid});
-    post.likes.push(userUuid);
-    post.save();
+    const userUuid = req.user.uuid;
+    const postUuid = req.body.uuid;
+    // console.log(postUuid);
+    const post = await Post.findOne({uuid:postUuid});
+    // console.log(post);
+    if(!post.likes.includes(userUuid)){
+        post.likes.push(userUuid);
+    }
+    // console.log('hello');
+    // console.log(post);
+    await post.save();
+    console.log('saved');
     res.status(201).json({
         status: true,
         message: "Liked",
@@ -176,6 +184,7 @@ const addLike = async (req,res) => {
         data: {},
       });
     }catch(err){
+        console.log(err);
         res.status(201).json({
             status: false,
             message: "error liking it",
@@ -185,6 +194,28 @@ const addLike = async (req,res) => {
     }
 
 }
+const removeLike = async (req,res) => {
+    try{
+    const userUuid = req.user.uuid;
+    const postUuid = req.body.uuid;
+    const post = await Post.findOne({uuid:postUuid});
+    post.likes.pop(userUuid);
+    await post.save();
+    res.status(201).json({
+        status: true,
+        message: "Unliked",
+        errors: [],
+        data: {},
+        });
+    }catch(err){
+        res.status(201).json({
+            status: false,
+            message: "error unliking it",
+            errors: [],
+            data: {},
+            });
+    }
+}
 
 
 module.exports = {
@@ -193,4 +224,5 @@ module.exports = {
     loadcomment,
     createPost,
     addLike,
+    removeLike,
 };

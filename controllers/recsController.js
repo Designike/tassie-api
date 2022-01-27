@@ -20,6 +20,7 @@ const createRecipe = async (req,res) => {
         
     const uuid = req.user.uuid + '_recipe_' + uuidv4();
     const recipeFolder = await createRecipeFolder(uuid, req.user.recipeFolder);
+    console.log(recipeFolder);
     if(recipeFolder.status == true) {
         const recs = new Recipe({uuid:uuid, recipeFolder: recipeFolder.response.id});
         await recs.save(async (err,result)=>{
@@ -27,7 +28,7 @@ const createRecipe = async (req,res) => {
                 await deleteFile(recipeFolder.response.id);
                 res.status(201).json({
                     status: false,
-                    message: "Error creating",
+                    message: "Error creating 1",
                     errors: [],
                     data: {},
                 });
@@ -43,7 +44,7 @@ const createRecipe = async (req,res) => {
     } else {
         res.status(201).json({
             status: false,
-            message: "Error creating",
+            message: "Error creating 2",
             errors: [],
             data: {},
         });
@@ -52,7 +53,7 @@ const createRecipe = async (req,res) => {
     } catch (error) {
         res.status(201).json({
             status: false,
-            message: "Error creating",
+            message: "Error creating 3",
             errors: [],
             data: {},
         });
