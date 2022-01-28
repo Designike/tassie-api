@@ -22,6 +22,9 @@ const recipeSchema=new mongoose.Schema({
         type:String,
         
     },
+    recipeImageID:{
+        type:String,
+    },
     youtubeLink:{
         type:String,
     },
@@ -53,12 +56,14 @@ const recipeSchema=new mongoose.Schema({
     ingredients:[String],
     ingredientPics:[{
         index:String,
-        url:String
+        url:String,
+        fileID: String
     }],
     steps:[String],
     stepPics:[{
         index:String,
-        url:String
+        url:String,
+        fileID:String,
     }],
     recipeFolder:{
         type:String,

@@ -86,10 +86,12 @@ const updateRecipe = async (req,res) => {
                 
                 if(imgMap[0] == 'r') {
                     recs.url = imgURL.response.webContentLink;
+                    recs.recipeImageID = uploadImg.response.id;
                 } else if( imgMap[0] == 'i'){
                     recs.ingredientPics.push({
                         index: imgMap[1],
-                        url: imgURL.response.webContentLink
+                        url: imgURL.response.webContentLink,
+                        fileID: uploadImg.response.id
                     });   
                 } else {
                     recs.stepPics.push({
@@ -170,6 +172,63 @@ const deleteRecipe = async (req,res) => {
     }
 }
 
+const resetImage = async (req,res) => {
+    try {
+        const uuid = req.body.uuid;
+        console.log(uuid);
+        const imgName = req.body.imgName;        
+        var temp = imgName.split('_');
+        var index = temp[1];
+        var key = temp[0];
+        var recipe = await Recipe.findOne({uuid: uuid});
+        console.log(recipe);
+        let fileID;
+        if(key == 'r'){
+            fileID = recipe.recipeImageID;
+        }else if(key == 'i'){
+            fileID = recipe.ingredientPics.filter((a) => {return a.index == index})[0].fileID;
+        }else{
+            fileID = recipe.stepPics.filter((a) => {return a.index == index})[0].fileID;
+        }
+        console.log('1');
+        const del = await deleteFile(fileID); 
+        if(del.status == true) { 
+            var recipe = await Recipe.findOne({uuid: uuid});
+            if(key == 'r'){
+                recipe.url = "";
+                recipe.recipeImageID = "";
+            }else if(key == 'i'){
+                recipe.ingredientPics = recipe.ingredientPics.filter((a) => {return a.index != index});
+            }else{
+                recipe.stepPics = recipe.stepPics.filter((a) => {return a.index != index});
+            }
+        console.log('1');
+        await recipe.save();
+        console.log('1');
+        res.status(201).json({
+            status: true,
+            message: "deleted",
+            errors: [],
+            data: {},
+        });
+    } else {
+        res.status(201).json({
+            status: false,
+            message: "Error deleting",
+            errors: [],
+            data: {},
+        });
+    }
+    } catch (error) {
+        res.status(201).json({
+            status: false,
+            message: "Error deleting",
+            errors: [],
+            data: {},
+        });
+    }
+}
+
 const getIng = (req,res) => {
     try {
         res.status(201).json({
@@ -193,5 +252,6 @@ module.exports = {
     createRecipe,
     deleteRecipe,
     updateRecipe,
-    getIng
+    getIng,
+    resetImage
 };
