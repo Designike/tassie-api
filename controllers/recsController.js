@@ -129,6 +129,12 @@ const updateRecipe = async (req,res) => {
         const recs = await Recipe.findOne({uuid:req.body.uuid});
         updates.forEach((update) => (recs[update] = req.body[update]));
         await recs.save();
+        res.status(201).json({
+            status: true,
+            message: "Data saved",
+            errors:[],
+            data: {}
+        })
     }
     
   } catch (error) {
