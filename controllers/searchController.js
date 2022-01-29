@@ -1,14 +1,26 @@
 const Recipe = require("../models/recipe.js");
+const Suggestion = require("../models/suggestion.js");
 
 const guess = async (req,res) => {
+    // var limit = 20;
+    // var start = req.body.start;
     var veg = req.body.veg;
-    var flavour = reg.body.flavour;
-    var course = req.body.course;
-    var time = req.body.estTime;
+    var flavour = req.body.flavour;
     var ingredients = req.body.ingredients;
-    var tag = [];
-    const recipe = await Recipe.find({veg:veg, course:course, flavour:flavour, time:time},'-_id ingredients');
-    var ans = sortQuery(recipe,query);
+    var time = req.body.maxTime;
+    var course = req.body.course;
+    // var tag = [];
+    const recipe = await Recipe.find({veg:veg, course:course, flavour:flavour, time:{$lte:time}}, '-_id uuid username profilePic userUuid url name');
+    console.log(recipe);
+    var ans = sortQuery(recipe,ingredients);
+    const newSuggest = new Suggestion(ans);
+    await newSuggest.save();
+    res.status(201).json({
+        status: true,
+        message: "",
+        errors: [],
+        data: {recs: ans},
+      });
 }
 
 // function sortQuery(db,query){

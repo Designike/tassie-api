@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require("uuid");
 const NodeCache = require("node-cache");
 const myCache = new NodeCache();
 const sgMail = require("@sendgrid/mail");
+const {createFolder} = require('./driveController');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -361,7 +362,7 @@ const mail = async (req, res, uid) => {
     await sgMail.send(msg, (err, info) => {
       if (err) {
         console.log("email not sent");
-        res.status(400).json({
+        res.status(200).json({
           status: false,
           message: "Mail not sent",
           errors: err,
@@ -389,20 +390,21 @@ const twoStepVerification = async (req, res) => {
   const isValid = totp.check(req.body.totp, secret);
   if (req.user && isValid == true) {
     try {
+      console.log('1');
       const user = req.user;
       const postFolder = await createFolder(req.user.uuid, true);
-      
+      console.log('2');
       if (postFolder.status == true) {
         const recipeFolder = await createFolder(req.user.uuid, false);
-
+        console.log('3');
         if (recipeFolder.status == true) {
           user.postFolder = postFolder.response.id;
           user.recipeFolder = recipeFolder.response.id;
-
+          console.log('4');
           const newUser = new User(user);
           const token = await newUser.generateAuthToken();
           await newUser.save();
-          
+          console.log('5');
           
           //    res.status(201).send({newUser,token})
           res.status(201).json({
@@ -434,10 +436,11 @@ const twoStepVerification = async (req, res) => {
 
     } catch (error) {
       //    res.status(400).send(error)
+      console.log(error);
       res.status(201).json({
         status: false,
-        message: "Incorrect OTP",
-        errors: error,
+        message: "Server error",
+        errors: [error],
         data: {},
       });
     }
@@ -445,8 +448,8 @@ const twoStepVerification = async (req, res) => {
     // res.send("unathenticated");
     res.status(201).json({
       status: false,
-      message: "Unauthenticated",
-      errors: error,
+      message: "Unauthenticated or Incorrect OTP",
+      errors: [],
       data: {},
     });
   }

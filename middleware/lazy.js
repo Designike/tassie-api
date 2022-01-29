@@ -4,6 +4,7 @@ const Subscribed = require("../models/subscribed.js");
 const Recs = require("../models/recipe.js");
 
 const lazyfeed = async (req,res,next) => {
+  try {
     const page = parseInt(req.params.page);
     // console.log(page);
     const limit = 1;
@@ -14,7 +15,11 @@ const lazyfeed = async (req,res,next) => {
     // console.log(endIndex);
     let uuid = req.user.uuid;
     const found = await Subscribed.findOne({user:uuid},'-_id subscribed')
-    
+    if(!found) {
+      console.log('henlo');
+      next()
+    } else {
+      console.log('hello');
     // console.log(await Post.find({userUuid:{$in: found.subscribed}},'-_id username profilePic url createdAt updatedAt'));
     if (endIndex < await Post.find({userUuid:{$in: found.subscribed}}).sort('-createdAt').countDocuments().exec()) {
         results.next = {
@@ -30,7 +35,7 @@ const lazyfeed = async (req,res,next) => {
         }
       }
 
-      try {
+      
         // console.log(startIndex);
         // let x = await Post.aggregate([{$match: {userUuid:{$in: found.subscribed}}},{$project: {count: { $size:"$comments" }}},{ $limit:limit },{ $skip:1 }]).exec()
         // console.log(x);
@@ -43,24 +48,28 @@ const lazyfeed = async (req,res,next) => {
         if(results.results.length == 0){
           res.paginatedResults = results;
           next()
+        } else {
+          await results.results.forEach(async element => {
+            uuids.push(element.uuid);
+            
+            // console.log(element);
+            if(results.results.indexOf(element) == results.results.length-1) {
+              let x = await Post.aggregate([{$match: {uuid:element.uuid}},{$project: {count: { $size:"$comments" }}}]).exec()
+              let y = await Post.aggregate([{$match: {uuid:element.uuid}},{$project: {count: { $size:"$likes" }, "isLiked" : { "$in" : [ uuid, "$likes" ]}}}]).exec()
+              results.noOfComments = x;
+              results.noOfLikes = y;
+              // console.log(results);
+              res.paginatedResults = results;
+              // console.log(results);
+              next()
+            }
+          });
         }
         
-        await results.results.forEach(async element => {
-          uuids.push(element.uuid);
-          
-          // console.log(element);
-          if(results.results.indexOf(element) == results.results.length-1) {
-            let x = await Post.aggregate([{$match: {uuid:element.uuid}},{$project: {count: { $size:"$comments" }}}]).exec()
-            let y = await Post.aggregate([{$match: {uuid:element.uuid}},{$project: {count: { $size:"$likes" }, "isLiked" : { "$in" : [ uuid, "$likes" ]}}}]).exec()
-            results.noOfComments = x;
-            results.noOfLikes = y;
-            // console.log(results);
-            res.paginatedResults = results;
-            // console.log(results);
-            next()
-          }
-        });
+        
       
+    }
+    
         
         
       } catch (e) {
@@ -76,6 +85,7 @@ const lazyfeed = async (req,res,next) => {
 }
 
 const lazycomment = async (req,res,next) => {
+  try {
   const page = parseInt(req.params.page);
   // console.log(page);
   const limit = 2;
@@ -104,7 +114,7 @@ const lazycomment = async (req,res,next) => {
       }
     }
 
-    try {
+    
       // console.log(startIndex);
       results.results = await Post.findOne({userUuid:userUuid,uuid:uuid},{comments:{$slice:[startIndex,limit]},_id:0,uuid:0,username:0,profilePic:0,userUuid:0,description:0,url:0,likes:0,createdAt:0,updatedAt:0}).exec();
       // console.log(results.results);
@@ -123,6 +133,7 @@ const lazycomment = async (req,res,next) => {
 }
 
 const lazyrec = async (req, res, next) => {
+  try {
   const page = parseInt(req.params.page);
     // console.log(page);
     const limit = 4;
@@ -133,6 +144,12 @@ const lazyrec = async (req, res, next) => {
 
     uuid = req.user.uuid;
     const found = await Subscribed.findOne({user:uuid},'-_id subscribed')
+    if(!found) {
+      console.log('henlo');
+      next()
+    } else {
+
+    
     // console.log(await Post.find({userUuid:{$in: found.subscribed}}).countDocuments().exec());
     if (endIndex < await Recs.find({userUuid:{$in: found.subscribed}}).sort('-createdAt').countDocuments().exec()) {
         results.next = {
@@ -148,11 +165,13 @@ const lazyrec = async (req, res, next) => {
         }
       }
 
-      try {
+      
         // console.log(startIndex);
         results.results = await Recs.find({userUuid:{$in: found.subscribed}}).sort('-createdAt').limit(limit).skip(startIndex).exec();
         res.paginatedResults = results
         next()
+
+    }
       } catch (e) {
         // res.status(500).json({ message: e.message })
         res.status(201).json({
