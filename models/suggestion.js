@@ -28,5 +28,5 @@ const suggestionSchema=new mongoose.Schema({suggest:[{
     },
 }]}, {timestamps: true});
 
-const Suggestion=mongoose.model('suggestion',suggestionSchema.index({}, {expires: '1m'}));
+const Suggestion=mongoose.model('suggestion',suggestionSchema.index({}, {expires: 60}));
 module.exports=Suggestion

@@ -12,7 +12,7 @@ const guess = async (req,res) => {
     // var tag = [];
     const recipe = await Recipe.find({veg:veg, course:course, flavour:flavour, time:{$lte:time}}, '-_id uuid username profilePic userUuid url name');
     console.log(recipe);
-    var ans = sortQuery(recipe,ingredients);
+    var ans = await sortQuery(recipe,ingredients);
     const newSuggest = new Suggestion(ans);
     await newSuggest.save();
     res.status(201).json({
@@ -51,7 +51,7 @@ const guess = async (req,res) => {
 //   }
 
   
-function sortQuery(db,query){
+async function sortQuery(db,query){
   let temp=[];
   let mark={};
   query.forEach(element => {
