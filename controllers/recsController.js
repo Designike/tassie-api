@@ -61,7 +61,8 @@ const createRecipe = async (req,res) => {
 }
 
 const updateRecipe = async (req,res) => {
-    let updates = Object.keys(req.body);
+    try {
+        let updates = Object.keys(req.body);
     const imgName = req.body.imgName;
     const folder = req.body.folder;
 
@@ -71,6 +72,10 @@ const updateRecipe = async (req,res) => {
     if(updates.imgName != undefined) {
         delete updates.imgName;
     }
+    } catch (error) {
+        console.log(error);
+    }
+    
 
   try {
     if (req.file) {
