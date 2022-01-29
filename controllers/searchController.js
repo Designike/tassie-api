@@ -9,18 +9,31 @@ const guess = async (req,res) => {
     var ingredients = req.body.ingredients;
     var time = req.body.maxTime;
     var course = req.body.course;
+    // console.log(req.body);
     // var tag = [];
-    const recipe = await Recipe.find({veg:veg, course:course, flavour:flavour, time:{$lte:time}}, '-_id uuid username profilePic userUuid url name');
-    console.log(recipe);
+    const recipe = await Recipe.find({veg:veg, course:course, flavour:flavour, time:{$lte:time}}, '-_id uuid url name ingredients');
+    // console.log(recipe);
+    if(recipe.length > 0){
+        // console.log('inside');
     var ans = await sortQuery(recipe,ingredients);
-    const newSuggest = new Suggestion(ans);
+    // console.log(ans);
+    const newSuggest = new Suggestion({suggest: ans});
     await newSuggest.save();
+    // console.log(newSuggest);
     res.status(201).json({
         status: true,
         message: "",
         errors: [],
         data: {recs: ans},
       });
+    }else{
+        res.status(201).json({
+            status: true,
+            message: "",
+            errors: [],
+            data: {},
+          });
+    }
 }
 
 // function sortQuery(db,query){
@@ -69,7 +82,7 @@ async function sortQuery(db,query){
    });
   }
    if(ct>0){
-      temp.push([ct,element]);   
+      temp.push(element);   
    }
   });
 

@@ -22,7 +22,7 @@ const createRecipe = async (req,res) => {
     const recipeFolder = await createRecipeFolder(uuid, req.user.recipeFolder);
     console.log(recipeFolder);
     if(recipeFolder.status == true) {
-        const recs = new Recipe({uuid:uuid, recipeFolder: recipeFolder.response.id});
+        const recs = new Recipe({uuid:uuid, recipeFolder: recipeFolder.response.id, username: req.user.username, userUuid: req.user.uuid, profilePic: req.user.profilePic});
         await recs.save(async (err,result)=>{
             if(err){
                 await deleteFile(recipeFolder.response.id);
@@ -61,7 +61,11 @@ const createRecipe = async (req,res) => {
 }
 
 const updateRecipe = async (req,res) => {
-
+    // console.log(req.body);
+    // console.log(flavour);
+    // console.log(ingredients);
+    // console.log(course);
+    // console.log(time);
   try {
     let updates = Object.keys(req.body);
 

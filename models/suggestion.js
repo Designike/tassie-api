@@ -1,32 +1,36 @@
 // const { Timestamp } = require("mongodb")
 const mongoose=require('mongoose')
 
-const suggestionSchema=new mongoose.Schema({suggest:[{
-    uuid:{
-        type:String,
-        required:true,
-        unique:true
+let suggestionSchema=new mongoose.Schema({
+    suggest:{ 
+        type: [{
+            uuid:{
+                type:String,
+            },
+            username:{
+                type:String,
+                trim:true,
+            },
+            profilePic:{
+                type:String,
+                
+            },
+            userUuid:{
+                type:String,
+            },
+            url:{
+                type:String,
+                
+            },
+            name:{
+                type:String,
+            },
+        }],
     },
-    username:{
-        type:String,
-        trim:true,
-    },
-    profilePic:{
-        type:String,
-        
-    },
-    userUuid:{
-        type:String,
-    },
-    url:{
-        type:String,
-        
-    },
-    name:{
-        type:String,
-        
-    },
-}]}, {timestamps: true});
+},{timestamps:true});
 
-const Suggestion=mongoose.model('suggestion',suggestionSchema.index({}, {expires: 60}));
+suggestionSchema.index({"createdAt": 1},{expireAfterSeconds: 60*45});
+
+const Suggestion=mongoose.model('suggestion',suggestionSchema);
+
 module.exports=Suggestion
