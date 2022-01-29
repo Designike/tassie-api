@@ -61,10 +61,9 @@ const createRecipe = async (req,res) => {
 }
 
 const updateRecipe = async (req,res) => {
-    try {
-        let updates = Object.keys(req.body);
-    const imgName = req.body.imgName;
-    const folder = req.body.folder;
+
+  try {
+    let updates = Object.keys(req.body);
 
     if(updates.folder != undefined) {
         delete updates.folder;
@@ -72,13 +71,9 @@ const updateRecipe = async (req,res) => {
     if(updates.imgName != undefined) {
         delete updates.imgName;
     }
-    } catch (error) {
-        console.log(error);
-    }
-    
-
-  try {
     if (req.file) {
+        const imgName = req.body.imgName;
+        const folder = req.body.folder;
         const uploadImg = await driveRecipeUpload(imgName, req.file, folder);
 
         if(uploadImg.status == true) {
