@@ -7,7 +7,7 @@ const lazyfeed = async (req,res,next) => {
   try {
     const page = parseInt(req.params.page);
     // console.log(page);
-    const limit = 1;
+    const limit = 2;
     const startIndex = (page - 1)*limit;
     // console.log(startIndex);
     const endIndex = page*limit;
