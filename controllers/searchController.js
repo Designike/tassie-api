@@ -63,6 +63,16 @@ const guess = async (req,res) => {
 //     return ans.reverse();
 //   }
 
+
+const showResults = async (req,res) => {
+    res.status(201).json({
+        status: true,
+        message: "",
+        errors: [],
+        data: {posts: res.paginatedResults},
+      });
+}
+
   
 async function sortQuery(db,query){
   let temp=[];
@@ -92,6 +102,7 @@ async function sortQuery(db,query){
 
 module.exports = {
     guess,
+    showResults
 }
 
 

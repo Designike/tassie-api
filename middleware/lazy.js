@@ -2,6 +2,7 @@ const User = require("../models/users.js");
 const Post = require("../models/post.js");
 const Subscribed = require("../models/subscribed.js");
 const Recs = require("../models/recipe.js");
+const Suggestion = require("../models/suggestion.js");
 
 const lazyfeed = async (req,res,next) => {
   try {
@@ -56,8 +57,10 @@ const lazyfeed = async (req,res,next) => {
             if(results.results.indexOf(element) == results.results.length-1) {
               let x = await Post.aggregate([{$match: {uuid:element.uuid}},{$project: {count: { $size:"$comments" }}}]).exec()
               let y = await Post.aggregate([{$match: {uuid:element.uuid}},{$project: {count: { $size:"$likes" }, "isLiked" : { "$in" : [ uuid, "$likes" ]}}}]).exec()
+              let z = await Post.aggregate([{$match: {uuid:element.uuid}},{$project: {"isBookmarked" : { "$in" : [ uuid, "bookmarks" ]}}}]).exec()
               results.noOfComments = x;
               results.noOfLikes = y;
+              results.bookmarks = z;
               // console.log(results);
               res.paginatedResults = results;
               // console.log(results);
@@ -183,8 +186,68 @@ const lazyrec = async (req, res, next) => {
       }
 }
 
+const lazyguess = async (req, res, next) => {
+  try {
+  const page = parseInt(req.params.page);
+    // console.log(page);
+    const limit = 4;
+    const startIndex = (page - 1)*limit;
+    // console.log(startIndex);
+    const endIndex = page*limit;
+    const results = {};
+
+    const id = req.params.id;
+    const found = await Suggestion.findById(id);
+    if(!found) {
+      console.log('henlo');
+      res.status(201).json({
+        status: false,
+        message: "Try again. Yumminess waiting for you!!",
+        errors: [],
+        data: {recs: []},
+      });
+    } else {
+
+      let x = await Suggestion.aggregate([{$match: {_id:id}},{$project: { count: { $size:"$suggest" }}},{$limit:1}]).exec()
+    // console.log(await Post.find({userUuid:{$in: found.subscribed}}).countDocuments().exec());
+    if (endIndex < x[0].count) {
+        results.next = {
+          page: page + 1,
+          limit: limit
+        }
+      }
+
+      if (startIndex > 0) {
+        results.previous = {
+          page: page - 1,
+          limit: limit
+        }
+      }
+
+      results.results = await Suggestion.findById(id,{comments:{$slice:[startIndex,limit]}}).exec();
+      // console.log(results.results);
+      res.paginatedResults = results
+        // console.log(startIndex);
+        // results.results = await Suggestion.find({userUuid:{$in: found.subscribed}}).sort('-createdAt').limit(limit).skip(startIndex).exec();
+        // res.paginatedResults = results
+        next()
+
+    }
+      } catch (e) {
+        // res.status(500).json({ message: e.message })
+        res.status(201).json({
+            status: false,
+            message: "failed to load recs",
+            errors: [],
+            data: {recs: []},
+          })
+      }
+}
+
+
 module.exports = {
     lazyfeed,
     lazycomment,
     lazyrec,
+    lazyguess
 }

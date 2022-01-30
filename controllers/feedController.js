@@ -217,6 +217,94 @@ const removeLike = async (req,res) => {
     }
 }
 
+const addComment = async (req,res) => {
+    console.log(req.body);
+    const comment = req.body.comment;
+    const postUuid = req.body.postUuid;
+    const username = req.user.username;
+    const commentUuid = req.user.uuid+'_comment_'+uuidv4();
+    var post = await Post.findOne({uuid:postUuid});
+    post.comments.push({uuid:commentUuid,username:username,comment:comment});
+    await post.save();
+    res.status(201).json({
+        status: true,
+        message: "Comment added",
+        errors: [],
+        data: {},
+    });
+}
+
+const removeComment = async (req,res) => {
+    const postUuid = req.body.postUuid;
+    const commentUuid = req.body.commentUuid;
+    var post = await Post.findOne({uuid:postUuid});
+    post.comments = post.comments.filter((a) => {return a.uuid != commentUuid});
+    await post.save();
+    res.status(201).json({
+        status: true,
+        message: "Comment added",
+        errors: [],
+        data: {},
+    });
+}
+
+const addBookmark = async (req,res) => {
+    // console.log('hello');
+    try{
+    const userUuid = req.user.uuid;
+    const postUuid = req.body.uuid;
+    // console.log(postUuid);
+    const post = await Post.findOne({uuid:postUuid});
+    // console.log(post);
+    if(!post.bookmarks.includes(userUuid)){
+        post.bookmarks.push(userUuid);
+    }
+    // console.log('hello');
+    // console.log(post);
+    await post.save();
+    console.log('saved');
+    res.status(201).json({
+        status: true,
+        message: "Bookmarked",
+        errors: [],
+        data: {},
+      });
+    }catch(err){
+        console.log(err);
+        res.status(201).json({
+            status: false,
+            message: "error saving it",
+            errors: [],
+            data: {},
+          });
+    }
+
+}
+
+
+const removeBookmark = async (req,res) => {
+    try{
+    const userUuid = req.user.uuid;
+    const postUuid = req.body.uuid;
+    const post = await Post.findOne({uuid:postUuid});
+    post.bookmarks.pop(userUuid);
+    await post.save();
+    res.status(201).json({
+        status: true,
+        message: "Unmarked",
+        errors: [],
+        data: {},
+        });
+    }catch(err){
+        res.status(201).json({
+            status: false,
+            message: "error unmarking it",
+            errors: [],
+            data: {},
+            });
+    }
+}
+
 
 module.exports = {
     load,
@@ -225,4 +313,8 @@ module.exports = {
     createPost,
     addLike,
     removeLike,
+    addComment,
+    removeComment,
+    addBookmark,
+    removeBookmark
 };

@@ -31,9 +31,13 @@ const postSchema=new mongoose.Schema({
     },
     postID: {
         type: String,
-        required: true
+        // required: true
     },
     likes:{
+        type:[String],
+        required:true
+    },
+    bookmarks:{
         type:[String],
         required:true
     },
