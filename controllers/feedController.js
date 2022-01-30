@@ -118,6 +118,7 @@ const createPost = async (req, res) =>{
                 url:postURL.response.webContentLink,
                 likes:[],
                 comments:[],
+                bookmarks:[],
                 uuid:postID.filename,
                 postID: postID.response.id
             });
