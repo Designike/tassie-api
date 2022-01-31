@@ -59,7 +59,7 @@ const login = async (req, res) => {
         message: "You are logged in !",
         errors:[],
         data: {
-            user:user,
+            uuid:user.uuid,
             token:token
         }
     })
