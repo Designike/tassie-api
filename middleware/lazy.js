@@ -8,34 +8,37 @@ const lazyfeed = async (req,res,next) => {
   try {
     const page = parseInt(req.params.page);
     // console.log(page);
-    const limit = 1;
+    const limit = 2;
     const startIndex = (page - 1)*limit;
     // console.log(startIndex);
     const endIndex = page*limit;
-    const results = {}
+    const results = {};
     // console.log(endIndex);
     let uuid = req.user.uuid;
-    const found = await Subscribed.findOne({user:uuid},'-_id subscribed')
-    if(!found) {
+    const found = await Subscribed.findOne({user:uuid},'-_id subscribed');
+    // console.log(found);
+    if(!found || found.subscribed.length == 0) {
       console.log('henlo');
-      next()
+      next();
     } else {
-      console.log('hello');
+      console.log(found.subscribed);
+      // console.log('1');
     // console.log(await Post.find({userUuid:{$in: found.subscribed}},'-_id username profilePic url createdAt updatedAt'));
-    if (endIndex < await Post.find({userUuid:{$in: found.subscribed}}).sort('-createdAt').countDocuments().exec()) {
+    // if (endIndex < await Post.find({userUuid:{$in: found.subscribed}}).sort('-createdAt').countDocuments().exec()) {
+      if (endIndex < await Post.find({userUuid:{$in: found.subscribed}}).countDocuments().exec()) {
         results.next = {
           page: page + 1,
           limit: limit
         }
       }
-
+      // console.log('2');
       if (startIndex > 0) {
         results.previous = {
           page: page - 1,
           limit: limit
         }
       }
-
+      // console.log('3');
       
         // console.log(startIndex);
         // let x = await Post.aggregate([{$match: {userUuid:{$in: found.subscribed}}},{$project: {count: { $size:"$comments" }}},{ $limit:limit },{ $skip:1 }]).exec()
@@ -45,19 +48,19 @@ const lazyfeed = async (req,res,next) => {
         // results.results['noOfComments'] = x.count;
         // console.log(results.results);
         let uuids = [];
-        
+        // console.log('4');
         if(results.results.length == 0){
           res.paginatedResults = results;
-          next()
+          next();
         } else {
           await results.results.forEach(async element => {
             uuids.push(element.uuid);
             
-            // console.log(element);
+            // console.log(uuids);
             if(results.results.indexOf(element) == results.results.length-1) {
-              let x = await Post.aggregate([{$match: {uuid:element.uuid}},{$project: {count: { $size:"$comments" }}}]).exec()
-              let y = await Post.aggregate([{$match: {uuid:element.uuid}},{$project: {count: { $size:"$likes" }, "isLiked" : { "$in" : [ uuid, "$likes" ]}}}]).exec()
-              let z = await Post.aggregate([{$match: {uuid:element.uuid}},{$project: {"isBookmarked" : { "$in" : [ uuid, "$bookmarks" ]}}}]).exec()
+              let x = await Post.aggregate([{$match: {uuid: {$in: uuids}}},{$project: {count: { $size:"$comments" }}}]).exec()
+              let y = await Post.aggregate([{$match: {uuid: {$in: uuids}}},{$project: {count: { $size:"$likes" }, "isLiked" : { "$in" : [ uuid, "$likes" ]}}}]).exec()
+              let z = await Post.aggregate([{$match: {uuid: {$in: uuids}}},{$project: {"isBookmarked" : { "$in" : [ uuid, "$bookmarks" ]}}}]).exec()
               results.noOfComments = x;
               results.noOfLikes = y;
               results.bookmarks = z;
@@ -154,7 +157,7 @@ const lazyrec = async (req, res, next) => {
 
     
     // console.log(await Post.find({userUuid:{$in: found.subscribed}}).countDocuments().exec());
-    if (endIndex < await Recs.find({userUuid:{$in: found.subscribed}}).sort('-createdAt').countDocuments().exec()) {
+    if (endIndex < await Recs.find({userUuid:{$in: found.subscribed}}).countDocuments().exec()) {
         results.next = {
           page: page + 1,
           limit: limit
@@ -240,6 +243,58 @@ const lazyguess = async (req, res, next) => {
             message: "failed to load recs",
             errors: [],
             data: {recs: []},
+          })
+      }
+}
+
+const lazyexplore = async (req,res,next) => {
+  try {
+    const page = parseInt(req.params.page);
+    const limit = 3;
+    const startIndex = (page - 1)*limit;
+    const endIndex = page*limit;
+    const results = {};
+    let uuid = req.user.uuid;
+   
+    if (endIndex < (await Post.find().countDocuments().exec()) && endIndex < (await Recs.find().countDocuments().exec())) {
+        results.next = {
+          page: page + 1,
+          limit: limit
+        }
+      }
+      if (startIndex > 0) {
+        results.previous = {
+          page: page - 1,
+          limit: limit
+        }
+      }
+        results.results = await Post.find({},'-_id uuid userUuid username profilePic url description createdAt updatedAt isPost').sort('-createdAt').limit(limit).skip(startIndex).exec();
+        let uuids = [];
+        if(results.results.length == 0){
+          res.paginatedResults = results;
+          next();
+        } else {
+          await results.results.forEach(async element => {
+            uuids.push(element.uuid);
+            if(results.results.indexOf(element) == results.results.length-1) {
+              let x = await Post.aggregate([{$match: {uuid: {$in: uuids}}},{$project: {count: { $size:"$comments" }}}]).exec()
+              let y = await Post.aggregate([{$match: {uuid: {$in: uuids}}},{$project: {count: { $size:"$likes" }, "isLiked" : { "$in" : [ uuid, "$likes" ]}}}]).exec()
+              let z = await Post.aggregate([{$match: {uuid: {$in: uuids}}},{$project: {"isBookmarked" : { "$in" : [ uuid, "$bookmarks" ]}}}]).exec()
+              results.noOfComments = x;
+              results.noOfLikes = y;
+              results.bookmarks = z;
+              res.paginatedResults = results;
+              next()
+            }
+          });
+        }
+        results.results = await Recs.find().sort('-createdAt').limit(limit).skip(startIndex).exec();
+      } catch (e) {
+        res.status(201).json({
+            status: false,
+            message: "failed to load feed",
+            errors: [],
+            data: {posts: []},
           })
       }
 }

@@ -100,6 +100,7 @@ async function sortQuery(db,query){
 }
 
 
+
 module.exports = {
     guess,
     showResults

@@ -57,6 +57,10 @@ const postSchema=new mongoose.Schema({
             },
         }],
         required:true
+    },
+    isPost:{
+        type:Boolean,
+        default: true
     }
 }, {timestamps: true});
 

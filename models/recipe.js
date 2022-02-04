@@ -81,6 +81,10 @@ const recipeSchema=new mongoose.Schema({
     estimatedTime:{
         type:Number
     },
+    isPost:{
+        type:Boolean,
+        default: false
+    }
 }, {timestamps: true});
 
 const Recipe=mongoose.model('recipe',recipeSchema)
