@@ -2,6 +2,7 @@ const mongoose=require('mongoose')
 const validator=require('validator')
 const bcrypt=require('bcryptjs')
 const jwt=require('jsonwebtoken')
+const TassieCustomError = require('../errors/tassieCustomError')
 
 const userSchema=new mongoose.Schema({
     uuid:{
@@ -113,12 +114,14 @@ userSchema.statics.findByCredentials=async(email,username,password)=>{
     user=await User.findOne({username:username});
 }
     if(user == undefined){
-        throw new Error('Invalid Email or Username!')
+        throw new TassieCustomError('Invalid Email or Username!')
+        // throw new Error('Invalid Email or Username!')
     }
     const isMatch= await bcrypt.compare(password,user.password)
 
     if(!isMatch){
-        throw new Error('Invalid Password!')
+        // throw new Error('Invalid Password!')
+        throw new TassieCustomError('Invalid Password!')
     }
     return user
 }

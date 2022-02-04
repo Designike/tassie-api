@@ -5,6 +5,7 @@ const NodeCache = require("node-cache");
 const myCache = new NodeCache();
 const sgMail = require("@sendgrid/mail");
 const {createFolder} = require('./driveController');
+const TassieCustomError = require('../errors/tassieCustomError');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -64,13 +65,22 @@ const login = async (req, res) => {
         }
     })
   } catch (error) {
-    // res.status(400).send(error);
-    res.status(400).json({
+    if(error instanceof TassieCustomError) {
+      res.status(200).json({
         status: false,
-        message: "Unable to access your account",
-        errors:error,
+        message: error.message,
+        errors: [error],
         data: {}
     })
+    } else {
+    // res.status(400).send(error);
+    res.status(200).json({
+        status: false,
+        message: "Unable to access your account",
+        errors:[error],
+        data: {}
+    })
+  }
   }
 };
 
