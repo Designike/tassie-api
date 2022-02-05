@@ -1,5 +1,7 @@
 const Recipe = require("../models/recipe.js");
 const Suggestion = require("../models/suggestion.js");
+const Tag = require("../models/tag.js");
+const User = require("../models/users.js");
 
 const guess = async (req,res) => {
     // var limit = 20;
@@ -99,11 +101,98 @@ async function sortQuery(db,query){
   return temp.sort(function(a,b){return b[0]-a[0]});
 }
 
+const explore = async (req,res) => {
+    res.status(201).json({
+        status: true,
+        message: "",
+        errors: [],
+        data: res.paginatedResults,
+      });
+}
 
+const searchRecipe = async (req,res) => {
+    let phrase = req.params.word;
+    // const tags = await Tag.find({"name": {$regex: phrase},"isUser":false}).limit(3);
+    // const persons = await Tag.find({"name": {$regex: phrase, $options: "i"},"isUser":true}).limit(3);
+    try{
+        const recs = await Recipe.find({"name": {$regex: phrase, $options:'i'}},'-_id name uuid url').limit(10);
+        res.status(201).json({
+            status: true,
+            message: "Here you go!",
+            errors: [],
+            data: {recipes:recs},
+      });
+    }catch(error){
+        res.status(201).json({
+            status: true,
+            message: "server error",
+            errors: error,
+            data: {},
+      });
+    }
+}
+
+const searchUser = async (req,res) => {
+    // let phrase = req.params.word;
+    // const user = await User.find({$or:[{"name": {$regex: phrase, $options:'i'}},{"username": {$regex: phrase}}]},'-_id name uuid username profilePic').limit(10);
+    // console.log(user);
+    // res.status(201).json({
+    //     status: true,
+    //     message: "",
+    //     errors: [],
+    //     data: {users:user},
+    //   });
+
+      let phrase = req.params.word;
+      // const tags = await Tag.find({"name": {$regex: phrase},"isUser":false}).limit(3);
+      // const persons = await Tag.find({"name": {$regex: phrase, $options: "i"},"isUser":true}).limit(3);
+      try{
+        const user = await User.find({$or:[{"name": {$regex: phrase, $options:'i'}},{"username": {$regex: phrase}}]},'-_id name uuid username profilePic').limit(10);
+          res.status(201).json({
+              status: true,
+              message: "Here you go!",
+              errors: [],
+              data: {users:user},
+        });
+      }catch(error){
+          res.status(201).json({
+              status: true,
+              message: "server error",
+              errors: error,
+              data: {},
+        });
+      }
+}
+
+const searchTag = async (req,res) => {
+    let phrase = req.params.word;
+      // const tags = await Tag.find({"name": {$regex: phrase},"isUser":false}).limit(3);
+      // const persons = await Tag.find({"name": {$regex: phrase, $options: "i"},"isUser":true}).limit(3);
+      try{
+        const tags = await Tag.find({"name": {$regex:'^'+phrase, $options:'i'}},'-_id name').limit(10);
+          res.status(201).json({
+              status: true,
+              message: "Here you go!",
+              errors: [],
+              data: {tags:tags},
+        });
+      }catch(error){
+          res.status(201).json({
+              status: true,
+              message: "server error",
+              errors: error,
+              data: {},
+        });
+      }
+}
 
 module.exports = {
     guess,
-    showResults
+    showResults,
+    explore,
+    searchRecipe,
+    searchUser,
+    searchTag
 }
 
 

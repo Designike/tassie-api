@@ -7,11 +7,12 @@ const { driveRecipeUpload, deleteFile, createRecipeFolder, generatePublicUrl } =
 const ingredients = require("../ingredients.json");
 
 const loadRecs = (req, res) => {
+    // console.log(res.paginatedResults);
     res.status(201).json({
         status: true,
         message: "",
         errors: [],
-        data: {recs: res.paginatedResults},
+        data: res.paginatedResults,
       });
 }
 
@@ -257,11 +258,77 @@ const getIng = (req,res) => {
     }
 }
 
+
+const addBookmark = async (req,res) => {
+    // console.log('hello');
+    try{
+    const userUuid = req.user.uuid;
+    const recUuid = req.body.uuid;
+    // console.log(postUuid);
+    let rec = await Recipe.findOne({uuid:recUuid});
+    console.log(rec);
+    if(!rec.bookmarks.includes(userUuid)){
+        rec.bookmarks.push(userUuid);
+    }
+    // console.log('hello');
+    // console.log(post);
+    await rec.save();
+    console.log('saved');
+    res.status(201).json({
+        status: true,
+        message: "Bookmarked",
+        errors: [],
+        data: {},
+      });
+    }catch(err){
+        console.log(err);
+        res.status(201).json({
+            status: false,
+            message: "error saving it",
+            errors: [],
+            data: {},
+          });
+    }
+
+}
+
+const removeBookmark = async (req,res) => {
+    try{
+        const userUuid = req.user.uuid;
+        const recUuid = req.body.uuid;
+        // console.log(postUuid);
+        const rec = await Recipe.findOne({uuid:recUuid});
+        // console.log(post);
+        // console.log('hello');
+        // console.log(post);
+        rec.bookmarks.pop(userUuid);
+        await rec.save();
+        console.log('saved');
+        res.status(201).json({
+            status: true,
+            message: "Bookmarked",
+            errors: [],
+            data: {},
+          });
+        }catch(err){
+            console.log(err);
+            res.status(201).json({
+                status: false,
+                message: "error saving it",
+                errors: [],
+                data: {},
+              });
+        }
+// }post.bookmarks.pop(userUuid);
+}
+
 module.exports = {
     loadRecs,
     createRecipe,
     deleteRecipe,
     updateRecipe,
     getIng,
-    resetImage
+    resetImage,
+    addBookmark,
+    removeBookmark
 };

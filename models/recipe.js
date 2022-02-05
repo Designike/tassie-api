@@ -84,7 +84,10 @@ const recipeSchema=new mongoose.Schema({
     isPost:{
         type:Boolean,
         default: false
-    }
+    },
+    bookmarks:{
+        type:[String]
+    },
 }, {timestamps: true});
 
 const Recipe=mongoose.model('recipe',recipeSchema)

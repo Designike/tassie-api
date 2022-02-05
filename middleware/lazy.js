@@ -1,8 +1,29 @@
 const User = require("../models/users.js");
 const Post = require("../models/post.js");
 const Subscribed = require("../models/subscribed.js");
-const Recs = require("../models/recipe.js");
+const Recipe = require("../models/recipe.js");
 const Suggestion = require("../models/suggestion.js");
+// const Recipe = require("../models/recipe.js");
+
+
+function shuffle(array) {
+  let currentIndex = array.length,  randomIndex;
+
+  // While there remain elements to shuffle...
+  while (currentIndex != 0) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    // And swap it with the current element.
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex], array[currentIndex]];
+  }
+
+  return array;
+}
+
 
 const lazyfeed = async (req,res,next) => {
   try {
@@ -18,10 +39,10 @@ const lazyfeed = async (req,res,next) => {
     const found = await Subscribed.findOne({user:uuid},'-_id subscribed');
     // console.log(found);
     if(!found || found.subscribed.length == 0) {
-      console.log('henlo');
+      // console.log('henlo');
       next();
     } else {
-      console.log(found.subscribed);
+      // console.log(found.subscribed);
       // console.log('1');
     // console.log(await Post.find({userUuid:{$in: found.subscribed}},'-_id username profilePic url createdAt updatedAt'));
     // if (endIndex < await Post.find({userUuid:{$in: found.subscribed}}).sort('-createdAt').countDocuments().exec()) {
@@ -58,13 +79,15 @@ const lazyfeed = async (req,res,next) => {
             
             // console.log(uuids);
             if(results.results.indexOf(element) == results.results.length-1) {
+              let beta = await Post.aggregate([{$match: {uuid: {$in: uuids}}},{$project: {comments: { $size:"$comments" }, likes: { $size:"$likes" },"isLiked" : { "$in" : [ uuid, "$likes" ]}, "isBookmarked" : { "$in" : [ uuid, "$bookmarks" ]}}}]).exec()
               let x = await Post.aggregate([{$match: {uuid: {$in: uuids}}},{$project: {count: { $size:"$comments" }}}]).exec()
               let y = await Post.aggregate([{$match: {uuid: {$in: uuids}}},{$project: {count: { $size:"$likes" }, "isLiked" : { "$in" : [ uuid, "$likes" ]}}}]).exec()
               let z = await Post.aggregate([{$match: {uuid: {$in: uuids}}},{$project: {"isBookmarked" : { "$in" : [ uuid, "$bookmarks" ]}}}]).exec()
               results.noOfComments = x;
               results.noOfLikes = y;
               results.bookmarks = z;
-              // console.log(results);
+              // results.beta = beta
+              // console.log(beta);
               res.paginatedResults = results;
               // console.log(results);
               next()
@@ -148,7 +171,7 @@ const lazyrec = async (req, res, next) => {
     const endIndex = page*limit;
     const results = {};
 
-    uuid = req.user.uuid;
+    let uuid = req.user.uuid;
     const found = await Subscribed.findOne({user:uuid},'-_id subscribed')
     if(!found) {
       console.log('henlo');
@@ -157,7 +180,7 @@ const lazyrec = async (req, res, next) => {
 
     
     // console.log(await Post.find({userUuid:{$in: found.subscribed}}).countDocuments().exec());
-    if (endIndex < await Recs.find({userUuid:{$in: found.subscribed}}).countDocuments().exec()) {
+    if (endIndex < await Recipe.find({userUuid:{$in: found.subscribed}}).countDocuments().exec()) {
         results.next = {
           page: page + 1,
           limit: limit
@@ -170,13 +193,29 @@ const lazyrec = async (req, res, next) => {
           limit: limit
         }
       }
-
-      
         // console.log(startIndex);
-        results.results = await Recs.find({userUuid:{$in: found.subscribed}}).sort('-createdAt').limit(limit).skip(startIndex).exec();
-        res.paginatedResults = results
-        next()
+        results.results = await Recipe.find({userUuid:{$in: found.subscribed}}).sort('-createdAt').limit(limit).skip(startIndex).exec();
 
+        let uuids = [];
+        // console.log('4');
+        if(results.results.length == 0){
+          res.paginatedResults = results;
+          next();
+        } else {
+          await results.results.forEach(async element => {
+            uuids.push(element.uuid);
+            
+            // console.log(uuids);
+            if(results.results.indexOf(element) == results.results.length-1) {
+              let beta = await Recipe.aggregate([{$match: {uuid: {$in: uuids}}},{$project: {"isBookmarked" : { "$in" : [ uuid, "$bookmarks" ]}}}]).exec()
+              results.recipeData = beta;
+              // console.log(beta);
+              res.paginatedResults = results;
+              // console.log(res.paginatedResults);
+              next()
+            }
+          });
+        }
     }
       } catch (e) {
         // res.status(500).json({ message: e.message })
@@ -254,9 +293,10 @@ const lazyexplore = async (req,res,next) => {
     const startIndex = (page - 1)*limit;
     const endIndex = page*limit;
     const results = {};
+    let shuffledIndex = shuffle([((page-1)*6) + 0,((page-1)*6) + 1,((page-1)*6) + 2,((page-1)*6) + 3,((page-1)*6) + 4,((page-1)*6) + 5]);
     let uuid = req.user.uuid;
    
-    if (endIndex < (await Post.find().countDocuments().exec()) && endIndex < (await Recs.find().countDocuments().exec())) {
+    if (endIndex < (await Post.find({}).countDocuments().exec()) && endIndex < (await Recipe.find({}).countDocuments().exec())) {
         results.next = {
           page: page + 1,
           limit: limit
@@ -268,27 +308,34 @@ const lazyexplore = async (req,res,next) => {
           limit: limit
         }
       }
-        results.results = await Post.find({},'-_id uuid userUuid username profilePic url description createdAt updatedAt isPost').sort('-createdAt').limit(limit).skip(startIndex).exec();
-        let uuids = [];
+        var temp = await Post.find({uuid: {$ne: uuid}},'-_id uuid userUuid username profilePic url description createdAt updatedAt isPost').sort('-createdAt').limit(limit).skip(startIndex).exec();
+        var temp2 = await Recipe.find({uuid: {$ne: uuid}}).sort('-createdAt').limit(limit).skip(startIndex).exec();
+        results.results = temp.concat(temp2);
+        // results.results = await Post.find({},'-_id uuid userUuid username profilePic url description createdAt updatedAt isPost').sort('-createdAt').limit(limit).skip(startIndex).exec();
+        let uuids_1 = [];
+        let uuids_2 = [];
         if(results.results.length == 0){
           res.paginatedResults = results;
           next();
         } else {
           await results.results.forEach(async element => {
-            uuids.push(element.uuid);
+            if(element.isPost){
+              uuids_1.push(element.uuid);
+            } else {
+              uuids_2.push(element.uuid);
+            }
             if(results.results.indexOf(element) == results.results.length-1) {
-              let x = await Post.aggregate([{$match: {uuid: {$in: uuids}}},{$project: {count: { $size:"$comments" }}}]).exec()
-              let y = await Post.aggregate([{$match: {uuid: {$in: uuids}}},{$project: {count: { $size:"$likes" }, "isLiked" : { "$in" : [ uuid, "$likes" ]}}}]).exec()
-              let z = await Post.aggregate([{$match: {uuid: {$in: uuids}}},{$project: {"isBookmarked" : { "$in" : [ uuid, "$bookmarks" ]}}}]).exec()
-              results.noOfComments = x;
-              results.noOfLikes = y;
-              results.bookmarks = z;
+              let alpha = await Post.aggregate([{$match: {uuid: {$in: uuids_1}}},{$project: {comments: { $size:"$comments" }, likes: { $size:"$likes" },"isLiked" : { "$in" : [ uuid, "$likes" ]}, "isBookmarked" : { "$in" : [ uuid, "$bookmarks" ]}}}]).exec()
+              let beta = await Recipe.aggregate([{$match: {uuid: {$in: uuids_2}}},{$project: {comments: { $size:"$comments" }, likes: { $size:"$likes" },"isLiked" : { "$in" : [ uuid, "$likes" ]}, "isBookmarked" : { "$in" : [ uuid, "$bookmarks" ]}}}]).exec()
+              results.data = alpha.concat(beta);
+              results.indices = shuffledIndex;
               res.paginatedResults = results;
+              console.log(res.paginatedResults);
               next()
             }
           });
         }
-        results.results = await Recs.find().sort('-createdAt').limit(limit).skip(startIndex).exec();
+        // results.results = 
       } catch (e) {
         res.status(201).json({
             status: false,
@@ -304,5 +351,6 @@ module.exports = {
     lazyfeed,
     lazycomment,
     lazyrec,
-    lazyguess
+    lazyguess,
+    lazyexplore
 }
