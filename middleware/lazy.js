@@ -3,6 +3,7 @@ const Post = require("../models/post.js");
 const Subscribed = require("../models/subscribed.js");
 const Recipe = require("../models/recipe.js");
 const Suggestion = require("../models/suggestion.js");
+const Tag = require("../models/tag.js");
 // const Recipe = require("../models/recipe.js");
 
 
@@ -293,10 +294,11 @@ const lazyexplore = async (req,res,next) => {
     const startIndex = (page - 1)*limit;
     const endIndex = page*limit;
     const results = {};
-    let shuffledIndex = shuffle([((page-1)*6) + 0,((page-1)*6) + 1,((page-1)*6) + 2,((page-1)*6) + 3,((page-1)*6) + 4,((page-1)*6) + 5]);
+    let shuffledIndex = [];
+    // let shuffledIndex = shuffle([((page-1)*6) + 0,((page-1)*6) + 1,((page-1)*6) + 2,((page-1)*6) + 3,((page-1)*6) + 4,((page-1)*6) + 5]);
     let uuid = req.user.uuid;
    
-    if (endIndex < (await Post.find({}).countDocuments().exec()) && endIndex < (await Recipe.find({}).countDocuments().exec())) {
+    if (endIndex < (await Post.find({}).countDocuments().exec() + await Recipe.find({}).countDocuments().exec())) {
         results.next = {
           page: page + 1,
           limit: limit
@@ -328,7 +330,10 @@ const lazyexplore = async (req,res,next) => {
               let alpha = await Post.aggregate([{$match: {uuid: {$in: uuids_1}}},{$project: {comments: { $size:"$comments" }, likes: { $size:"$likes" },"isLiked" : { "$in" : [ uuid, "$likes" ]}, "isBookmarked" : { "$in" : [ uuid, "$bookmarks" ]}}}]).exec()
               let beta = await Recipe.aggregate([{$match: {uuid: {$in: uuids_2}}},{$project: {comments: { $size:"$comments" }, likes: { $size:"$likes" },"isLiked" : { "$in" : [ uuid, "$likes" ]}, "isBookmarked" : { "$in" : [ uuid, "$bookmarks" ]}}}]).exec()
               results.data = alpha.concat(beta);
-              results.indices = shuffledIndex;
+              for (let index = 0; index < results.results.length; index++) {
+                shuffledIndex.push(((page-1)*results.results.length) + index);
+              }
+              results.indices = shuffle(shuffledIndex);
               res.paginatedResults = results;
               console.log(res.paginatedResults);
               next()
@@ -347,10 +352,63 @@ const lazyexplore = async (req,res,next) => {
 }
 
 
+const lazyall = async (req,res,next) => {
+  try {
+    const page = parseInt(req.params.page);
+    const limit = 8;
+    const startIndex = (page - 1)*limit;
+    const endIndex = page*limit;
+    const results = {};
+    // let shuffledIndex = shuffle([((page-1)*6) + 0,((page-1)*6) + 1,((page-1)*6) + 2,((page-1)*6) + 3,((page-1)*6) + 4,((page-1)*6) + 5]);
+    let uuid = req.user.uuid;
+   let phrase = req.params.word;
+    if (endIndex < (await User.find({$or:[{"name": {$regex: phrase, $options:'i'}},{"username": {$regex: phrase}}]}).countDocuments().exec() + await Recipe.find({"name": {$regex: phrase, $options:'i'}}).countDocuments().exec() + await Tag.find({"name": {$regex:'^'+phrase, $options:'i'}}).countDocuments().exec())) {
+        results.next = {
+          page: page + 1,
+          limit: limit
+        }
+      }
+      if (startIndex > 0) {
+        results.previous = {
+          page: page - 1,
+          limit: limit
+        }
+      }
+      
+      let users = await User.find({$or:[{"name": {$regex: phrase, $options:'i'}},{"username": {$regex: phrase}}]},'-_id name uuid username profilePic').limit(limit).skip(startIndex).exec();
+      let recs = await Recipe.find({"name": {$regex: phrase, $options:'i'}},'-_id name uuid url').limit(limit).skip(startIndex).exec();
+      let tags = await Tag.find({"name": {$regex:'^'+phrase, $options:'i'}},'-_id name').limit(limit).skip(startIndex).exec();
+
+      if(users.concat(recs.concat(tags)).length == 0){
+          res.paginatedResults = results;
+          next();
+        } else {
+          results.users = users;
+          results.recs = recs;
+          results.tags = tags;
+
+          res.paginatedResults = results;
+          next();
+        }
+        // results.results = 
+      } catch (e) {
+        console.log(e);
+        res.status(201).json({
+            status: false,
+            message: "failed to load feed",
+            errors: [],
+            data: {posts: []},
+          })
+      }
+}
+
+
+
 module.exports = {
     lazyfeed,
     lazycomment,
     lazyrec,
     lazyguess,
-    lazyexplore
+    lazyexplore,
+    lazyall
 }

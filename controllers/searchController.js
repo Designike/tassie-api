@@ -110,6 +110,15 @@ const explore = async (req,res) => {
       });
 }
 
+const searchAll = async (req,res) => {
+  res.status(201).json({
+      status: true,
+      message: "",
+      errors: [],
+      data: res.paginatedResults,
+    });
+}
+
 const searchRecipe = async (req,res) => {
     let phrase = req.params.word;
     // const tags = await Tag.find({"name": {$regex: phrase},"isUser":false}).limit(3);
@@ -192,7 +201,8 @@ module.exports = {
     explore,
     searchRecipe,
     searchUser,
-    searchTag
+    searchTag,
+    searchAll
 }
 
 
