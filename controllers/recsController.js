@@ -1,4 +1,4 @@
-// const User = require("../models/users.js");
+const Bookmark = require("../models/bookmarks.js");
 // const Recs = require("../models/recipe.js");
 // const Subscribed = require("../models/subscribed.js");
 const { v4: uuidv4 } = require("uuid");
@@ -270,9 +270,14 @@ const addBookmark = async (req,res) => {
     if(!rec.bookmarks.includes(userUuid)){
         rec.bookmarks.push(userUuid);
     }
+    let bookmark = await Bookmark.findOne({userUuid:userUuid});
+    if(!bookmark.recipeUuid.includes(recUuid)){
+        bookmark.recipeUuid.push(recUuid);
+    }
     // console.log('hello');
     // console.log(post);
     await rec.save();
+    await bookmark.save();
     console.log('saved');
     res.status(201).json({
         status: true,
@@ -297,12 +302,15 @@ const removeBookmark = async (req,res) => {
         const userUuid = req.user.uuid;
         const recUuid = req.body.uuid;
         // console.log(postUuid);
-        const rec = await Recipe.findOne({uuid:recUuid});
+        let rec = await Recipe.findOne({uuid:recUuid});
+        let bookmark = await Bookmark.findOne({userUuid:userUuid});
         // console.log(post);
         // console.log('hello');
         // console.log(post);
         rec.bookmarks.pop(userUuid);
+        bookmark.pop(recipeUuid);
         await rec.save();
+        await bookmark.save();
         console.log('saved');
         res.status(201).json({
             status: true,

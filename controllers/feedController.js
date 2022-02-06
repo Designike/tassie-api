@@ -1,4 +1,5 @@
 const User = require("../models/users.js");
+const Bookmark = require("../models/bookmarks.js");
 const Post = require("../models/post.js");
 const Subscribed = require("../models/subscribed.js");
 const { drivePostUpload, generatePublicUrl } = require("../controllers/driveController.js");
@@ -256,6 +257,10 @@ const addBookmark = async (req,res) => {
     const postUuid = req.body.uuid;
     // console.log(postUuid);
     const post = await Post.findOne({uuid:postUuid});
+    let bookmark = await Bookmark.findOne({userUuid:userUuid});
+    if(!bookmark.postUuid.includes(postUuid)){
+        bookmark.postUuid.push(postUuid);
+    }
     // console.log(post);
     if(!post.bookmarks.includes(userUuid)){
         post.bookmarks.push(userUuid);
@@ -263,6 +268,7 @@ const addBookmark = async (req,res) => {
     // console.log('hello');
     // console.log(post);
     await post.save();
+    await bookmark.save();
     console.log('saved');
     res.status(201).json({
         status: true,
@@ -287,9 +293,12 @@ const removeBookmark = async (req,res) => {
     try{
     const userUuid = req.user.uuid;
     const postUuid = req.body.uuid;
+    let bookmark = await Bookmark.findOne({userUuid:userUuid});
     const post = await Post.findOne({uuid:postUuid});
     post.bookmarks.pop(userUuid);
+    bookmark.postUuid.pop(postUuid);
     await post.save();
+    await bookmark.save();
     res.status(201).json({
         status: true,
         message: "Unmarked",

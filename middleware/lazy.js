@@ -4,6 +4,7 @@ const Subscribed = require("../models/subscribed.js");
 const Recipe = require("../models/recipe.js");
 const Suggestion = require("../models/suggestion.js");
 const Tag = require("../models/tag.js");
+const Bookmark = require("../models/bookmarks.js");
 // const Recipe = require("../models/recipe.js");
 
 
@@ -402,6 +403,108 @@ const lazyall = async (req,res,next) => {
       }
 }
 
+const lazyprofile = async (req,res,next) => {
+  try {
+    const page = parseInt(req.params.page);
+    const limit = 9;
+    const startIndex = (page - 1)*limit;
+    const endIndex = page*limit;
+    const results = {};
+    // let shuffledIndex = shuffle([((page-1)*6) + 0,((page-1)*6) + 1,((page-1)*6) + 2,((page-1)*6) + 3,((page-1)*6) + 4,((page-1)*6) + 5]);
+    let uuid = req.user.uuid;
+  //  let phrase = req.params.word;
+    if (endIndex < (await Recipe.find({userUuid:uuid}).countDocuments().exec() + await Post.find({userUuid:uuid}).countDocuments().exec())) {
+        results.next = {
+          page: page + 1,
+          limit: limit
+        }
+      }
+      if (startIndex > 0) {
+        results.previous = {
+          page: page - 1,
+          limit: limit
+        }
+      }
+      
+      // let users = await User.find({$or:[{"name": {$regex: phrase, $options:'i'}},{"username": {$regex: phrase}}]},'-_id name uuid username profilePic').limit(limit).skip(startIndex).exec();
+      let recs = await Recipe.find({userUuid:uuid},'-_id name uuid url').limit(limit).skip(startIndex).exec();
+      let posts = await Post.find({userUuid:uuid},'-_id name uuid url').limit(limit).skip(startIndex).exec();
+
+      if(recs.concat(posts).length == 0){
+          res.paginatedResults = results;
+          next();
+        } else {
+          // results.users = users;
+          results.recs = recs;
+          results.posts = posts;
+          res.paginatedResults = results;
+          next();
+        }
+        // results.results = 
+      } catch (e) {
+        console.log(e);
+        res.status(201).json({
+            status: false,
+            message: "failed to load profile",
+            errors: [],
+            data: {posts: []},
+          })
+      }
+}
+
+const lazybookmark = async (req,res,next) => {
+  try {
+    const page = parseInt(req.params.page);
+    const limit = 9;
+    const startIndex = (page - 1)*limit;
+    const endIndex = page*limit;
+    const results = {};
+    // let shuffledIndex = shuffle([((page-1)*6) + 0,((page-1)*6) + 1,((page-1)*6) + 2,((page-1)*6) + 3,((page-1)*6) + 4,((page-1)*6) + 5]);
+    let uuid = req.user.uuid;
+  //  let phrase = req.params.word;
+    if (endIndex < (await Recipe.find({userUuid:uuid}).countDocuments().exec() + await Post.find({userUuid:uuid}).countDocuments().exec())) {
+        results.next = {
+          page: page + 1,
+          limit: limit
+        }
+      }
+      if (startIndex > 0) {
+        results.previous = {
+          page: page - 1,
+          limit: limit
+        }
+      }
+      let bookmarks = await Bookmark.findOne({userUuid:uuid},'-_id recipeUuid postUuid')
+      let recipeUuid = bookmarks.recipeUuid;
+      let postUuid = bookmarks.postUuid;
+      // let users = await User.find({$or:[{"name": {$regex: phrase, $options:'i'}},{"username": {$regex: phrase}}]},'-_id name uuid username profilePic').limit(limit).skip(startIndex).exec();
+      let recs = await Recipe.find({ uuid: {$in: recipeUuid }},'-_id name uuid url').limit(limit).skip(startIndex).exec();
+      let posts = await Post.find({ uuid: {$in: postUuid }},'-_id name uuid url').limit(limit).skip(startIndex).exec();
+      // let alpha = await Post.aggregate([{"$in" : [ uuid, "$bookmarks" ]}]).exec()
+      // console.log(alpha);
+
+      if(recs.concat(posts).length == 0){
+          res.paginatedResults = results;
+          next();
+        } else {
+          // results.users = users;
+          results.recs = recs;
+          results.posts = posts;
+          res.paginatedResults = results;
+          next();
+        }
+        // results.results = 
+      } catch (e) {
+        console.log(e);
+        res.status(201).json({
+            status: false,
+            message: "failed to load profile",
+            errors: [],
+            data: {posts: []},
+          })
+      }
+}
+
 
 
 module.exports = {
@@ -410,5 +513,7 @@ module.exports = {
     lazyrec,
     lazyguess,
     lazyexplore,
-    lazyall
+    lazyall,
+    lazyprofile,
+    lazybookmark
 }

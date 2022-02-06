@@ -412,7 +412,9 @@ const twoStepVerification = async (req, res) => {
           user.recipeFolder = recipeFolder.response.id;
           console.log('4');
           const newUser = new User(user);
+          const newBookmark = new Bookmark({userUuid: user.uuid, recipeUuid: [], postUuid: []})
           const token = await newUser.generateAuthToken();
+          await newBookmark.save();
           await newUser.save();
           console.log('5');
           
