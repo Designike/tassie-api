@@ -317,7 +317,7 @@ const updatePassword = async (req,res) => {
 const updateEmail = async (req, res) => {
   newEmail = req.body.email;
   myCache.set(req.user.uuid + '_email', newEmail);
-  res.redirect('user/mail/'+req.user.uuid);
+  mail(req, res, req.params.uuid);
 }
 //Twilio otp
 

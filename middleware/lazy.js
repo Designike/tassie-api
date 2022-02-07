@@ -438,6 +438,7 @@ const lazyprofile = async (req,res,next) => {
           results.recs = recs;
           results.posts = posts;
           res.paginatedResults = results;
+          console.log(results);
           next();
         }
         // results.results = 
@@ -491,6 +492,7 @@ const lazybookmark = async (req,res,next) => {
           results.recs = recs;
           results.posts = posts;
           res.paginatedResults = results;
+          console.log(results);
           next();
         }
         // results.results = 

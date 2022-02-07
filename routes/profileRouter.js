@@ -8,5 +8,7 @@ const lazy = require('../middleware/lazy');
 
 router.get('/lazyProfile/:page',[auth,lazy.lazyprofile],profileController.loadProfile);
 router.get('/lazyBookmark/:page',[auth,lazy.lazybookmark],profileController.loadBookmark);
+router.post('/currentProfile',auth,profileController.currentProfile);
+router.post('/updateProfile',auth,profileController.updateProfile);
 
 module.exports = router;

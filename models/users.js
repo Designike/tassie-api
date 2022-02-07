@@ -22,7 +22,7 @@ const userSchema=new mongoose.Schema({
         type:String,
         trim:true,
         validate(value){
-            const gender = ['Male','Female','Other']
+            const gender = ['male','female','other']
             if(!(gender.includes(value))){
                 throw new Error('Enter a valid gender')
             }
@@ -65,6 +65,9 @@ const userSchema=new mongoose.Schema({
         }
     },
     profilePic:{
+        type:String,
+    },
+    number:{
         type:String,
     },
     website:{
