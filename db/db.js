@@ -26,3 +26,7 @@ mongoose.connect(db,{
 }).catch((err)=>{
     console.log("No connection");
 })
+
+// const conn = mongoose.connection();
+
+// module.exports = conn;

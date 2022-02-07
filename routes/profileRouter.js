@@ -10,5 +10,7 @@ router.get('/lazyProfile/:page',[auth,lazy.lazyprofile],profileController.loadPr
 router.get('/lazyBookmark/:page',[auth,lazy.lazybookmark],profileController.loadBookmark);
 router.post('/currentProfile',auth,profileController.currentProfile);
 router.post('/updateProfile',auth,profileController.updateProfile);
+router.post('/updateUsername',auth,profileController.updateUsername);
+
 
 module.exports = router;

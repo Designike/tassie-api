@@ -99,7 +99,8 @@ const logout = async (req, res) => {
     })
   } catch (error) {
     // res.status(500).send();
-    res.status(500).json({
+    console.log(error);
+    res.status(200).json({
         status: false,
         message: "Unable to logout",
         errors:error,
@@ -481,8 +482,10 @@ const messageGenerate = (name, otp) => {
 };
 
 const checkUser = async (req, res) => {
+  // console.log('chale');
   const found = await User.findOne({username: req.params.user})
   if(found) {
+    // console.log('1');
     res.status(400).json({
       status: false,
       message: "Username already exist.",

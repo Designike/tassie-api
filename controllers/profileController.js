@@ -2,6 +2,9 @@ const Recipe = require("../models/recipe.js");
 const Suggestion = require("../models/suggestion.js");
 const Tag = require("../models/tag.js");
 const User = require("../models/users.js");
+const mongoose = require('mongoose');
+const Post = require("../models/post.js");
+const conn = mongoose.connection;
 
 const loadProfile = async (req,res) => {
     res.status(201).json({
@@ -63,9 +66,48 @@ const updateProfile = async (req,res) => {
     }
 }
 
+const updateUsername = async (req,res) => {
+    const uuid = req.user.uuid;
+
+    const session = await conn.startSession();
+    try {
+        session.startTransaction();                    
+        
+        await User.findOneAndUpdate({uuid:uuid},{username:req.body.username},{ session });
+        
+        await Post.updateMany({userUuid:uuid},{username:req.body.username},{ session });
+
+        await Recipe.updateMany({userUuid:uuid},{username:req.body.username},{ session });
+
+        await session.commitTransaction();
+        
+        console.log('success');
+
+        res.status(201).json({
+            status: true,
+            message: "Successfully updated",
+            errors: [],
+            data: {},
+          });
+    } catch (error) {
+        console.log('error');
+
+        await session.abortTransaction();
+
+        res.status(201).json({
+            status: false,
+            message: "Update failed",
+            errors: [],
+            data: {},
+          });
+    }
+    session.endSession();
+}
+
 module.exports = {
     loadProfile,
     loadBookmark,
     currentProfile,
-    updateProfile
+    updateProfile,
+    updateUsername
 }
