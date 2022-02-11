@@ -16,7 +16,12 @@ const auth=async(req,res,next)=>{
         next()
     }catch(error){
         console.log(error);
-        res.status(401).send({error:'Please Authenticate'})
+        res.status(201).json({
+            status: false,
+            message: "Please authenticate",
+            errors: [],
+            data: {},
+        });
         
     }
 }

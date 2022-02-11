@@ -3,7 +3,7 @@ const Bookmark = require("../models/bookmarks.js");
 // const Subscribed = require("../models/subscribed.js");
 const { v4: uuidv4 } = require("uuid");
 const Recipe = require("../models/recipe.js");
-const { driveRecipeUpload, deleteFile, createRecipeFolder, generatePublicUrl } = require('./driveController');
+const { deleteFile, uploadRecipe } = require('./driveController');
 const ingredients = require("../ingredients.json");
 
 const loadRecs = (req, res) => {
@@ -20,16 +20,16 @@ const createRecipe = async (req,res) => {
     try {
         
     const uuid = req.user.uuid + '_recipe_' + uuidv4();
-    const recipeFolder = await createRecipeFolder(uuid, req.user.recipeFolder);
-    console.log(recipeFolder);
-    if(recipeFolder.status == true) {
-        const recs = new Recipe({uuid:uuid, recipeFolder: recipeFolder.response.id, username: req.user.username, userUuid: req.user.uuid, profilePic: req.user.profilePic});
+    // const recipeFolder = await createRecipeFolder(uuid, req.user.recipeFolder);
+    // console.log(recipeFolder);
+    // if(recipeFolder.status == true) {
+        const recs = new Recipe({uuid:uuid, username: req.user.username, userUuid: req.user.uuid, profilePic: req.user.profilePic});
         await recs.save(async (err,result)=>{
             if(err){
-                await deleteFile(recipeFolder.response.id);
+                // await deleteFile(recipeFolder.response.id);
                 res.status(201).json({
                     status: false,
-                    message: "Error creating 1",
+                    message: "Error creating : 1",
                     errors: [],
                     data: {},
                 });
@@ -38,23 +38,23 @@ const createRecipe = async (req,res) => {
                     status: true,
                     message: "created",
                     errors: [],
-                    data: {recUuid:uuid, folder: recipeFolder.response.id},
+                    data: {recUuid:uuid},
                 });
             }
         });
-    } else {
-        res.status(201).json({
-            status: false,
-            message: "Error creating 2",
-            errors: [],
-            data: {},
-        });
-    }
+    // } else {
+    //     res.status(201).json({
+    //         status: false,
+    //         message: "Error creating 2",
+    //         errors: [],
+    //         data: {},
+    //     });
+    // }
     
     } catch (error) {
         res.status(201).json({
             status: false,
-            message: "Error creating 3",
+            message: "Error creating : 2",
             errors: [],
             data: {},
         });
@@ -70,66 +70,72 @@ const updateRecipe = async (req,res) => {
   try {
     let updates = Object.keys(req.body);
 
-    if(updates.folder != undefined) {
-        delete updates.folder;
-    }
+    // if(updates.folder != undefined) {
+    //     delete updates.folder;
+    // }
     if(updates.imgName != undefined) {
         delete updates.imgName;
     }
     if (req.file) {
         const imgName = req.body.imgName;
-        const folder = req.body.folder;
-        const uploadImg = await driveRecipeUpload(imgName, req.file, folder);
+        // const folder = req.body.folder;
+        // const uploadImg = await driveRecipeUpload(imgName, req.file, folder);
+        
 
-        if(uploadImg.status == true) {
-            const imgURL = await generatePublicUrl(uploadImg.response.id);
             
-            if(imgURL.status == true) {
+            
                 const recs = await Recipe.findOne({uuid:req.body.uuid});
                 updates.forEach((update) => (recs[update] = req.body[update]));
                 const imgMap = imgName.split('_');
-                
-                if(imgMap[0] == 'r') {
-                    recs.url = imgURL.response.webContentLink;
-                    recs.recipeImageID = uploadImg.response.id;
-                } else if( imgMap[0] == 'i'){
-                    recs.ingredientPics.push({
-                        index: imgMap[1],
-                        url: imgURL.response.webContentLink,
-                        fileID: uploadImg.response.id
-                    });   
-                } else {
-                    recs.stepPics.push({
-                        index: imgMap[1],
-                        url: imgURL.response.webContentLink
+
+                const uploadImg = await uploadRecipe(req.user.uuid, req.file, recs.uuid, imgName);
+                console.log(uploadImg);
+                if(uploadImg.status == true) {
+                    if(imgMap[0] == 'r') {
+                        recs.recipeImageID = uploadImg.response;
+                    } else if( imgMap[0] == 'i'){
+                        recs.ingredientPics.push({
+                            index: imgMap[1],
+                            fileID: uploadImg.response
+                        });   
+                    } else {
+                        recs.stepPics.push({
+                            index: imgMap[1],
+                            url: uploadImg.response
+                        });
+                    }
+                    await recs.save(err => {
+                        if(err) {
+                            deleteFile(uploadImg.response);
+                            throw err;
+                        }
                     });
+                    res.status(201).json({
+                        status: true,
+                        message: "Data saved",
+                        errors:[],
+                        data: {}
+                    })
+                } else {
+                    // console.log(error);
+                        res.status(201).json({
+                            status: false,
+                            message: "Unable to update last changes !",
+                            errors:[],
+                            data: {}
+                        })
                 }
-                await recs.save();
-                
-                // res.status(200).send(user);
-                res.status(201).json({
-                    status: true,
-                    message: "Data saved",
-                    errors:[],
-                    data: {}
-                })
-            } else {
-                res.status(201).json({
-                    status: false,
-                    message: "Unable to update last changes !",
-                    errors:error,
-                    data: {}
-                })
-            }
+
             
-        } else {
-            res.status(201).json({
-                status: false,
-                message: "Unable to update last changes !",
-                errors:error,
-                data: {}
-            })
-        }
+            
+        // } else {
+        //     res.status(201).json({
+        //         status: false,
+        //         message: "Unable to update last changes !",
+        //         errors:error,
+        //         data: {}
+        //     })
+        // }
     } else {
         const recs = await Recipe.findOne({uuid:req.body.uuid});
         updates.forEach((update) => (recs[update] = req.body[update]));
@@ -144,6 +150,7 @@ const updateRecipe = async (req,res) => {
     
   } catch (error) {
     // res.status(500).send(error);
+    console.error(error);
     res.status(201).json({
         status: false,
         message: "Unable to update your recipe !!!",
@@ -157,7 +164,7 @@ const deleteRecipe = async (req,res) => {
     try {
         const uuid = req.body.uuid
         await Recipe.findOneAndDelete({uuid: uuid});
-        const del = await deleteFile(req.body.folder); 
+        const del = await deleteFile('recipes/' + req.user.uuid + '/' + uuid ); 
         if(del.status == true) { 
         res.status(201).json({
             status: true,

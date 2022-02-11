@@ -6,6 +6,7 @@ const myCache = new NodeCache();
 const sgMail = require("@sendgrid/mail");
 const {createFolder} = require('./driveController');
 const TassieCustomError = require('../errors/tassieCustomError');
+const Bookmark = require("../models/bookmarks.js");
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -401,17 +402,17 @@ const twoStepVerification = async (req, res) => {
   const isValid = totp.check(req.body.totp, secret);
   if (req.user && isValid == true) {
     try {
-      console.log('1');
+      // console.log('1');
       const user = req.user;
-      const postFolder = await createFolder(req.user.uuid, true);
-      console.log('2');
-      if (postFolder.status == true) {
-        const recipeFolder = await createFolder(req.user.uuid, false);
-        console.log('3');
-        if (recipeFolder.status == true) {
-          user.postFolder = postFolder.response.id;
-          user.recipeFolder = recipeFolder.response.id;
-          console.log('4');
+      // const postFolder = await createFolder(req.user.uuid, true);
+      // console.log('2');
+      // if (postFolder.status == true) {
+        // const recipeFolder = await createFolder(req.user.uuid, false);
+        // console.log('3');
+        // if (recipeFolder.status == true) {
+          // user.postFolder = postFolder.response.id;
+          // user.recipeFolder = recipeFolder.response.id;
+          // console.log('4');
           const newUser = new User(user);
           const newBookmark = new Bookmark({userUuid: user.uuid, recipeUuid: [], postUuid: []})
           const token = await newUser.generateAuthToken();
@@ -430,22 +431,22 @@ const twoStepVerification = async (req, res) => {
             },
           });
           myCache.take(user.uuid);
-        } else {
-          res.status(500).json({
-            status: false,
-            message: "Error registering user",
-            errors: [],
-            data: {},
-          })
-        }
-      } else {
-        res.status(500).json({
-          status: false,
-          message: "Error registering user",
-          errors: [],
-          data: {},
-        })
-      }
+        // } else {
+        //   res.status(500).json({
+        //     status: false,
+        //     message: "Error registering user",
+        //     errors: [],
+        //     data: {},
+        //   })
+        // }
+      // } else {
+      //   res.status(500).json({
+      //     status: false,
+      //     message: "Error registering user",
+      //     errors: [],
+      //     data: {},
+      //   })
+      // }
 
     } catch (error) {
       //    res.status(400).send(error)
@@ -525,6 +526,109 @@ const sendmail = (req, res) => {
   mail(req, res, req.params.uuid);
 }
 
+const googleSignIn = async (req,res) => {
+
+  const user = await User.findOne({email: req.body.email});
+  
+  if(user) {
+    const token = await user.generateAuthToken();
+    res.status(200).json({
+        status: true,
+        message: "You are logged in !",
+        errors:[],
+        data: {
+            uuid:user.uuid,
+            token:token
+        }
+    })
+  } else {
+    res.status(200).json({
+      status: false,
+      message: "You are not registered",
+      errors:[],
+      data: {}
+    })
+  }
+
+  // try {
+  //   await User.create(req.user);
+  //   res.status(201).json({
+  //     status: true,
+  //     message: "",
+  //     errors: [],
+  //     data: {},
+  //   });
+  // } catch (error) {
+  //   res.status(201).json({
+  //     status: true,
+  //     message: "",
+  //     errors: [],
+  //     data: {},
+  //   });
+  // }
+}
+
+const googleRegiter = async (req,res) => {
+
+  let user = req.body;
+  const uuid = uuidv4() + "_" + req.body.username;
+  user.uuid = uuid;
+  try {
+    
+    // console.log('1');
+      // const postFolder = await createFolder(req.user.uuid, true);
+      // console.log('2');
+      // if (postFolder.status == true) {
+        // const recipeFolder = await createFolder(req.user.uuid, false);
+        // console.log('3');
+        // if (recipeFolder.status == true) {
+          // user.postFolder = postFolder.response.id;
+          // user.recipeFolder = recipeFolder.response.id;
+          // console.log('4');
+          const newUser = new User(user);
+          const newBookmark = new Bookmark({userUuid: user.uuid, recipeUuid: [], postUuid: []})
+          const token = await newUser.generateAuthToken();
+          await newBookmark.save();
+          await newUser.save();
+          // console.log('5');
+          
+          //    res.status(201).send({newUser,token})
+          res.status(201).json({
+            status: true,
+            message: "User has been saved",
+            errors: [],
+            data: {
+              uuid: user.uuid,
+              token: token,
+            },
+          });
+        // } else {
+        //   res.status(500).json({
+        //     status: false,
+        //     message: "Error registering user",
+        //     errors: [],
+        //     data: {},
+        //   })
+        // }
+      // } else {
+      //   res.status(500).json({
+      //     status: false,
+      //     message: "Error registering user",
+      //     errors: [],
+      //     data: {},
+      //   })
+      // }
+
+  } catch (error) {
+    res.status(400).json({
+      status: false,
+      message: "User can't be created",
+      errors: [],
+      data: {},
+    });
+  }
+}
+
 module.exports = {
   remove,
   update,
@@ -542,4 +646,6 @@ module.exports = {
   verifyEmail,
   checkUser,
   checkEmail,
+  googleRegiter,
+  googleSignIn
 };

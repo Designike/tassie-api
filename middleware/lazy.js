@@ -311,8 +311,8 @@ const lazyexplore = async (req,res,next) => {
           limit: limit
         }
       }
-        var temp = await Post.find({uuid: {$ne: uuid}},'-_id uuid userUuid username profilePic url description createdAt updatedAt isPost').sort('-createdAt').limit(limit).skip(startIndex).exec();
-        var temp2 = await Recipe.find({uuid: {$ne: uuid}}).sort('-createdAt').limit(limit).skip(startIndex).exec();
+        var temp = await Post.find({userUuid: {$ne: uuid}},'-_id uuid userUuid username profilePic url description createdAt updatedAt postID isPost').sort('-createdAt').limit(limit).skip(startIndex).exec();
+        var temp2 = await Recipe.find({userUuid: {$ne: uuid}}).sort('-createdAt').limit(limit).skip(startIndex).exec();
         results.results = temp.concat(temp2);
         // results.results = await Post.find({},'-_id uuid userUuid username profilePic url description createdAt updatedAt isPost').sort('-createdAt').limit(limit).skip(startIndex).exec();
         let uuids_1 = [];
@@ -411,7 +411,13 @@ const lazyprofile = async (req,res,next) => {
     const endIndex = page*limit;
     const results = {};
     // let shuffledIndex = shuffle([((page-1)*6) + 0,((page-1)*6) + 1,((page-1)*6) + 2,((page-1)*6) + 3,((page-1)*6) + 4,((page-1)*6) + 5]);
-    let uuid = req.user.uuid;
+
+    let uuid;
+    if(req.params.uuid == "user") {
+      uuid = req.user.uuid;
+    }else{
+      uuid = req.params.uuid;
+    }
   //  let phrase = req.params.word;
     if (endIndex < (await Recipe.find({userUuid:uuid}).countDocuments().exec() + await Post.find({userUuid:uuid}).countDocuments().exec())) {
         results.next = {
@@ -427,8 +433,8 @@ const lazyprofile = async (req,res,next) => {
       }
       
       // let users = await User.find({$or:[{"name": {$regex: phrase, $options:'i'}},{"username": {$regex: phrase}}]},'-_id name uuid username profilePic').limit(limit).skip(startIndex).exec();
-      let recs = await Recipe.find({userUuid:uuid},'-_id name uuid url').limit(limit).skip(startIndex).exec();
-      let posts = await Post.find({userUuid:uuid},'-_id name uuid url').limit(limit).skip(startIndex).exec();
+      let recs = await Recipe.find({userUuid:uuid},'-_id name uuid recipeImageID').limit(limit).skip(startIndex).exec();
+      let posts = await Post.find({userUuid:uuid},'-_id name uuid postID').limit(limit).skip(startIndex).exec();
 
       if(recs.concat(posts).length == 0){
           res.paginatedResults = results;
@@ -438,7 +444,7 @@ const lazyprofile = async (req,res,next) => {
           results.recs = recs;
           results.posts = posts;
           res.paginatedResults = results;
-          console.log(results);
+          // console.log(results);
           next();
         }
         // results.results = 
@@ -452,6 +458,117 @@ const lazyprofile = async (req,res,next) => {
           })
       }
 }
+
+const lazyprofilepost = async (req,res,next) => {
+  try {
+    const page = parseInt(req.params.page);
+    const limit = 9;
+    const startIndex = (page - 1)*limit;
+    const endIndex = page*limit;
+    const results = {};
+    // let shuffledIndex = shuffle([((page-1)*6) + 0,((page-1)*6) + 1,((page-1)*6) + 2,((page-1)*6) + 3,((page-1)*6) + 4,((page-1)*6) + 5]);
+    let uuid;
+    if(req.params.uuid == "user") {
+      uuid = req.user.uuid;
+    }else{
+      uuid = req.params.uuid;
+    }
+  //  let phrase = req.params.word;
+    if (endIndex < (await Post.find({userUuid:uuid}).countDocuments().exec())) {
+        results.next = {
+          page: page + 1,
+          limit: limit
+        }
+      }
+      if (startIndex > 0) {
+        results.previous = {
+          page: page - 1,
+          limit: limit
+        }
+      }
+      
+      // let users = await User.find({$or:[{"name": {$regex: phrase, $options:'i'}},{"username": {$regex: phrase}}]},'-_id name uuid username profilePic').limit(limit).skip(startIndex).exec();
+      // let recs = await Recipe.find({userUuid:uuid},'-_id name uuid recipeImageID').limit(limit).skip(startIndex).exec();
+      let posts = await Post.find({userUuid:uuid},'-_id name uuid postID').limit(limit).skip(startIndex).exec();
+
+      if(posts.length == 0){
+          res.paginatedResults = results;
+          next();
+        } else {
+          // results.users = users;
+          // results.recs = recs;
+          results.posts = posts;
+          res.paginatedResults = results;
+          // console.log(results);
+          next();
+        }
+        // results.results = 
+      } catch (e) {
+        console.log(e);
+        res.status(201).json({
+            status: false,
+            message: "failed to load profile",
+            errors: [],
+            data: {posts: []},
+          })
+      }
+}
+
+const lazyprofilerecs = async (req,res,next) => {
+  try {
+    const page = parseInt(req.params.page);
+    const limit = 9;
+    const startIndex = (page - 1)*limit;
+    const endIndex = page*limit;
+    const results = {};
+    // let shuffledIndex = shuffle([((page-1)*6) + 0,((page-1)*6) + 1,((page-1)*6) + 2,((page-1)*6) + 3,((page-1)*6) + 4,((page-1)*6) + 5]);
+    let uuid;
+    if(req.params.uuid == "user") {
+      uuid = req.user.uuid;
+    }else{
+      uuid = req.params.uuid;
+    }
+  //  let phrase = req.params.word;
+    if (endIndex < (await Recipe.find({userUuid:uuid}).countDocuments().exec())) {
+        results.next = {
+          page: page + 1,
+          limit: limit
+        }
+      }
+      if (startIndex > 0) {
+        results.previous = {
+          page: page - 1,
+          limit: limit
+        }
+      }
+      
+      // let users = await User.find({$or:[{"name": {$regex: phrase, $options:'i'}},{"username": {$regex: phrase}}]},'-_id name uuid username profilePic').limit(limit).skip(startIndex).exec();
+      let recs = await Recipe.find({userUuid:uuid},'-_id name uuid recipeImageID').limit(limit).skip(startIndex).exec();
+      // let posts = await Post.find({userUuid:uuid},'-_id name uuid postID').limit(limit).skip(startIndex).exec();
+
+      if(recs.length == 0){
+          res.paginatedResults = results;
+          next();
+        } else {
+          // results.users = users;
+          results.recs = recs;
+          // results.posts = posts;
+          res.paginatedResults = results;
+          // console.log(results);
+          next();
+        }
+        // results.results = 
+      } catch (e) {
+        console.log(e);
+        res.status(201).json({
+            status: false,
+            message: "failed to load profile",
+            errors: [],
+            data: {posts: []},
+          })
+      }
+}
+
 
 const lazybookmark = async (req,res,next) => {
   try {
@@ -517,5 +634,7 @@ module.exports = {
     lazyexplore,
     lazyall,
     lazyprofile,
-    lazybookmark
+    lazybookmark,
+    lazyprofilepost,
+    lazyprofilerecs
 }

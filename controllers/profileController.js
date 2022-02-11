@@ -4,6 +4,7 @@ const Tag = require("../models/tag.js");
 const User = require("../models/users.js");
 const mongoose = require('mongoose');
 const Post = require("../models/post.js");
+const Subscribed = require("../models/subscribed.js");
 const conn = mongoose.connection;
 
 const loadProfile = async (req,res) => {
@@ -104,10 +105,98 @@ const updateUsername = async (req,res) => {
     session.endSession();
 }
 
+const getProfile = async (req, res) => {
+    // const results = {};
+    // let isMyProfile = req.params.isMyProfile;
+    let uuid;
+    if(req.params.uuid == "user") {
+        uuid = req.user.uuid;
+    }else{
+        uuid = req.params.uuid;
+    }
+    const noOfPosts = await Post.find({userUuid:uuid}).countDocuments().exec(); 
+    const noOfRecipes = await Recipe.find({userUuid:uuid}).countDocuments().exec();
+    let noOfSub = await Subscribed.aggregate([{$match: {user: uuid}},{$project: {subscriber: { $size:"$subscriber" }, subscribed: { $size:"$subscribed" }, isSubscribed : { "$in" : [ req.user.uuid, "$subscriber" ]}}}]);
+    const userData = await User.findOne({uuid:uuid},'-_id bio website name username uuid profilePic');
+    res.status(201).json({
+        status: true,
+        message: "User data",
+        errors: [],
+        data: {noOfPosts: noOfPosts, noOfRecipes: noOfRecipes,noOfSub: noOfSub[0],userData:userData},
+      });
+}
+
+
+const subscribe = async (req,res) => {
+    try {
+    const uuid = req.body.uuid;
+    const userUuid = req.user.uuid;
+    //account vado manas
+    let sub1 = await Subscribed.findOne({user:uuid});
+    //je follow dabave che e
+    let sub2 = await Subscribed.findOne({user:userUuid});
+    //account vada manas na subscriber ma jase
+    sub1.subscriber.push(userUuid);
+    //krva vada na subscribed ma jase
+    sub2.subscribed.push(uuid);
+    await sub1.save();
+    await sub2.save();
+    res.status(201).json({
+        status: true,
+        message: "Subscribed",
+        errors: [],
+        data: {},
+      });
+    } catch (error) {
+        console.log(error);
+        res.status(201).json({
+            status: false,
+            message: "Not Subscribed",
+            errors: [error],
+            data: {},
+          });
+    }
+}
+
+const unsubscribe = async (req,res) => {
+    try {
+        
+    const uuid = req.body.uuid;
+    const userUuid = req.user.uuid;
+    //account vado manas
+    let sub1 = await Subscribed.findOne({user:uuid});
+    //je follow dabave che e
+    let sub2 = await Subscribed.findOne({user:userUuid});
+    //account vada manas na subscriber ma jase
+    sub1.subscriber.pop(userUuid);
+    //krva vada na subscribed ma jase
+    sub2.subscribed.pop(uuid);
+    await sub1.save();
+    await sub2.save();
+    res.status(201).json({
+        status: true,
+        message: "Unsubscribed",
+        errors: [],
+        data: {},
+      });
+    } catch (error) {
+        console.log(error);
+        res.status(201).json({
+            status: false,
+            message: "Not Unsubscribed",
+            errors: [error],
+            data: {},
+          });
+    }
+}
+
 module.exports = {
     loadProfile,
     loadBookmark,
     currentProfile,
     updateProfile,
-    updateUsername
+    updateUsername,
+    getProfile,
+    subscribe,
+    unsubscribe
 }

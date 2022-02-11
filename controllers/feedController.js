@@ -2,7 +2,7 @@ const User = require("../models/users.js");
 const Bookmark = require("../models/bookmarks.js");
 const Post = require("../models/post.js");
 const Subscribed = require("../models/subscribed.js");
-const { drivePostUpload, generatePublicUrl } = require("../controllers/driveController.js");
+const { uploadPost } = require("../controllers/driveController.js");
 const { v4: uuidv4 } = require("uuid");
 const e = require("express");
 
@@ -104,26 +104,28 @@ const loadcomment = (req, res) => {
 const createPost = async (req, res) =>{
 
     const userUuid = req.user.uuid;
-    const postID = await drivePostUpload(userUuid, req.file, req.user.postFolder);
-    console.log(postID);
+    // const postID = await drivePostUpload(userUuid, req.file, req.user.postFolder);
+    const postID = await uploadPost(userUuid, req.file);
+
+    // console.log(postID);
     if(postID.status == true) {
-        console.log('1a');
-        const postURL = await generatePublicUrl(postID.response.id);
-        console.log(postURL);
-        if(postURL.status == true) {
+        // console.log('1a');
+        // const postURL = await generatePublicUrl(postID.response.id);
+        // console.log(postURL);
+        // if(postURL.status == true) {
             const post = new Post({
                 username:req.user.username,
                 profilePic:req.user.profilePic,
                 userUuid:req.user.uuid,
                 description:req.body.desc,
-                url:postURL.response.webContentLink,
+                // url:postURL.response.webContentLink,
                 likes:[],
                 comments:[],
                 bookmarks:[],
                 uuid:postID.filename,
-                postID: postID.response.id
+                postID: postID.response
             });
-            console.log('2a');
+            // console.log('2a');
             console.log(post);
             post.save((err)=>{
                 if(!err){
@@ -144,14 +146,14 @@ const createPost = async (req, res) =>{
                       });
                 }
             });
-        } else {
-            res.status(201).json({
-                status: false,
-                message: "Error while saving",
-                errors: [],
-                data: {},
-              });
-        }
+        // } else {
+        //     res.status(201).json({
+        //         status: false,
+        //         message: "Error while saving",
+        //         errors: [],
+        //         data: {},
+        //       });
+        // }
         
     } else {
         res.status(201).json({
@@ -213,7 +215,7 @@ const removeLike = async (req,res) => {
         res.status(201).json({
             status: false,
             message: "error unliking it",
-            errors: [],
+            errors: [err],
             data: {},
             });
     }
@@ -281,7 +283,7 @@ const addBookmark = async (req,res) => {
         res.status(201).json({
             status: false,
             message: "error saving it",
-            errors: [],
+            errors: [err],
             data: {},
           });
     }
@@ -309,7 +311,7 @@ const removeBookmark = async (req,res) => {
         res.status(201).json({
             status: false,
             message: "error unmarking it",
-            errors: [],
+            errors: [err],
             data: {},
             });
     }

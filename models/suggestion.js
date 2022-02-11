@@ -18,10 +18,10 @@ let suggestionSchema=new mongoose.Schema({
             userUuid:{
                 type:String,
             },
-            url:{
-                type:String,
+            // url:{
+            //     type:String,
                 
-            },
+            // },
             name:{
                 type:String,
             },

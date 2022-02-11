@@ -18,10 +18,10 @@ const recipeSchema=new mongoose.Schema({
     userUuid:{
         type:String,
     },
-    url:{
-        type:String,
+    // url:{
+    //     type:String,
         
-    },
+    // },
     recipeImageID:{
         type:String,
     },
@@ -56,19 +56,17 @@ const recipeSchema=new mongoose.Schema({
     ingredients:[String],
     ingredientPics:[{
         index:String,
-        url:String,
         fileID: String
     }],
     steps:[String],
     stepPics:[{
         index:String,
-        url:String,
         fileID:String,
     }],
-    recipeFolder:{
-        type:String,
-        required:true
-     },
+    // recipeFolder:{
+    //     type:String,
+    //     required:true
+    //  },
     veg:{
         type:Boolean
     },
