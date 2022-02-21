@@ -17,5 +17,7 @@ router.post('/addComment',auth,feedController.addComment);
 router.post('/removeComment',auth,feedController.removeComment);
 router.post('/bookmark', auth, feedController.addBookmark);
 router.post('/removeBookmark',auth,feedController.removeBookmark);
+// router.post('/addHashtag',auth,feedController.addHashtag);
+router.post('/getHashtag',auth,feedController.getHashtag);
 
 module.exports = router;

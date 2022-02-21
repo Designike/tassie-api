@@ -16,6 +16,8 @@ router.post('/updateRecipe', [auth, upload], recsController.updateRecipe);
 router.post('/resetImage', auth, recsController.resetImage);
 router.post('/bookmark', auth, recsController.addBookmark);
 router.post('/removeBookmark',auth,recsController.removeBookmark);
+router.post('/addHashtag',auth,recsController.addHashtag);
+router.post('/getHashtag',auth,recsController.getHashtag);
 
 // router.get('/lazycomment/:uuid/:userUuid/:page',lazy.lazycomment,feedController.loadcomment);
 // router.post('/post', auth, feedController.createPost);

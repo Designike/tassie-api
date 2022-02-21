@@ -86,6 +86,21 @@ const recipeSchema=new mongoose.Schema({
     bookmarks:{
         type:[String]
     },
+    desc:{
+        type:String
+    },
+    isBreakfast:{
+        type:Boolean,
+    },
+    isLunch:{
+        type:Boolean,
+    },
+    isDinner:{
+        type:Boolean,
+    },
+    isCraving:{
+        type:Boolean,
+    }
 }, {timestamps: true});
 
 const Recipe=mongoose.model('recipe',recipeSchema)

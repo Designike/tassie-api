@@ -1,4 +1,5 @@
 const Bookmark = require("../models/bookmarks.js");
+const Tag = require("../models/tag.js");
 // const Recs = require("../models/recipe.js");
 // const Subscribed = require("../models/subscribed.js");
 const { v4: uuidv4 } = require("uuid");
@@ -80,10 +81,7 @@ const updateRecipe = async (req,res) => {
         const imgName = req.body.imgName;
         // const folder = req.body.folder;
         // const uploadImg = await driveRecipeUpload(imgName, req.file, folder);
-        
 
-            
-            
                 const recs = await Recipe.findOne({uuid:req.body.uuid});
                 updates.forEach((update) => (recs[update] = req.body[update]));
                 const imgMap = imgName.split('_');
@@ -336,6 +334,73 @@ const removeBookmark = async (req,res) => {
         }
 // }post.bookmarks.pop(userUuid);
 }
+function onlyUnique(value, index, self) {
+    return self.indexOf(value) === index;
+}
+const addHashtag = async (req,res) => {
+    let hashtagString = req.body.desc;
+    let hashtag = hashtagString.match(/#\w+/g);
+    if(hashtag != null){ 
+        hashtag = hashtag.filter(onlyUnique);
+    
+    let recipeUuid = req.body.uuid;
+    let index = 0;
+    hashtag.forEach(async tag => {
+        let tag1 = await Tag.findOne({name: tag});
+        if (tag1) {
+            tag1.recipe.push(recipeUuid);
+            await tag1.save();
+        }else{
+            let tag2 = new Tag({name: tag, recipe: [recipeUuid], post: []});
+            await tag2.save();
+        }
+        index++;
+        // if(index == hashtag.length - 1){
+        //     res.status(201).json({
+        //         status: true,
+        //         message: "tagged",
+        //         errors: [],
+        //         data: {},
+        //       });
+        // }
+    });
+}
+    const rec = await Recipe.findOne({uuid:req.body.uuid});
+    // console.log('2a');
+    rec.desc = req.body.desc;
+    rec.save((err)=>{
+        if(!err){
+            res.status(201).json({
+                status: true,
+                message: "Saved successfully",
+                errors: [],
+                data: {},
+            });
+        }
+        else{
+            console.log(err);
+            res.status(201).json({
+                status: false,
+                message: "Error while saving",
+                errors: [err],
+                data: {},
+            });
+        }
+    });
+
+}
+
+const getHashtag = async (req,res) => {
+    let tag = req.body.tag;
+    let suggestion = await Tag.find({name: {$regex: '^' + tag}},'-_id name');
+    console.log(suggestion);
+    res.status(201).json({
+        status: true,
+        message: "sugesstions",
+        errors: [],
+        data: suggestion,
+      });
+}
 
 module.exports = {
     loadRecs,
@@ -345,5 +410,7 @@ module.exports = {
     getIng,
     resetImage,
     addBookmark,
-    removeBookmark
+    removeBookmark,
+    addHashtag,
+    getHashtag
 };

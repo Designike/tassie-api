@@ -5,6 +5,7 @@ const Subscribed = require("../models/subscribed.js");
 const { uploadPost } = require("../controllers/driveController.js");
 const { v4: uuidv4 } = require("uuid");
 const e = require("express");
+const Tag = require("../models/tag.js");
 
 const load = async (req,res) => {
 
@@ -100,19 +101,50 @@ const loadcomment = (req, res) => {
 //       }
     
 // }
+function onlyUnique(value, index, self) {
+    return self.indexOf(value) === index;
+}
 
 const createPost = async (req, res) =>{
-
+    try {
+        
+    
     const userUuid = req.user.uuid;
     // const postID = await drivePostUpload(userUuid, req.file, req.user.postFolder);
     const postID = await uploadPost(userUuid, req.file);
 
+
+    
+
+
+    
     // console.log(postID);
     if(postID.status == true) {
         // console.log('1a');
         // const postURL = await generatePublicUrl(postID.response.id);
         // console.log(postURL);
         // if(postURL.status == true) {
+            
+            let hashtagString = req.body.desc;
+            let hashtag = hashtagString.match(/#\w+/g);
+            if(hashtag != null){ 
+                hashtag = hashtag.filter(onlyUnique);
+            
+            let postUuid = postID.filename;
+            let index = 0;
+            hashtag.forEach(async tag => {
+                let tag1 = await Tag.findOne({name: tag});
+                if (tag1) {
+                    tag1.post.push(postUuid);
+                    await tag1.save();
+                }else{
+                    let tag2 = new Tag({name: tag, post: [postUuid], recipe: []});
+                    await tag2.save();
+                }
+                index++;
+            });
+        }
+
             const post = new Post({
                 username:req.user.username,
                 profilePic:req.user.profilePic,
@@ -141,7 +173,7 @@ const createPost = async (req, res) =>{
                     res.status(201).json({
                         status: false,
                         message: "Error while saving",
-                        errors: [],
+                        errors: [err],
                         data: {},
                       });
                 }
@@ -158,11 +190,20 @@ const createPost = async (req, res) =>{
     } else {
         res.status(201).json({
             status: false,
-            message: "Error while saving",
+            message: "Error while posting1",
             errors: [],
             data: {},
           });
     }
+} catch (error) {
+    console.log(error);
+    res.status(201).json({
+        status: false,
+        message: "Error while posting2",
+        errors: [error],
+        data: {},
+      });  
+}
     
 }
 
@@ -317,6 +358,43 @@ const removeBookmark = async (req,res) => {
     }
 }
 
+// const addHashtag = async (req,res) => {
+//     let hashtagString = req.body.hashtag;
+//     let hashtag = hashtagString.match(/#\w+/g);
+//     let postUuid = req.body.postUuid;
+//     let index = 0;
+//     hashtag.forEach(async tag => {
+//         let tag1 = await Tag.findOne({name: tag});
+//         if (tag1) {
+//             tag1.post.push(postUuid);
+//             await tag1.save();
+//         }else{
+//             tag1 = await Tag.create({name: tag, postUuid: [postUuid]});
+//             await tag1.save();
+//         }
+//         index++;
+//         if(index == hashtag.length - 1){
+//             res.status(201).json({
+//                 status: true,
+//                 message: "tagged",
+//                 errors: [],
+//                 data: {},
+//               });
+//         }
+//     });
+// }
+
+const getHashtag = async (req,res) => {
+    let tag = req.body.tag;
+    let suggestion = await Tag.find({name: {$regex: '^' + tag}},'-_id name');
+    console.log(suggestion);
+    res.status(201).json({
+        status: true,
+        message: "sugesstions",
+        errors: [],
+        data: suggestion,
+      });
+}
 
 module.exports = {
     load,
@@ -328,5 +406,7 @@ module.exports = {
     addComment,
     removeComment,
     addBookmark,
-    removeBookmark
+    removeBookmark,
+    // addHashtag,
+    getHashtag
 };
