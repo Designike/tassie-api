@@ -402,6 +402,80 @@ const getHashtag = async (req,res) => {
       });
 }
 
+const getRecipe = async (req,res) => {
+        
+    let userUuid = req.user.uuid;
+    let recipeUuid = req.body.uuid;
+    let recipe = await Recipe.findOne({uuid: recipeUuid});
+    if(recipe){
+        // let recipeUserUuid = recipe.userUuid;
+        // let beta = await Recipe.aggregate([{$match: {uuid: {$in: uuids}}},{$project: {comments: { $size:"$comments" }, likes: { $size:"$likes" },"isLiked" : { "$in" : [ uuid, "$likes" ]}, "isBookmarked" : { "$in" : [ uuid, "$bookmarks" ]}}}]).exec()
+        // let bookmark = await Bookmark.findOne({userUuid:recipeUserUuid},'-_id subscriber');
+        // let isBookmarked;
+        // if(bookmark.subscriber.includes(userUuid)){
+        //     isBookmarked = true;
+        // }
+        // else{
+        //     isBookmarked = false;
+        // }
+        let recipeData = await Recipe.aggregate([{$match: {uuid: recipeUuid}},{$project: {"isLiked" : { "$in" : [ userUuid, "$likes" ]},"isBookmarked" : { "$in" : [ userUuid, "$bookmarks" ]},"ratings":{$size:"$ratings"}, "1":{$size:{$filter:{input: "$ratings", cond: {$eq: ["$$this.star",1]}}}}, "2":{$size:{$filter:{input: "$ratings", cond: {$eq: ["$$this.star",2]}}}},  "3":{$size:{$filter:{input: "$ratings", cond: {$eq: ["$$this.star",3]}}}},"4":{$size:{$filter:{input: "$ratings", cond: {$eq: ["$$this.star",4]}}}}, "5":{$size:{$filter:{input: "$ratings", cond: {$eq: ["$$this.star",5]}}}}, }}]).exec();
+        // let userRating = await Recipe.aggregate([{$match: {}}]);
+        console.log(recipeData);
+        if(recipeData!=null){
+            res.status(201).json({
+                status: true,
+                message: "sugesstions",
+                errors: [],
+                data: {recipeData:recipeData[0],recipe:recipe},
+              });
+        }
+        else{
+            console.log(err);
+            res.status(201).json({
+                status: false,
+                message: "Error",
+                errors: [err],
+                data: {},
+            });
+        }
+    }
+    else{
+        console.log(err);
+            res.status(201).json({
+                status: false,
+                message: "Error while fetching",
+                errors: [err],
+                data: {},
+            });
+    }
+    
+    // if(await Bookmark.findOne({}))
+
+}
+
+const loadcomment = (req, res) => {
+    res.status(201).json({
+        status: true,
+        message: "",
+        errors: [],
+        data: {comments:res.paginatedComments},
+      });
+}
+
+const loadrating = (req, res) => {
+    res.status(201).json({
+        status: true,
+        message: "",
+        errors: [],
+        data: {comments:res.paginatedComments},
+      });
+}
+
+// const getRating = (req, res) => {
+//     let recipeUuid = req.body.uuid;
+    
+// }
+
 module.exports = {
     loadRecs,
     createRecipe,
@@ -412,5 +486,8 @@ module.exports = {
     addBookmark,
     removeBookmark,
     addHashtag,
-    getHashtag
+    getHashtag,
+    getRecipe,
+    loadcomment,
+    loadrating
 };

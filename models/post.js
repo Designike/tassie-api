@@ -51,6 +51,9 @@ const postSchema=new mongoose.Schema({
                 type:String,
                 
             },
+            profilePic:{
+                type:String,
+            },
             comment:{
                 type:String,
                 

@@ -18,6 +18,10 @@ router.post('/bookmark', auth, recsController.addBookmark);
 router.post('/removeBookmark',auth,recsController.removeBookmark);
 router.post('/addHashtag',auth,recsController.addHashtag);
 router.post('/getHashtag',auth,recsController.getHashtag);
+router.post('/getRecipe',auth,recsController.getRecipe);
+router.get('/lazyreccomment/:uuid/:userUuid/:page',lazy.lazyreccomment,recsController.loadcomment);
+router.get('/lazyrating/:uuid/:userUuid/:page',lazy.lazyrating,recsController.loadrating);
+
 
 // router.get('/lazycomment/:uuid/:userUuid/:page',lazy.lazycomment,feedController.loadcomment);
 // router.post('/post', auth, feedController.createPost);

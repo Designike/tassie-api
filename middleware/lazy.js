@@ -625,6 +625,99 @@ const lazybookmark = async (req,res,next) => {
 }
 
 
+const lazyreccomment = async (req,res,next) => {
+  try {
+  const page = parseInt(req.params.page);
+  // console.log(page);
+  const limit = 2;
+  const startIndex = (page - 1)*limit;
+  // console.log(startIndex);
+  const endIndex = page*limit;
+  const results = {}
+  userUuid = req.params.userUuid;
+  uuid = req.params.uuid;
+
+  let x = await Recipe.aggregate([{$match: {userUuid:userUuid,uuid:uuid}},{$project: { count: { $size:"$comments" }}},{$limit:1}]).exec()
+  // console.log(x.count);
+  // let comments = await Post.findOne({userUuid:userUuid,uuid:uuid},'-_id comments')
+  // console.log(comments);
+  if (endIndex < x[0].count) {
+      results.next = {
+        page: page + 1,
+        limit: limit
+      }
+    }
+
+    if (startIndex > 0) {
+      results.previous = {
+        page: page - 1,
+        limit: limit
+      }
+    }
+
+      // console.log(startIndex);
+      results.results = await Recipe.findOne({userUuid:userUuid,uuid:uuid},{comments:{$slice:[startIndex,limit]},_id:0,uuid:0,username:0,profilePic:0,userUuid:0,description:0,url:0,likes:0,createdAt:0,updatedAt:0}).exec();
+      // console.log(results.results);
+      res.paginatedComments = results
+      next()
+    } catch (e) {
+      console.log(e)
+      res.status(201).json({
+          status: false,
+          message: "failed to load feed",
+          errors: [],
+          data: {comments: []},
+        })
+    }
+  
+}
+
+const lazyrating = async (req,res,next) => {
+  try {
+  const page = parseInt(req.params.page);
+  // console.log(page);
+  const limit = 2;
+  const startIndex = (page - 1)*limit;
+  // console.log(startIndex);
+  const endIndex = page*limit;
+  const results = {}
+  userUuid = req.params.userUuid;
+  uuid = req.params.uuid;
+
+  let x = await Recipe.aggregate([{$match: {userUuid:userUuid,uuid:uuid}},{$project: { count: { $size:"$ratings" }}},{$limit:1}]).exec()
+  // console.log(x.count);
+  // let comments = await Post.findOne({userUuid:userUuid,uuid:uuid},'-_id comments')
+  // console.log(comments);
+  if (endIndex < x[0].count) {
+      results.next = {
+        page: page + 1,
+        limit: limit
+      }
+    }
+
+    if (startIndex > 0) {
+      results.previous = {
+        page: page - 1,
+        limit: limit
+      }
+    }
+
+      // console.log(startIndex);
+      results.results = await Recipe.findOne({userUuid:userUuid,uuid:uuid},{ratings:{$slice:[startIndex,limit]},_id:0,uuid:0,username:0,profilePic:0,userUuid:0,description:0,url:0,likes:0,createdAt:0,updatedAt:0}).exec();
+      // console.log(results.results);
+      res.paginatedComments = results
+      next()
+    } catch (e) {
+      console.log(e)
+      res.status(201).json({
+          status: false,
+          message: "failed to load feed",
+          errors: [],
+          data: {comments: []},
+        })
+    }
+  
+}
 
 module.exports = {
     lazyfeed,
@@ -636,5 +729,7 @@ module.exports = {
     lazyprofile,
     lazybookmark,
     lazyprofilepost,
-    lazyprofilerecs
+    lazyprofilerecs,
+    lazyreccomment,
+    lazyrating
 }

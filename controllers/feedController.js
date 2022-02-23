@@ -263,13 +263,17 @@ const removeLike = async (req,res) => {
 }
 
 const addComment = async (req,res) => {
+    try {
+        
+    
     console.log(req.body);
     const comment = req.body.comment;
     const postUuid = req.body.postUuid;
     const username = req.user.username;
     const commentUuid = req.user.uuid+'_comment_'+uuidv4();
     var post = await Post.findOne({uuid:postUuid});
-    post.comments.push({uuid:commentUuid,username:username,comment:comment});
+    if(post != null) {
+        post.comments.push({uuid:commentUuid,username:username,comment:comment, profilePic: req.user.profilePic});
     await post.save();
     res.status(201).json({
         status: true,
@@ -277,6 +281,23 @@ const addComment = async (req,res) => {
         errors: [],
         data: {},
     });
+    } else {
+        res.status(201).json({
+            status: false,
+            message: "Unable to add comment",
+            errors: [],
+            data: {},
+        });
+    }
+    } catch (error) {
+        res.status(201).json({
+            status: false,
+            message: "Unable to add comment",
+            errors: [],
+            data: {},
+        });    
+    }
+    
 }
 
 const removeComment = async (req,res) => {

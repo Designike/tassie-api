@@ -629,6 +629,16 @@ const googleRegiter = async (req,res) => {
   }
 }
 
+const getProfilePicture = async (req,res) => { 
+  res.status(400).json({
+    status: true,
+    message: "profile picture",
+    errors: [],
+    data: {profilePic: req.user.profilePic},
+  });
+}
+
+
 module.exports = {
   remove,
   update,
@@ -647,5 +657,6 @@ module.exports = {
   checkUser,
   checkEmail,
   googleRegiter,
-  googleSignIn
+  googleSignIn,
+  getProfilePicture
 };

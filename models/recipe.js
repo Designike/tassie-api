@@ -42,6 +42,9 @@ const recipeSchema=new mongoose.Schema({
                 type:String,
                 
             },
+            profilePic:{
+                type:String,
+            },
             comment:{
                 type:String,
                 
@@ -100,7 +103,23 @@ const recipeSchema=new mongoose.Schema({
     },
     isCraving:{
         type:Boolean,
-    }
+    },
+    ratings:{
+        type:[{
+            uuid:{
+                type:String,
+                
+            },
+            username:{
+                type:String,
+                
+            },
+            star:{
+                type:Number,
+            }
+        }],  
+    },
+    
 }, {timestamps: true});
 
 const Recipe=mongoose.model('recipe',recipeSchema)

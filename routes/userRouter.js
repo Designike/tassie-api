@@ -34,6 +34,8 @@ router.get('/username/:user',userController.checkUser);
 
 router.get('/checkEmail/:user',userController.checkEmail);
 
+router.get('/getProfilePic',auth,userController.getProfilePicture);
+
 router.post('/', userController.register);
 
 
