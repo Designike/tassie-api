@@ -629,7 +629,7 @@ const lazyreccomment = async (req,res,next) => {
   try {
   const page = parseInt(req.params.page);
   // console.log(page);
-  const limit = 2;
+  const limit = 10;
   const startIndex = (page - 1)*limit;
   // console.log(startIndex);
   const endIndex = page*limit;

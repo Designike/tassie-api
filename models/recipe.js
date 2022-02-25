@@ -114,6 +114,9 @@ const recipeSchema=new mongoose.Schema({
                 type:String,
                 
             },
+            profilePic:{
+                type:String,
+            },
             star:{
                 type:Number,
             }

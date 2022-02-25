@@ -204,7 +204,7 @@ const uploadPost = async (uuid, file) =>  {
     const fileStream = fs.createReadStream(file.path)
     const newUuid = uuidv4();
     const postUuid = uuid +'_post_' + newUuid
-    const name = "posts/" + uuid + "/" + postUuid;
+    const name = "posts/" + uuid + "/" + postUuid + path.extname(file.originalname);
 
     const uploadParams = {
       Bucket: bucketName,
@@ -250,12 +250,13 @@ const getFileStream = async (req, res) => {
     const downloadParams = {
       Key: req.body.key,
       Bucket: bucketName,
-      Expires: 120
+      Expires: 1200
       
     }
     // res.setHeader('Content-Type', 'image/jpg');
     // s3.getObject(downloadParams).createReadStream().on('error', error => {fs.createReadStream("broken.png").pipe(res);}).pipe(res);
-    const url =  s3_2.getSignedUrlPromise('getObject', downloadParams).then((url) => {
+      const url =  s3_2.getSignedUrlPromise('getObject', downloadParams).then((url) => {
+      console.log(url);
       res.status(201).json({
         status: true,
         message: "success",

@@ -7,6 +7,7 @@ const sgMail = require("@sendgrid/mail");
 const {createFolder} = require('./driveController');
 const TassieCustomError = require('../errors/tassieCustomError');
 const Bookmark = require("../models/bookmarks.js");
+const Subscribed = require("../models/subscribed.js");
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -20,7 +21,20 @@ const secret = process.env.TOTP_SECRET;
 const register = async (req, res) => {
   let user = req.body;
   const uuid = uuidv4() + "_" + req.body.username;
+  let options = [
+    'assets/Avacado.png',
+    'assets/Banana.png',
+    'assets/Pineapple.png',
+    'assets/Pumpkin.png',
+    'assets/Shushi.png'
+  ];
+
   user.uuid = uuid;
+  user.profilePic = options[Math.floor(Math.random()*options.length)];
+  user.gender = "";
+  user.number = "";
+  user.website = "";
+  user.bio = "";
   try {
     const userToRegister = uuid;
     myCache.set(userToRegister, user);
@@ -62,6 +76,7 @@ const login = async (req, res) => {
         errors:[],
         data: {
             uuid:user.uuid,
+            profilePic: user.profilePic,
             token:token
         }
     })
@@ -415,8 +430,10 @@ const twoStepVerification = async (req, res) => {
           // console.log('4');
           const newUser = new User(user);
           const newBookmark = new Bookmark({userUuid: user.uuid, recipeUuid: [], postUuid: []})
+          const newSubs = new Subscribed({user: user.uuid, subscriber: [], subscribed: []})
           const token = await newUser.generateAuthToken();
           await newBookmark.save();
+          await newSubs.save();
           await newUser.save();
           console.log('5');
           
@@ -427,6 +444,7 @@ const twoStepVerification = async (req, res) => {
             errors: [],
             data: {
               uuid: user.uuid,
+              profilePic: user.profilePic,
               token: token,
             },
           });
@@ -620,7 +638,7 @@ const googleRegiter = async (req,res) => {
       // }
 
   } catch (error) {
-    res.status(400).json({
+    res.status(200).json({
       status: false,
       message: "User can't be created",
       errors: [],
@@ -630,7 +648,7 @@ const googleRegiter = async (req,res) => {
 }
 
 const getProfilePicture = async (req,res) => { 
-  res.status(400).json({
+  res.status(201).json({
     status: true,
     message: "profile picture",
     errors: [],

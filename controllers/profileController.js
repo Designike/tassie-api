@@ -118,6 +118,7 @@ const getProfile = async (req, res) => {
     const noOfRecipes = await Recipe.find({userUuid:uuid}).countDocuments().exec();
     let noOfSub = await Subscribed.aggregate([{$match: {user: uuid}},{$project: {subscriber: { $size:"$subscriber" }, subscribed: { $size:"$subscribed" }, isSubscribed : { "$in" : [ req.user.uuid, "$subscriber" ]}}}]);
     const userData = await User.findOne({uuid:uuid},'-_id bio website name username uuid profilePic');
+    console.log(userData);
     res.status(201).json({
         status: true,
         message: "User data",

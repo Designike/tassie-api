@@ -15,9 +15,9 @@ const userSchema=new mongoose.Schema({
        required:true,
        trim:true
     },
-    profilePic:{
-        type:String,
-    },
+    // profilePic:{
+    //     type:String,
+    // },
     gender:{
         type:String,
         trim:true,
@@ -75,7 +75,7 @@ const userSchema=new mongoose.Schema({
         trim:true,
         lowercase:true,
         validate(value){
-            if(!validator.isURL(value)){
+            if(!validator.isURL(value) && value != ""){
                 throw new Error('Enter a valid website')
             }
         }

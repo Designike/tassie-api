@@ -21,7 +21,12 @@ router.post('/getHashtag',auth,recsController.getHashtag);
 router.post('/getRecipe',auth,recsController.getRecipe);
 router.get('/lazyreccomment/:uuid/:userUuid/:page',lazy.lazyreccomment,recsController.loadcomment);
 router.get('/lazyrating/:uuid/:userUuid/:page',lazy.lazyrating,recsController.loadrating);
-
+router.post('/addComment',auth,recsController.addComment);
+router.post('/removeComment',auth,recsController.removeComment);
+router.post('/like',auth, recsController.addLike);
+router.post('/unlike',auth,recsController.removeLike);
+router.post('/addRating',auth, recsController.addRating);
+router.post('/resetRating',auth,recsController.resetRating);
 
 // router.get('/lazycomment/:uuid/:userUuid/:page',lazy.lazycomment,feedController.loadcomment);
 // router.post('/post', auth, feedController.createPost);
