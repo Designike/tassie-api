@@ -435,7 +435,13 @@ const getRecipe = async (req, res) => {
   let userUuid = req.user.uuid;
   let chefUuid = req.body.chefUuid;
   let recipeUuid = req.body.uuid;
+  let no_of_doc = await Recipe.find({uuid:{$ne: recipeUuid}, userUuid: userUuid}).countDocuments().exec();
+  let random = Math.floor(Math.random() * (no_of_doc - 12));
+    if (random < 0) {
+        random = 0;
+    }
   let recipe = await Recipe.findOne({ uuid: recipeUuid },{comments:{$slice:[0,2]},ratings:{$slice:[0,2]}});
+  let similar = await Recipe.find({uuid:{$ne: recipeUuid}, userUuid: userUuid},'-_id uuid userUuid username url createdAt updatedAt').sort('-createdAt').limit(10).skip(random).exec();
   if (recipe) {
     // let recipeUserUuid = recipe.userUuid;
     // let beta = await Recipe.aggregate([{$match: {uuid: {$in: uuids}}},{$project: {comments: { $size:"$comments" }, likes: { $size:"$likes" },"isLiked" : { "$in" : [ uuid, "$likes" ]}, "isBookmarked" : { "$in" : [ uuid, "$bookmarks" ]}}}]).exec()
@@ -493,7 +499,7 @@ const getRecipe = async (req, res) => {
           status: true,
           message: "sugesstions",
           errors: [],
-          data: { recipeData: recipeData[0], recipe: recipe, isSubscribed: subscribe[0].isSubscribed},
+          data: { recipeData: recipeData[0], recipe: recipe, isSubscribed: subscribe[0].isSubscribed, similar: similar},
         });
       }
       else {
