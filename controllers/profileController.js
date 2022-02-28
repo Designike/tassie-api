@@ -69,7 +69,8 @@ const updateProfile = async (req,res) => {
 
 const updateUsername = async (req,res) => {
     const uuid = req.user.uuid;
-
+    const oldUsername = req.user.username;
+    console.log(req.body);
     const session = await conn.startSession();
     try {
         session.startTransaction();                    
@@ -78,7 +79,11 @@ const updateUsername = async (req,res) => {
         
         await Post.updateMany({userUuid:uuid},{username:req.body.username},{ session });
 
+        await Post.updateMany({'comments.username':oldUsername},{"$set":{'comments.$[].username':req.body.username}},{ session });
+
         await Recipe.updateMany({userUuid:uuid},{username:req.body.username},{ session });
+        
+        await Recipe.updateMany({'comments.username':oldUsername},{"$set":{'comments.$[].username':req.body.username}},{ session });
 
         await session.commitTransaction();
         

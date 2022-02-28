@@ -24,9 +24,9 @@ router.get('/mail/:uuid',userController.sendmail);
 
 router.post('/tsa/:uuid',userController.twoStepVerification);
 
-router.patch('/pass',userController.updatePassword);
+router.patch('/pass',auth,userController.updatePassword);
 
-router.post('/email',userController.updateEmail);
+router.post('/email',auth,userController.updateEmail);
 
 router.patch('/verifyEmail',userController.verifyEmail);
 

@@ -66,7 +66,7 @@ const lazyfeed = async (req,res,next) => {
         // console.log(startIndex);
         // let x = await Post.aggregate([{$match: {userUuid:{$in: found.subscribed}}},{$project: {count: { $size:"$comments" }}},{ $limit:limit },{ $skip:1 }]).exec()
         // console.log(x);
-        results.results = await Post.find({userUuid:{$in: found.subscribed}},'-_id uuid userUuid username profilePic url description createdAt updatedAt').sort('-createdAt').limit(limit).skip(startIndex).exec();
+        results.results = await Post.find({userUuid:{$in: found.subscribed}},'-_id uuid userUuid username profilePic url postID description createdAt updatedAt').sort('-createdAt').limit(limit).skip(startIndex).exec();
         // if(await Post.findOne({userUuid:{$in: found.subscribed}},'-_id likes').sort('-createdAt').limit(limit).skip(startIndex).exec()){}
         // results.results['noOfComments'] = x.count;
         // console.log(results.results);
@@ -269,7 +269,8 @@ const lazyguess = async (req, res, next) => {
       }
 
       results.results = await Suggestion.findById(id,{comments:{$slice:[startIndex,limit]}}).exec();
-      // console.log(results.results);
+      console.log('nike');
+      console.log(results.results);
       res.paginatedResults = results
         // console.log(startIndex);
         // results.results = await Suggestion.find({userUuid:{$in: found.subscribed}}).sort('-createdAt').limit(limit).skip(startIndex).exec();
@@ -332,7 +333,8 @@ const lazyexplore = async (req,res,next) => {
               let beta = await Recipe.aggregate([{$match: {uuid: {$in: uuids_2}}},{$project: {comments: { $size:"$comments" }, likes: { $size:"$likes" },"isLiked" : { "$in" : [ uuid, "$likes" ]}, "isBookmarked" : { "$in" : [ uuid, "$bookmarks" ]}}}]).exec()
               results.data = alpha.concat(beta);
               for (let index = 0; index < results.results.length; index++) {
-                shuffledIndex.push(((page-1)*results.results.length) + index);
+                // shuffledIndex.push(((page-1)*results.results.length) + index);
+                shuffledIndex.push(((page-1)*req.params.previousLength) + index);
               }
               results.indices = shuffle(shuffledIndex);
               res.paginatedResults = results;

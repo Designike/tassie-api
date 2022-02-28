@@ -11,23 +11,32 @@ const guess = async (req,res) => {
     var ingredients = req.body.ingredients;
     var time = req.body.maxTime;
     var course = req.body.course;
-    // console.log(req.body);
+    var meal = req.body.meal;
+    var ans;
+    console.log(req.body);
     // var tag = [];
-    const recipe = await Recipe.find({veg:veg, course:course, flavour:flavour, time:{$lte:time}}, '-_id uuid url name ingredients');
-    // console.log(recipe);
+    const recipe = await Recipe.find({veg:veg, course:course, flavour:flavour, time:{$lte:time}, '$or':[{isBreakfast:meal[0]}, {isLunch:meal[1]}, {isDinner:meal[2]}, {isCraving:meal[3]}]}, '-_id uuid recipeImageID name ingredients');
+    console.log(recipe);
     if(recipe.length > 0){
-        // console.log('inside');
-    var ans = await sortQuery(recipe,ingredients);
+        console.log('inside');
+    if(ingredients.length != 0){
+      ans = await sortQuery(recipe,ingredients);
+    }else{
+      ans = recipe;
+    }
     // console.log(ans);
     const newSuggest = new Suggestion({suggest: ans});
-    await newSuggest.save();
-    // console.log(newSuggest);
-    res.status(201).json({
+    await newSuggest.save((err, doc)=>{
+      console.log(err);
+      res.status(201).json({
         status: true,
         message: "",
         errors: [],
-        data: {recs: ans},
+        data: {id: doc._id},
       });
+    });
+    // console.log(newSuggest);
+    
     }else{
         res.status(201).json({
             status: true,

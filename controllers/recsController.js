@@ -441,7 +441,7 @@ const getRecipe = async (req, res) => {
         random = 0;
     }
   let recipe = await Recipe.findOne({ uuid: recipeUuid },{comments:{$slice:[0,2]},ratings:{$slice:[0,2]}});
-  let similar = await Recipe.find({uuid:{$ne: recipeUuid}, userUuid: userUuid},'-_id uuid userUuid username url createdAt updatedAt').sort('-createdAt').limit(10).skip(random).exec();
+  let similar = await Recipe.find({uuid:{$ne: recipeUuid}, userUuid: userUuid},'-_id uuid userUuid name username recipeImageID createdAt updatedAt').sort('-createdAt').limit(10).skip(random).exec();
   if (recipe) {
     // let recipeUserUuid = recipe.userUuid;
     // let beta = await Recipe.aggregate([{$match: {uuid: {$in: uuids}}},{$project: {comments: { $size:"$comments" }, likes: { $size:"$likes" },"isLiked" : { "$in" : [ uuid, "$likes" ]}, "isBookmarked" : { "$in" : [ uuid, "$bookmarks" ]}}}]).exec()

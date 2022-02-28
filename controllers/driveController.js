@@ -256,7 +256,7 @@ const getFileStream = async (req, res) => {
     // res.setHeader('Content-Type', 'image/jpg');
     // s3.getObject(downloadParams).createReadStream().on('error', error => {fs.createReadStream("broken.png").pipe(res);}).pipe(res);
       const url =  s3_2.getSignedUrlPromise('getObject', downloadParams).then((url) => {
-      console.log(url);
+      // console.log(url);
       res.status(201).json({
         status: true,
         message: "success",
