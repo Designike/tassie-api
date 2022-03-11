@@ -4,8 +4,6 @@ const router =  express.Router();
 const userController = require('../controllers/userController');
 const auth = require('../middleware/auth');
 
-
-
 router.post('/login',userController.login);
 
 router.get('/logout', auth, userController.logout);
@@ -24,11 +22,11 @@ router.get('/mail/:uuid',userController.sendmail);
 
 router.post('/tsa/:uuid',userController.twoStepVerification);
 
-router.patch('/pass',auth,userController.updatePassword);
+router.post('/updatePassword',auth,userController.updatePassword);
 
 router.post('/email',auth,userController.updateEmail);
 
-router.patch('/verifyEmail',userController.verifyEmail);
+router.post('/verifyEmail', auth, userController.verifyEmail);
 
 router.get('/username/:user',userController.checkUser);
 

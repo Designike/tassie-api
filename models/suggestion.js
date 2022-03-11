@@ -1,9 +1,9 @@
 // const { Timestamp } = require("mongodb")
 const mongoose=require('mongoose')
-
+// let exp = new Date.now();
 let suggestionSchema=new mongoose.Schema({
-    suggest:{ 
-        type: [{
+    suggest:[{ 
+        type: {
             uuid:{
                 type:String,
             },
@@ -18,18 +18,20 @@ let suggestionSchema=new mongoose.Schema({
             userUuid:{
                 type:String,
             },
-            // url:{
-            //     type:String,
+            recipeImageID:{
+                type:String,
                 
-            // },
+            },
             name:{
                 type:String,
             },
-        }],
-    },
+        },
+    }],
+    expires: {type: Date},
 },{timestamps:true});
 
-suggestionSchema.index({"createdAt": 1},{expireAfterSeconds: 60*45});
+// suggestionSchema.index({"createdAt": 1},{expireAfterSeconds: 60*45});
+suggestionSchema.index({ expires: 1}, {expireAfterSeconds: 0 });
 
 const Suggestion=mongoose.model('suggestion',suggestionSchema);
 

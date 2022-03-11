@@ -5,6 +5,7 @@ const Recipe = require("../models/recipe.js");
 const Suggestion = require("../models/suggestion.js");
 const Tag = require("../models/tag.js");
 const Bookmark = require("../models/bookmarks.js");
+const mongoose=require('mongoose');
 // const Recipe = require("../models/recipe.js");
 
 
@@ -239,7 +240,7 @@ const lazyguess = async (req, res, next) => {
     // console.log(startIndex);
     const endIndex = page*limit;
     const results = {};
-
+    let uuids = [];
     const id = req.params.id;
     const found = await Suggestion.findById(id);
     if(!found) {
@@ -251,8 +252,8 @@ const lazyguess = async (req, res, next) => {
         data: {recs: []},
       });
     } else {
-
-      let x = await Suggestion.aggregate([{$match: {_id:id}},{$project: { count: { $size:"$suggest" }}},{$limit:1}]).exec()
+      
+      let x = await Suggestion.aggregate([{$match: {_id:new mongoose.Types.ObjectId(id)}},{$project: { count: { $size:"$suggest" }}},{$limit:1}]).exec()
     // console.log(await Post.find({userUuid:{$in: found.subscribed}}).countDocuments().exec());
     if (endIndex < x[0].count) {
         results.next = {
@@ -269,17 +270,26 @@ const lazyguess = async (req, res, next) => {
       }
 
       results.results = await Suggestion.findById(id,{comments:{$slice:[startIndex,limit]}}).exec();
-      console.log('nike');
-      console.log(results.results);
-      res.paginatedResults = results
-        // console.log(startIndex);
-        // results.results = await Suggestion.find({userUuid:{$in: found.subscribed}}).sort('-createdAt').limit(limit).skip(startIndex).exec();
-        // res.paginatedResults = results
-        next()
+      await found.suggest.forEach(async (element) => {
+        uuids.push(element.uuid);
+        if(found.suggest.indexOf(element) == found.suggest.length-1) {
+          let beta = await Recipe.aggregate([{$match: {uuid: {$in: uuids}}},{$project: {"isBookmarked" : { "$in" : [ req.user.uuid, "$bookmarks" ]}}}]).exec()
+          results.recipeData = beta;
+          console.log('nike');
+          console.log(results.results);
+          res.paginatedResults = results;
+            // console.log(startIndex);
+            // results.results = await Suggestion.find({userUuid:{$in: found.subscribed}}).sort('-createdAt').limit(limit).skip(startIndex).exec();
+            // res.paginatedResults = results
+            next();
+        }
+      });
+      
 
     }
       } catch (e) {
         // res.status(500).json({ message: e.message })
+        console.log(e);
         res.status(201).json({
             status: false,
             message: "failed to load recs",

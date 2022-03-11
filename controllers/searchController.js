@@ -13,26 +13,30 @@ const guess = async (req,res) => {
     var course = req.body.course;
     var meal = req.body.meal;
     var ans;
-    console.log(req.body);
+    // console.log(req.body);
     // var tag = [];
-    const recipe = await Recipe.find({veg:veg, course:course, flavour:flavour, time:{$lte:time}, '$or':[{isBreakfast:meal[0]}, {isLunch:meal[1]}, {isDinner:meal[2]}, {isCraving:meal[3]}]}, '-_id uuid recipeImageID name ingredients');
-    console.log(recipe);
+    const recipe = await Recipe.find({veg:veg, course:course, flavour:flavour, time:{$lte:time}, '$or':[{isBreakfast:meal[0]}, {isLunch:meal[1]}, {isDinner:meal[2]}, {isCraving:meal[3]}]}, '-_id uuid recipeImageID name userUuid username profilePic');
+    // console.log(recipe);
     if(recipe.length > 0){
         console.log('inside');
     if(ingredients.length != 0){
       ans = await sortQuery(recipe,ingredients);
+      // ans.expires = Date.now();
     }else{
       ans = recipe;
+      // ans.expires = Date.now();
     }
     // console.log(ans);
-    const newSuggest = new Suggestion({suggest: ans});
+    var expires = new Date(); 
+    expires.setSeconds(expires.getSeconds() + (60*45));
+    const newSuggest = new Suggestion({suggest: ans[0],expires:expires});
     await newSuggest.save((err, doc)=>{
-      console.log(err);
+      // console.log(doc._id.toString());
       res.status(201).json({
         status: true,
         message: "",
         errors: [],
-        data: {id: doc._id},
+        data: {id: doc._id.toString()},
       });
     });
     // console.log(newSuggest);
@@ -80,7 +84,7 @@ const showResults = async (req,res) => {
         status: true,
         message: "",
         errors: [],
-        data: {posts: res.paginatedResults},
+        data: res.paginatedResults,
       });
 }
 

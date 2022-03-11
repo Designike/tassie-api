@@ -8,6 +8,7 @@ const {createFolder} = require('./driveController');
 const TassieCustomError = require('../errors/tassieCustomError');
 const Bookmark = require("../models/bookmarks.js");
 const Subscribed = require("../models/subscribed.js");
+const bcrypt = require("bcryptjs");
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -90,6 +91,7 @@ const login = async (req, res) => {
     })
     } else {
     // res.status(400).send(error);
+    console.log(error);
     res.status(200).json({
         status: false,
         message: "Unable to access your account",
@@ -300,31 +302,37 @@ const remove = async (req, res) => {
 };
 
 const updatePassword = async (req,res) => {
+  try {
   oldpass = req.body.oldpass;
   newpass = req.body.newpass;
+  console.log(req.body);
   const user = await User.findOne({uuid: req.user.uuid});
   const isMatch= await bcrypt.compare(oldpass,user.password);
   if(!isMatch){
-      res.status(400).json({
+      res.status(201).json({
         status: false,
-        message: "Invalid Password!",
+        message: "Incorrect Old Password!",
         errors: [],
         data: {},
       });
   }
-  try {
-    await User.updateOne({uuid: req.user.uuid},{password:newpass});
+ else{
+    user.password = newpass;
+    await user.save();
+
     res.status(201).json({
       status: true,
       message: "Updated successfully!",
       errors: [],
       data: {},
     });
-  } catch (error) {
-    res.status(400).json({
+  } 
+}
+  catch (error) {
+    res.status(201).json({
       status: false,
       message: "Error in updating password.",
-      errors: error,
+      errors: [error],
       data: {},
     });
   }
@@ -332,14 +340,20 @@ const updatePassword = async (req,res) => {
 }
 
 const updateEmail = async (req, res) => {
-  newEmail = req.body.email;
-  myCache.set(req.user.uuid + '_email', newEmail);
-  mail(req, res, req.params.uuid);
+  let newUser = req.user.toJSON();
+  // console.log(newUser);
+  newUser.email = req.body.email;
+  console.log(req.user.uuid);
+  console.log(newUser);
+  myCache.set(newUser['uuid'], newUser);
+  console.log('123');
+  mail(req, res, req.user.uuid);
 }
 //Twilio otp
 
 const verifyEmail = async (req, res) => {
-  const newEmail = myCache.get(req.params.uuid + "_email");
+  let user = myCache.get(req.user.uuid);
+  const newEmail = user.email;
   const isValid = totp.check(req.body.totp, secret);
   if (req.user && isValid == true) {
     try {
@@ -373,8 +387,12 @@ const verifyEmail = async (req, res) => {
 }
 
 const mail = async (req, res, uid) => {
+  console.log('456');
   req.user = myCache.get(uid);
+  console.log(req.user);
+  console.log('hellooo');
   if (req.user) {
+    console.log('1');
     const toptToken = totp.generate(secret);
     const toUser = req.user.email;
     const uuid = req.user.uuid;
@@ -387,6 +405,7 @@ const mail = async (req, res, uid) => {
     };
 
     await sgMail.send(msg, (err, info) => {
+      console.log('2');
       if (err) {
         console.log("email not sent");
         res.status(200).json({
@@ -522,6 +541,7 @@ const checkUser = async (req, res) => {
   }
 }
 const checkEmail = async (req, res) => {
+  console.log('func called');
   const found = await User.findOne({email: req.params.user})
   if(found) {
     res.status(400).json({
@@ -531,9 +551,10 @@ const checkEmail = async (req, res) => {
       data: {},
     });
   } else {
+    const arr = ["That's a great one!", "Damn, that's a new one!", "Nice choice!", "Here you go!", "Good to go!", "Awesome!"];
     res.status(201).json({
       status: true,
-      message: "",
+      message: arr[Math.floor(Math.random()*arr.length)],
       errors: [],
       data: {},
     });

@@ -73,10 +73,18 @@ const updateUsername = async (req,res) => {
     console.log(req.body);
     const session = await conn.startSession();
     try {
+
+        res.status(201).json({
+            status: true,
+            message: "Successfully updated",
+            errors: [],
+            data: {},
+          });
+
         session.startTransaction();                    
         
         await User.findOneAndUpdate({uuid:uuid},{username:req.body.username},{ session });
-        
+
         await Post.updateMany({userUuid:uuid},{username:req.body.username},{ session });
 
         await Post.updateMany({'comments.username':oldUsername},{"$set":{'comments.$[].username':req.body.username}},{ session });
@@ -89,23 +97,18 @@ const updateUsername = async (req,res) => {
         
         console.log('success');
 
-        res.status(201).json({
-            status: true,
-            message: "Successfully updated",
-            errors: [],
-            data: {},
-          });
+        
     } catch (error) {
         console.log('error');
 
         await session.abortTransaction();
 
-        res.status(201).json({
-            status: false,
-            message: "Update failed",
-            errors: [],
-            data: {},
-          });
+        // res.status(201).json({
+        //     status: false,
+        //     message: "Update failed",
+        //     errors: [],
+        //     data: {},
+        //   });
     }
     session.endSession();
 }
