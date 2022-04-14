@@ -495,12 +495,21 @@ const getRecipe = async (req, res) => {
       let subscribe = await Subscribed.aggregate([{$match: {user: chefUuid}},{$project: {isSubscribed : { "$in" : [ req.user.uuid, "$subscriber" ]}}}]);
       if (subscribe != null) {
         
+        if(subscribe.length > 0){
         res.status(201).json({
           status: true,
-          message: "sugesstions",
+          message: "suggestions",
           errors: [],
           data: { recipeData: recipeData[0], recipe: recipe, isSubscribed: subscribe[0].isSubscribed, similar: similar},
         });
+      } else {
+        res.status(201).json({
+          status: true,
+          message: "suggestions",
+          errors: [],
+          data: { recipeData: recipeData[0], recipe: recipe, isSubscribed: false, similar: similar},
+        });
+      }
       }
       else {
         console.log(err);

@@ -445,7 +445,7 @@ const lazyprofile = async (req,res,next) => {
       }
       
       // let users = await User.find({$or:[{"name": {$regex: phrase, $options:'i'}},{"username": {$regex: phrase}}]},'-_id name uuid username profilePic').limit(limit).skip(startIndex).exec();
-      let recs = await Recipe.find({userUuid:uuid},'-_id name uuid recipeImageID').limit(limit).skip(startIndex).exec();
+      let recs = await Recipe.find({userUuid:uuid},'-_id name uuid recipeImageID userUuid').limit(limit).skip(startIndex).exec();
       let posts = await Post.find({userUuid:uuid},'-_id name uuid postID').limit(limit).skip(startIndex).exec();
 
       if(recs.concat(posts).length == 0){
@@ -555,9 +555,9 @@ const lazyprofilerecs = async (req,res,next) => {
       }
       
       // let users = await User.find({$or:[{"name": {$regex: phrase, $options:'i'}},{"username": {$regex: phrase}}]},'-_id name uuid username profilePic').limit(limit).skip(startIndex).exec();
-      let recs = await Recipe.find({userUuid:uuid},'-_id name uuid recipeImageID').limit(limit).skip(startIndex).exec();
+      let recs = await Recipe.find({userUuid:uuid},'-_id name uuid recipeImageID userUuid').limit(limit).skip(startIndex).exec();
       // let posts = await Post.find({userUuid:uuid},'-_id name uuid postID').limit(limit).skip(startIndex).exec();
-
+      console.log(recs);
       if(recs.length == 0){
           res.paginatedResults = results;
           next();
