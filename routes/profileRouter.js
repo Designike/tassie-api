@@ -16,6 +16,7 @@ router.post('/updateUsername',auth,profileController.updateUsername);
 router.get('/getProfile/:uuid',auth,profileController.getProfile);
 router.post('/subscribe',auth,profileController.subscribe);
 router.post('/unsubscribe',auth,profileController.unsubscribe);
+router.post('/postStats',auth,profileController.postStats);
 
 
 module.exports = router;
