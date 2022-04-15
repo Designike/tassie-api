@@ -202,13 +202,14 @@ const unsubscribe = async (req,res) => {
 const postStats = async (req, res) => {
     try{
     let postUuid = req.body.postUuid;
-
-    let beta = await Post.aggregate([{$match: {uuid: postUuid}},{$project: {comments: { $size:"$comments" }, likes: { $size:"$likes" },"isLiked" : { "$in" : [ req.user.uuid, "$likes" ]}, "isBookmarked" : { "$in" : [ req.user.uuid, "$bookmarks" ]}}}]).exec();
+    
+    let beta = await Post.aggregate([{$match: {uuid: postUuid}},{$project: {comments: { $size:"$comments" }, likes: { $size:"$likes" },"isLiked" : { "$in" : [ req.user.uuid, "$likes" ]}, "isBookmarked" : { "$in" : [ req.user.uuid, "$bookmarks" ]}, username: true, createdAt: true}}]).exec();
+    console.log(beta[0]);
     res.status(201).json({
         status: true,
         message: "Post Stats",
         errors: [],
-        data: {beta},
+        data: beta[0],
         });
     
     } catch (error) {

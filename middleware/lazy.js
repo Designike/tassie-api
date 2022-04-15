@@ -501,8 +501,8 @@ const lazyprofilepost = async (req,res,next) => {
       
       // let users = await User.find({$or:[{"name": {$regex: phrase, $options:'i'}},{"username": {$regex: phrase}}]},'-_id name uuid username profilePic').limit(limit).skip(startIndex).exec();
       // let recs = await Recipe.find({userUuid:uuid},'-_id name uuid recipeImageID').limit(limit).skip(startIndex).exec();
-      let posts = await Post.find({userUuid:uuid},'-_id name uuid postID').limit(limit).skip(startIndex).exec();
-
+      let posts = await Post.find({userUuid:uuid},'-_id name uuid postID userUuid').limit(limit).skip(startIndex).exec();
+      console.log(posts);
       if(posts.length == 0){
           res.paginatedResults = results;
           next();
