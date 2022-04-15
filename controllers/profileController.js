@@ -201,39 +201,25 @@ const unsubscribe = async (req,res) => {
 
 const postStats = async (req, res) => {
     try{
-    let uuids=[];
-    let uuid = req.user.uuid;
-    found = await Post.find({userUuid:{$in: found.subscribed}},'-_id uuid').sort('-createdAt').limit(limit).skip(startIndex).exec();
-    if(found.length > 0){
-    await found.forEach(async element => {
-        uuids.push(element.uuid);
-        if(found.indexOf(element) == found.length - 1) {
-            let beta = await Post.aggregate([{$match: {uuid: {$in: uuids}}},{$project: {comments: { $size:"$comments" }, likes: { $size:"$likes" },"isLiked" : { "$in" : [ uuid, "$likes" ]}, "isBookmarked" : { "$in" : [ uuid, "$bookmarks" ]}}}]).exec();
-            res.status(201).json({
-                status: true,
-                message: "Post Stats",
-                errors: [],
-                data: {beta},
-                });
-        }
-    })
-    }else{
-        res.status(201).json({
-            status: true,
-            message: "Post Stats not found",
-            errors: [],
-            data: {},
-          });
-    }
-} catch (error) {
-    console.log(error);
+    let postUuid = req.body.postUuid;
+
+    let beta = await Post.aggregate([{$match: {uuid: postUuid}},{$project: {comments: { $size:"$comments" }, likes: { $size:"$likes" },"isLiked" : { "$in" : [ req.user.uuid, "$likes" ]}, "isBookmarked" : { "$in" : [ req.user.uuid, "$bookmarks" ]}}}]).exec();
     res.status(201).json({
-        status: false,
-        message: "Post not found",
-        errors: [error],
-        data: {},
-      });
-    }
+        status: true,
+        message: "Post Stats",
+        errors: [],
+        data: {beta},
+        });
+    
+    } catch (error) {
+        console.log(error);
+        res.status(201).json({
+            status: false,
+            message: "Post not found",
+            errors: [error],
+            data: {},
+        });
+        }
 }
 
 
