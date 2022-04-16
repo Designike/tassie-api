@@ -223,6 +223,30 @@ const postStats = async (req, res) => {
         }
 }
 
+const getPost = async (req, res) => {
+    try {
+        let postUuid = req.params.uuid;
+        let userUuid = req.user.uuid;
+        let post = await Post.findOne({uuid:postUuid, userUuid:userUuid},'-_id uuid userUuid description profilePic postID');
+        console.log(post);
+        res.status(201).json({
+            status:true,
+            message: "Post found",
+            errors: [],
+            data: post
+        });
+        
+    } catch (error) {
+        res.status(201).json({
+            status:false,
+            message: "Post not found",
+            errors: [],
+            data: {}
+        });
+    }
+
+}
+
 
 module.exports = {
     loadProfile,
@@ -233,5 +257,6 @@ module.exports = {
     getProfile,
     subscribe,
     unsubscribe,
-    postStats
+    postStats,
+    getPost
 }

@@ -10,6 +10,7 @@ router.get('/lazyProfile/:page',[auth,lazy.lazyprofile],profileController.loadPr
 router.get('/lazyProfilePost/:uuid/:page',[auth,lazy.lazyprofilepost],profileController.loadProfile);
 router.get('/lazyProfileRecs/:uuid/:page',[auth,lazy.lazyprofilerecs],profileController.loadProfile);
 router.get('/lazyBookmark/:page',[auth,lazy.lazybookmark],profileController.loadBookmark);
+router.get('/getPost/:uuid',auth,profileController.getPost);
 router.post('/currentProfile',auth,profileController.currentProfile);
 router.post('/updateProfile',auth,profileController.updateProfile);
 router.post('/updateUsername',auth,profileController.updateUsername);
