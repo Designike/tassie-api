@@ -107,16 +107,10 @@ function onlyUnique(value, index, self) {
 
 const createPost = async (req, res) =>{
     try {
-        
     
     const userUuid = req.user.uuid;
     // const postID = await drivePostUpload(userUuid, req.file, req.user.postFolder);
-    const postID = await uploadPost(userUuid, req.file);
-
-
-    
-
-
+    const postID = await uploadPost(userUuid, req.file);   
     
     // console.log(postID);
     if(postID.status == true) {
@@ -206,6 +200,52 @@ const createPost = async (req, res) =>{
 }
     
 }
+
+const editPost = async (req, res) => {
+    
+    let hashtagString = req.body.desc;
+            let hashtag = hashtagString.match(/#\w+/g);
+            if(hashtag != null){ 
+                hashtag = hashtag.filter(onlyUnique);
+            
+            let postUuid = req.body.postUuid;
+            let index = 0;
+            hashtag.forEach(async tag => {
+                let tag1 = await Tag.findOne({name: tag});
+                if (tag1) {
+                    tag1.post.push(postUuid);
+                    tag1.post = tag1.post.filter(onlyUnique);
+                    await tag1.save();
+                }else{
+                    let tag2 = new Tag({name: tag, post: [postUuid], recipe: []});
+                    await tag2.save();
+                }
+                index++;
+            });
+        }
+            let post = await Post.findOne({uuid:req.body.postUuid});
+            post.description = req.body.desc;
+            post.save((err)=>{
+                if(!err){
+                    res.status(201).json({
+                        status: true,
+                        message: "Saved successfully",
+                        errors: [],
+                        data: {},
+                      });
+                }
+                else{
+                    console.log(err);
+                    res.status(201).json({
+                        status: false,
+                        message: "Error while saving",
+                        errors: [err],
+                        data: {},
+                      });
+                }
+            })
+}
+
 
 const addLike = async (req,res) => {
     // console.log('hello');
@@ -422,6 +462,7 @@ module.exports = {
     trialLoad: loadfeed,
     loadcomment,
     createPost,
+    editPost,
     addLike,
     removeLike,
     addComment,

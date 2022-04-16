@@ -13,6 +13,7 @@ router.get('/lazycomment/:uuid/:userUuid/:page',lazy.lazycomment,feedController.
 router.post('/like', auth, feedController.addLike);
 router.post('/unlike',auth,feedController.removeLike);
 router.post('/newpost', [auth, upload], feedController.createPost);
+router.post('/editpost', auth, feedController.editPost);
 router.post('/addComment',auth,feedController.addComment);
 router.post('/removeComment',auth,feedController.removeComment);
 router.post('/bookmark', auth, feedController.addBookmark);

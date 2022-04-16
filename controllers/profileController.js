@@ -203,7 +203,7 @@ const postStats = async (req, res) => {
     try{
     let postUuid = req.body.postUuid;
     
-    let beta = await Post.aggregate([{$match: {uuid: postUuid}},{$project: {comments: { $size:"$comments" }, likes: { $size:"$likes" },"isLiked" : { "$in" : [ req.user.uuid, "$likes" ]}, "isBookmarked" : { "$in" : [ req.user.uuid, "$bookmarks" ]}, username: true, createdAt: true}}]).exec();
+    let beta = await Post.aggregate([{$match: {uuid: postUuid}},{$project: {comments: { $size:"$comments" }, likes: { $size:"$likes" },"isLiked" : { "$in" : [ req.user.uuid, "$likes" ]}, "isBookmarked" : { "$in" : [ req.user.uuid, "$bookmarks" ]}, username: true, createdAt: true, description: true}}]).exec();
     console.log(beta[0]);
     res.status(201).json({
         status: true,
@@ -228,7 +228,6 @@ const getPost = async (req, res) => {
         let postUuid = req.params.uuid;
         let userUuid = req.user.uuid;
         let post = await Post.findOne({uuid:postUuid, userUuid:userUuid},'-_id uuid userUuid description profilePic postID');
-        console.log(post);
         res.status(201).json({
             status:true,
             message: "Post found",
