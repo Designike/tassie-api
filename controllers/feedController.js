@@ -201,6 +201,37 @@ const createPost = async (req, res) =>{
     
 }
 
+const deletePost = async (req,res) => {
+    try {
+        const postUuid = req.params.uuid;
+        const post = await Post.findOneAndDelete({uuid:postUuid});
+        if(post) {
+            res.status(201).json({
+                status: true,
+                message: "Deleted successfully",
+                errors: [],
+                data: {},
+                });
+        } else {
+            res.status(201).json({
+                status: false,
+                message: "Error while deleting",
+                errors: [],
+                data: {},
+                });
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(201).json({
+            status: false,
+            message: "Error while deleting",
+            errors: [error],
+            data: {},
+            });
+    }
+}
+
+
 const editPost = async (req, res) => {
     
     let hashtagString = req.body.desc;
@@ -245,6 +276,7 @@ const editPost = async (req, res) => {
                 }
             })
 }
+
 
 
 const addLike = async (req,res) => {
@@ -457,12 +489,14 @@ const getHashtag = async (req,res) => {
       });
 }
 
+
 module.exports = {
     load,
     trialLoad: loadfeed,
     loadcomment,
     createPost,
     editPost,
+    deletePost,
     addLike,
     removeLike,
     addComment,
@@ -470,5 +504,5 @@ module.exports = {
     addBookmark,
     removeBookmark,
     // addHashtag,
-    getHashtag
+    getHashtag,
 };

@@ -10,6 +10,10 @@ router.get('/logout', auth, userController.logout);
 
 router.post('/logoutAll', auth, userController.logoutAll);
 
+router.post('/googleSignin', userController.googleSignIn);
+
+router.post('/googleRegister', userController.googleRegister);
+
 router.get('/me', auth, userController.findAll);
 
 router.get('/:id',userController.findOne);

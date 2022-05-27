@@ -67,6 +67,9 @@ const userSchema=new mongoose.Schema({
     profilePic:{
         type:String,
     },
+    isAuth:{
+        type:Boolean,
+    },
     number:{
         type:String,
     },
@@ -112,9 +115,9 @@ userSchema.methods.generateAuthToken=async function(){
 userSchema.statics.findByCredentials=async(email,username,password)=>{
     let user;
     if(email.length>0){
-    user=await User.findOne({email:email});
+    user=await User.findOne({email:email, isAuth: false});
 }else if(username.length>0){
-    user=await User.findOne({username:username});
+    user=await User.findOne({username:username, isAuth: false});
 }
     if(user == undefined){
         throw new TassieCustomError('Invalid Email or Username!')

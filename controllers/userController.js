@@ -36,6 +36,7 @@ const register = async (req, res) => {
   user.number = "";
   user.website = "";
   user.bio = "";
+  user.isAuth = false;
   try {
     const userToRegister = uuid;
     myCache.set(userToRegister, user);
@@ -577,6 +578,7 @@ const googleSignIn = async (req,res) => {
         errors:[],
         data: {
             uuid:user.uuid,
+            profilePic: user.profilePic,
             token:token
         }
     })
@@ -607,12 +609,26 @@ const googleSignIn = async (req,res) => {
   // }
 }
 
-const googleRegiter = async (req,res) => {
+const googleRegister = async (req,res) => {
 
   let user = req.body;
   const uuid = uuidv4() + "_" + req.body.username;
   user.uuid = uuid;
   try {
+    let options = [
+      'assets/Avacado.png',
+      'assets/Banana.png',
+      'assets/Pineapple.png',
+      'assets/Pumpkin.png',
+      'assets/Shushi.png'
+    ];
+  
+    user.profilePic = options[Math.floor(Math.random()*options.length)];
+    user.gender = "";
+    user.number = "";
+    user.website = "";
+    user.bio = "";
+    user.isAuth = true;
     
     // console.log('1');
       // const postFolder = await createFolder(req.user.uuid, true);
@@ -626,8 +642,10 @@ const googleRegiter = async (req,res) => {
           // console.log('4');
           const newUser = new User(user);
           const newBookmark = new Bookmark({userUuid: user.uuid, recipeUuid: [], postUuid: []})
+          const newSubs = new Subscribed({user: user.uuid, subscriber: [], subscribed: []})
           const token = await newUser.generateAuthToken();
           await newBookmark.save();
+          await newSubs.save();
           await newUser.save();
           // console.log('5');
           
@@ -695,7 +713,7 @@ module.exports = {
   verifyEmail,
   checkUser,
   checkEmail,
-  googleRegiter,
+  googleRegister,
   googleSignIn,
   getProfilePicture
 };
