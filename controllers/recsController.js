@@ -297,15 +297,23 @@ const renameImages = async (req, res) => {
   //   }
   // }
   console.log('2');
-  renameMap.forEach(async (newFile, oldFile) => {
-    console.log('3');
-    console.log(newFile);
-    console.log(oldFile);
+
+  Object.keys(renameMap).forEach((newFile) => {
+    const oldFile = renameMap[newFile];
     const rename = await renameFile(userUuid, recipeUuid, oldFile, newFile);
     if (rename.status == false) {
       throw Exception("Error renaming image!");
     }
-  })
+  });
+  // renameMap.forEach(async (newFile, oldFile) => {
+  //   console.log('3');
+  //   console.log(newFile);
+  //   console.log(oldFile);
+  //   const rename = await renameFile(userUuid, recipeUuid, oldFile, newFile);
+  //   if (rename.status == false) {
+  //     throw Exception("Error renaming image!");
+  //   }
+  // })
   console.log('4');
 
   res.status(201).json({
