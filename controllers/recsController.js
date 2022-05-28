@@ -4,7 +4,7 @@ const Tag = require("../models/tag.js");
 const Subscribed = require("../models/subscribed.js");
 const { v4: uuidv4 } = require("uuid");
 const Recipe = require("../models/recipe.js");
-const { deleteFile, uploadRecipe } = require("./driveController");
+const { deleteFile, uploadRecipe, renameFile } = require("./driveController");
 const ingredients = require("../ingredients.json");
 
 const loadRecs = (req, res) => {
@@ -277,6 +277,39 @@ const resetImage = async (req, res) => {
     });
   }
 };
+
+const renameImages = async (req, res) => {
+  try{
+  const isIngredient = req.body.isIngredient;
+  let index = req.body.index;
+  let userUuid = req.user.uuid;
+  let recipeUuid = req.body.recipeUuid;
+  const length = req.body.length;
+  let fileprefix = isIngredient ? 'i_' : 's_';
+
+  for (let i = index; i < length; i++) {
+    const rename = await renameFile(userUuid, recipeUuid, `${fileprefix}${i+1}`, `${fileprefix}${i}`);
+    if (rename.status == false) {
+      throw Exception("Error renaming image!");
+    }
+  }
+  res.status(201).json({
+    status: true,
+    message: "deleted",
+    errors: [],
+    data: {},
+  });
+} catch(err) {
+  console.log(err);
+  res.status(201).json({
+    status: false,
+    message: "Error deleting",
+    errors: [err],
+    data: {},
+  });
+}
+  
+}
 
 const getIng = (req, res) => {
   try {
@@ -737,6 +770,7 @@ module.exports = {
   updateRecipe,
   getIng,
   resetImage,
+  renameImages,
   addBookmark,
   removeBookmark,
   addHashtag,

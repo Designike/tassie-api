@@ -14,6 +14,7 @@ router.get('/createRecipe', auth, recsController.createRecipe);
 router.post('/deleteRecipe', auth, recsController.deleteRecipe);
 router.post('/updateRecipe', [auth, upload], recsController.updateRecipe);
 router.post('/resetImage', auth, recsController.resetImage);
+router.post('/renameImages', auth, recsController.renameImages);
 router.post('/bookmark', auth, recsController.addBookmark);
 router.post('/removeBookmark',auth,recsController.removeBookmark);
 router.post('/addHashtag',auth,recsController.addHashtag);
