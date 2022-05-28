@@ -325,7 +325,25 @@ const deleteFile = async (key) => {
 
   // generatePublicUrl();
 
+const renameFile = async (userUuid, recipeUuid, oldFile, newFile) => {
+  try{
+  await s3.copyObject({
+    Bucket: bucketName,
+    CopySource: `${bucketName}/recipes/${userUuid}/${recipeUuid}/${oldFile}`,
+    Key: `recipes/${userUuid}/${recipeUuid}/${newFile}`
+  }).promise();
+
+  await s3.deleteObject({
+        Bucket: bucketName,
+        Key: `recipes/${userUuid}/${recipeUuid}/${oldFile}`
+  }).promise();
+  return {status: true};
+  } catch (error) {
+    return {error: error, status: false};
+  }
+}
+
 module.exports = {
     // generatePublicUrl, createFolder, drivePostUpload, deleteFile, createRecipeFolder, driveRecipeUpload,
-     uploadPost, uploadRecipe, getFileStream, deleteFile
+     uploadPost, uploadRecipe, getFileStream, deleteFile, renameFile
 };
