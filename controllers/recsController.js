@@ -297,7 +297,7 @@ const renameImages = async (req, res) => {
   //   }
   // }
 
-  renameMap.forEach((oldFile,newFile)=>{
+  renameMap.forEach(async (oldFile,newFile) => {
     const rename = await renameFile(userUuid, recipeUuid, oldFile, newFile);
     if (rename.status == false) {
       throw Exception("Error renaming image!");
