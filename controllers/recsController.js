@@ -287,7 +287,7 @@ const renameImages = async (req, res) => {
   // const length = req.body.length;
   // let fileprefix = isIngredient ? 'i_' : 's_';
 
-  const renameMap = req.body.renameMap
+  const renameMap = req.body.renameMap;
 
   
   // for (let i = index; i < length; i++) {
