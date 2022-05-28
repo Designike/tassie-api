@@ -286,23 +286,27 @@ const renameImages = async (req, res) => {
   let recipeUuid = req.body.recipeUuid;
   // const length = req.body.length;
   // let fileprefix = isIngredient ? 'i_' : 's_';
-
+  console.log('1');
   const renameMap = req.body.renameMap;
 
-  
+  console.log(req.body);
   // for (let i = index; i < length; i++) {
   //   const rename = await renameFile(userUuid, recipeUuid, `${fileprefix}${i+1}`, `${fileprefix}${i}`);
   //   if (rename.status == false) {
   //     throw Exception("Error renaming image!");
   //   }
   // }
-
-  renameMap.forEach(async (newFile,oldFile) => {
+  console.log('2');
+  renameMap.forEach(async (newFile, oldFile) => {
+    console.log('3');
+    console.log(newFile);
+    console.log(oldFile);
     const rename = await renameFile(userUuid, recipeUuid, oldFile, newFile);
     if (rename.status == false) {
       throw Exception("Error renaming image!");
     }
   })
+  console.log('4');
 
   res.status(201).json({
     status: true,
