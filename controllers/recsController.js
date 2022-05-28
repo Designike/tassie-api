@@ -281,18 +281,29 @@ const resetImage = async (req, res) => {
 const renameImages = async (req, res) => {
   try{
   const isIngredient = req.body.isIngredient;
-  let index = req.body.index;
+  // let index = req.body.index;
   let userUuid = req.user.uuid;
   let recipeUuid = req.body.recipeUuid;
-  const length = req.body.length;
-  let fileprefix = isIngredient ? 'i_' : 's_';
+  // const length = req.body.length;
+  // let fileprefix = isIngredient ? 'i_' : 's_';
 
-  for (let i = index; i < length; i++) {
-    const rename = await renameFile(userUuid, recipeUuid, `${fileprefix}${i+1}`, `${fileprefix}${i}`);
+  const renameMap = req.body.renameMap
+
+  
+  // for (let i = index; i < length; i++) {
+  //   const rename = await renameFile(userUuid, recipeUuid, `${fileprefix}${i+1}`, `${fileprefix}${i}`);
+  //   if (rename.status == false) {
+  //     throw Exception("Error renaming image!");
+  //   }
+  // }
+
+  renameMap.forEach((oldFile,newFile)=>{
+    const rename = await renameFile(userUuid, recipeUuid, oldFile, newFile);
     if (rename.status == false) {
       throw Exception("Error renaming image!");
     }
-  }
+  })
+
   res.status(201).json({
     status: true,
     message: "deleted",

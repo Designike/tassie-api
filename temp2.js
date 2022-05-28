@@ -1,5 +1,6 @@
 require('dotenv').config();
 
+
 const AWS = require('aws-sdk');
 const fs = require('fs');
 const { google } = require('googleapis');
@@ -13,6 +14,7 @@ const bucketName = process.env.AWS_BUCKET_NAME
 const accessKeyId = process.env.AWS_ID
 const secretAccessKey = process.env.AWS_SECRET
 
+const {renameFile} = require("./controllers/driveController");
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ID,
   secretAccessKey: process.env.AWS_SECRET
@@ -84,3 +86,5 @@ const deleteFile = async (key) => {
 module.exports = {
     getFileStream
 }
+
+renameFile("7d20e0b6-7d14-4dcc-a469-e49070227047_deadshot","7d20e0b6-7d14-4dcc-a469-e49070227047_deadshot_recipe_f641b152-0506-4f59-91ad-1fdf54cb68b6","i_2","i_3");
