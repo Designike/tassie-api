@@ -298,7 +298,7 @@ const renameImages = async (req, res) => {
   // }
   console.log('2');
 
-  Object.keys(renameMap).forEach((newFile) => {
+  Object.keys(renameMap).forEach(async (newFile) => {
     const oldFile = renameMap[newFile];
     const rename = await renameFile(userUuid, recipeUuid, oldFile, newFile);
     if (rename.status == false) {
