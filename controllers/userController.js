@@ -719,6 +719,13 @@ const setProfilePicture = async (req,res) => {
       });
     }
 
+} else {
+  res.status(200).json({
+    status: false,
+    message: "Profile image can't be updated",
+    errors: [],
+    data: {},
+  });
 }
 } catch (error) {
   res.status(200).json({
