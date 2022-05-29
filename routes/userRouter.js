@@ -3,10 +3,11 @@ const router =  express.Router();
 
 const userController = require('../controllers/userController');
 const auth = require('../middleware/auth');
+const upload = require('../middleware/upload');
 
 router.post('/login',userController.login);
 
-router.post('/updateProfileImage',auth,userController.setProfilePicture);
+router.post('/updateProfileImage', [auth, upload], userController.setProfilePicture);
 
 router.get('/logout', auth, userController.logout);
 
