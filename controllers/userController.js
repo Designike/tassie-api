@@ -4,7 +4,7 @@ const { v4: uuidv4 } = require("uuid");
 const NodeCache = require("node-cache");
 const myCache = new NodeCache();
 const sgMail = require("@sendgrid/mail");
-const {createFolder} = require('./driveController');
+const {createFolder, uploadProfileImage} = require('./driveController');
 const TassieCustomError = require('../errors/tassieCustomError');
 const Bookmark = require("../models/bookmarks.js");
 const Subscribed = require("../models/subscribed.js");
@@ -695,6 +695,41 @@ const getProfilePicture = async (req,res) => {
   });
 }
 
+const setProfilePicture = async (req,res) => {
+  try {
+  let userUuid = req.user.uuid;
+  const id = await uploadProfileImage(userUuid, req.file);
+  if(id.status == true) {
+    let user = await User.findOne({uuid: req.user.uuid});
+    if(user) {
+      user.profilePic = id.response;
+      await user.save();
+      res.status(201).json({
+        status: true,
+        message: "profile picture has been updated",
+        errors: [],
+        data: {profilePic: id.response},
+      });
+    } else {
+      res.status(200).json({
+        status: false,
+        message: "Profile image can't be updated",
+        errors: [],
+        data: {},
+      });
+    }
+
+}
+} catch (error) {
+  res.status(200).json({
+    status: false,
+    message: "Profile image can't be updated",
+    errors: [],
+    data: {},
+  });
+}
+
+}
 
 module.exports = {
   remove,
@@ -715,5 +750,6 @@ module.exports = {
   checkEmail,
   googleRegister,
   googleSignIn,
-  getProfilePicture
+  getProfilePicture,
+  setProfilePicture,
 };
