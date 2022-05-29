@@ -82,7 +82,7 @@ const lazyfeed = async (req,res,next) => {
             
             // console.log(uuids);
             if(results.results.indexOf(element) == results.results.length-1) {
-              let beta = await Post.aggregate([{$match: {uuid: {$in: uuids}}},{$project: {comments: { $size:"$comments" }, likes: { $size:"$likes" },"isLiked" : { "$in" : [ uuid, "$likes" ]}, "isBookmarked" : { "$in" : [ uuid, "$bookmarks" ]}}}]).exec()
+              // let beta = await Post.aggregate([{$match: {uuid: {$in: uuids}}},{$project: {comments: { $size:"$comments" }, likes: { $size:"$likes" },"isLiked" : { "$in" : [ uuid, "$likes" ]}, "isBookmarked" : { "$in" : [ uuid, "$bookmarks" ]}}}]).exec()
               let x = await Post.aggregate([{$match: {uuid: {$in: uuids}}},{$project: {count: { $size:"$comments" }}}]).exec()
               let y = await Post.aggregate([{$match: {uuid: {$in: uuids}}},{$project: {count: { $size:"$likes" }, "isLiked" : { "$in" : [ uuid, "$likes" ]}}}]).exec()
               let z = await Post.aggregate([{$match: {uuid: {$in: uuids}}},{$project: {"isBookmarked" : { "$in" : [ uuid, "$bookmarks" ]}}}]).exec()
