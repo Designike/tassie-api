@@ -4,7 +4,7 @@ const Tag = require("../models/tag.js");
 const Subscribed = require("../models/subscribed.js");
 const { v4: uuidv4 } = require("uuid");
 const Recipe = require("../models/recipe.js");
-const { deleteFile, uploadRecipe } = require("./driveController");
+const { deleteFile, uploadRecipe, renameFile } = require("./driveController");
 const ingredients = require("../ingredients.json");
 
 const loadRecs = (req, res) => {
@@ -278,6 +278,62 @@ const resetImage = async (req, res) => {
   }
 };
 
+const renameImages = async (req, res) => {
+  try{
+  const isIngredient = req.body.isIngredient;
+  // let index = req.body.index;
+  let userUuid = req.user.uuid;
+  let recipeUuid = req.body.recipeUuid;
+  // const length = req.body.length;
+  // let fileprefix = isIngredient ? 'i_' : 's_';
+  console.log('1');
+  const renameMap = req.body.renameMap;
+
+  console.log(req.body);
+  // for (let i = index; i < length; i++) {
+  //   const rename = await renameFile(userUuid, recipeUuid, `${fileprefix}${i+1}`, `${fileprefix}${i}`);
+  //   if (rename.status == false) {
+  //     throw Exception("Error renaming image!");
+  //   }
+  // }
+  console.log('2');
+
+  Object.keys(renameMap).forEach(async (newFile) => {
+    const oldFile = renameMap[newFile];
+    const rename = await renameFile(userUuid, recipeUuid, oldFile, newFile);
+    if (rename.status == false) {
+      throw Exception("Error renaming image!");
+    }
+  });
+  // renameMap.forEach(async (newFile, oldFile) => {
+  //   console.log('3');
+  //   console.log(newFile);
+  //   console.log(oldFile);
+  //   const rename = await renameFile(userUuid, recipeUuid, oldFile, newFile);
+  //   if (rename.status == false) {
+  //     throw Exception("Error renaming image!");
+  //   }
+  // })
+  console.log('4');
+
+  res.status(201).json({
+    status: true,
+    message: "deleted",
+    errors: [],
+    data: {},
+  });
+} catch(err) {
+  console.log(err);
+  res.status(201).json({
+    status: false,
+    message: "Error deleting",
+    errors: [err],
+    data: {},
+  });
+}
+  
+}
+
 const getIng = (req, res) => {
   try {
     res.status(201).json({
@@ -441,7 +497,7 @@ const getRecipe = async (req, res) => {
         random = 0;
     }
   let recipe = await Recipe.findOne({ uuid: recipeUuid },{comments:{$slice:[0,2]},ratings:{$slice:[0,2]}});
-  let similar = await Recipe.find({uuid:{$ne: recipeUuid}, userUuid: userUuid},'-_id uuid userUuid name username recipeImageID createdAt updatedAt').sort('-createdAt').limit(10).skip(random).exec();
+  let similar = await Recipe.find({uuid:{$ne: recipeUuid}, userUuid: chefUuid},'-_id uuid userUuid name username recipeImageID createdAt updatedAt').sort('-createdAt').limit(10).skip(random).exec();
   if (recipe) {
     // let recipeUserUuid = recipe.userUuid;
     // let beta = await Recipe.aggregate([{$match: {uuid: {$in: uuids}}},{$project: {comments: { $size:"$comments" }, likes: { $size:"$likes" },"isLiked" : { "$in" : [ uuid, "$likes" ]}, "isBookmarked" : { "$in" : [ uuid, "$bookmarks" ]}}}]).exec()
@@ -737,6 +793,7 @@ module.exports = {
   updateRecipe,
   getIng,
   resetImage,
+  renameImages,
   addBookmark,
   removeBookmark,
   addHashtag,

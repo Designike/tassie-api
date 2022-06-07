@@ -222,6 +222,29 @@ const uploadPost = async (uuid, file) =>  {
   
 }
 
+const uploadProfileImage = async (userUuid, file) =>  {
+  try {
+    const fileStream = fs.createReadStream(file.path)
+    // const newUuid = uuidv4();
+    // const dpUuid = uuid +'_dp_' + newUuid;
+    const name = "profileImages/" + userUuid + path.extname(file.originalname);
+
+    const uploadParams = {
+      Bucket: bucketName,
+      Body: fileStream,
+      Key: name
+    }
+
+    const response = await s3.upload(uploadParams).promise();
+      return {response: response.Key, status: true, filename: userUuid};
+    
+    // console.log(response);
+  } catch (error) {
+    return {error: error, status: false};
+  }
+  
+}
+
 const uploadRecipe = async (uuid, file, recipeUuid, suffixName) =>  {
   try {
   
@@ -345,5 +368,5 @@ const renameFile = async (userUuid, recipeUuid, oldFile, newFile) => {
 
 module.exports = {
     // generatePublicUrl, createFolder, drivePostUpload, deleteFile, createRecipeFolder, driveRecipeUpload,
-     uploadPost, uploadRecipe, getFileStream, deleteFile, renameFile
+     uploadPost, uploadRecipe, getFileStream, deleteFile, renameFile, uploadProfileImage
 };
