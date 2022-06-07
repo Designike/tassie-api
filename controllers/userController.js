@@ -14,7 +14,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 totp.options = {
   digits: 6,
-  step: 1000,
+  step: 360,
 };
 const opts = totp.options;
 const secret = process.env.TOTP_SECRET;
