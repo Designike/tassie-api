@@ -309,7 +309,7 @@ const getFileStream = async (req, res) => {
   
 }
 const deleteChildren = async (dir) => {
-  if(dir != null && dir != undefined && dir != '/' && dir != '') {
+  if(dir != null && dir != undefined && dir != '/' && dir != '' && dir != 'assets/' && dir != 'posts/' && dir != 'recipes/' && dir != 'profileImages/') {
 
     const listParams = {
         Bucket: bucketName,
@@ -341,7 +341,7 @@ const deleteFile = async (key) => {
     //   Key:key,
     //   Bucket: bucketName
     // };
-    if(key != null && key != undefined && key != '/' && key != '') {
+    if(key != null && key != undefined && key != '/' && key != '' && key != 'assets/' && key != 'posts/' && key != 'recipes/' && key != 'profileImages/') {
     await deleteChildren(key);
     }
     //  s3.deleteObject(deleteParams).promise();
