@@ -62,6 +62,7 @@ var upload = (req, res, next) => {
                 errors: [],
                 data: {},
               });
+            console.log(err);
         } else {
             next();
         }
