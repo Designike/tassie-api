@@ -309,27 +309,30 @@ const getFileStream = async (req, res) => {
   
 }
 const deleteChildren = async (dir) => {
-  const listParams = {
-      Bucket: bucketName,
-      Prefix: dir
-  };
+  if(dir != null && dir != undefined && dir != '/' && dir != '') {
 
-  const listedObjects = await s3.listObjectsV2(listParams).promise();
+    const listParams = {
+        Bucket: bucketName,
+        Prefix: dir
+    };
 
-  if (listedObjects.Contents.length === 0) return;
+    const listedObjects = await s3.listObjectsV2(listParams).promise();
 
-  const deleteParams = {
-      Bucket: bucketName,
-      Delete: { Objects: [] }
-  };
+    if (listedObjects.Contents.length === 0) return;
 
-  listedObjects.Contents.forEach(({ Key }) => {
-      deleteParams.Delete.Objects.push({ Key });
-  });
+    const deleteParams = {
+        Bucket: bucketName,
+        Delete: { Objects: [] }
+    };
 
-  await s3.deleteObjects(deleteParams).promise();
+    listedObjects.Contents.forEach(({ Key }) => {
+        deleteParams.Delete.Objects.push({ Key });
+    });
 
-  if (listedObjects.IsTruncated) await deleteChildren(dir);
+    await s3.deleteObjects(deleteParams).promise();
+
+    if (listedObjects.IsTruncated) await deleteChildren(dir);
+  }
 }
 
 const deleteFile = async (key) => {
@@ -338,7 +341,9 @@ const deleteFile = async (key) => {
     //   Key:key,
     //   Bucket: bucketName
     // };
+    if(key != null && key != undefined && key != '/' && key != '') {
     await deleteChildren(key);
+    }
     //  s3.deleteObject(deleteParams).promise();
     return {status: true};
   } catch (error) {
