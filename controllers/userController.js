@@ -487,7 +487,16 @@ const twoStepVerification = async (req, res) => {
       // }
 
     } catch (error) {
+
       //    res.status(400).send(error)
+      if(error instanceof TassieCustomError) {
+        res.status(200).json({
+          status: false,
+          message: error.message,
+          errors: [error],
+          data: {}
+      })
+      } else {
       console.log(error);
       res.status(201).json({
         status: false,
@@ -495,6 +504,7 @@ const twoStepVerification = async (req, res) => {
         errors: [error],
         data: {},
       });
+    }
     }
   } else {
     // res.send("unathenticated");
@@ -679,12 +689,21 @@ const googleRegister = async (req,res) => {
   } catch (error) {
     console.log("soham testing");
     console.log(error);
+    if(error instanceof TassieCustomError) {
+      res.status(200).json({
+        status: false,
+        message: error.message,
+        errors: [error],
+        data: {}
+    })
+    } else {
     res.status(200).json({
       status: false,
       message: "User can't be created",
       errors: [error],
       data: {},
     });
+  }
   }
 }
 

@@ -24,7 +24,8 @@ const userSchema=new mongoose.Schema({
         validate(value){
             const gender = ['male','female','other', '']
             if(!(gender.includes(value))){
-                throw new Error('Enter a valid gender')
+                throw new TassieCustomError('Enter a valid gender')
+                
             }
         }
      },
@@ -33,10 +34,10 @@ const userSchema=new mongoose.Schema({
         unique:true,
         required:true,
         trim:true,
-        minLength:6,
+        minLength:4,
         validate(value){
-            if(!validator.isAlphanumeric(value)){
-                throw new Error('Enter a valid username')
+            if(!validator.isAlphanumeric(value) && !value.includes("-") && value.includes(".")){
+                throw new TassieCustomError('Username should have minimum 4 characters. It should only include numbers, letters, "." and "-"');
             }
         }
     },
@@ -48,7 +49,7 @@ const userSchema=new mongoose.Schema({
        lowercase:true,
        validate(value){
            if(!validator.isEmail(value)){
-               throw new Error('Enter a valid email address')
+               throw new TassieCustomError('Enter a valid email address')
            }
 
        }
@@ -60,7 +61,7 @@ const userSchema=new mongoose.Schema({
         minLength:6,
         validate(value){
             if(value.toLowerCase().includes('password')){
-                throw new Error('Password cannot contain password')
+                throw new TassieCustomError('Password cannot contain password')
             }
         }
     },
@@ -79,7 +80,7 @@ const userSchema=new mongoose.Schema({
         lowercase:true,
         validate(value){
             if(!validator.isURL(value) && value != ""){
-                throw new Error('Enter a valid website')
+                throw new TassieCustomError('Enter a valid website')
             }
         }
      },
