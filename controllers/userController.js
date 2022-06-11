@@ -677,10 +677,11 @@ const googleRegister = async (req,res) => {
       // }
 
   } catch (error) {
+    console.log(error);
     res.status(200).json({
       status: false,
       message: "User can't be created",
-      errors: [],
+      errors: [error],
       data: {},
     });
   }
