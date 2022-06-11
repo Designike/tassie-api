@@ -677,6 +677,7 @@ const googleRegister = async (req,res) => {
       // }
 
   } catch (error) {
+    console.log("soham testing");
     console.log(error);
     res.status(200).json({
       status: false,
