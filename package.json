@@ -21,6 +21,7 @@
     "@sendgrid/mail": "^7.6.0",
     "aws-sdk": "^2.1072.0",
     "bcryptjs": "^2.4.3",
+    "crypto-js": "^4.1.1",
     "dotenv": "^10.0.0",
     "express": "^4.17.2",
     "googleapis": "^92.0.0",
