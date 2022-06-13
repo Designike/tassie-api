@@ -608,8 +608,8 @@ const lazybookmark = async (req,res,next) => {
       let recipeUuid = bookmarks.recipeUuid;
       let postUuid = bookmarks.postUuid;
       // let users = await User.find({$or:[{"name": {$regex: phrase, $options:'i'}},{"username": {$regex: phrase}}]},'-_id name uuid username profilePic').limit(limit).skip(startIndex).exec();
-      let recs = await Recipe.find({ uuid: {$in: recipeUuid }},'-_id name uuid url').limit(limit).skip(startIndex).exec();
-      let posts = await Post.find({ uuid: {$in: postUuid }},'-_id name uuid url').limit(limit).skip(startIndex).exec();
+      let recs = await Recipe.find({ uuid: {$in: recipeUuid }},'-_id name uuid recipeImageID').limit(limit).skip(startIndex).exec();
+      let posts = await Post.find({ uuid: {$in: postUuid }},'-_id name uuid postID').limit(limit).skip(startIndex).exec();
       // let alpha = await Post.aggregate([{"$in" : [ uuid, "$bookmarks" ]}]).exec()
       // console.log(alpha);
 
