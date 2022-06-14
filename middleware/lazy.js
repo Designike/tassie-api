@@ -780,7 +780,7 @@ const lazysubscribers = async (req,res,next) => {
             results.subscribers = users;
             res.paginatedResults = results
             console.log(users);
-            console.log(results);
+            console.log(res);
             next()
           }
         }

@@ -9,6 +9,7 @@ const conn = mongoose.connection;
 
 const loadProfile = async (req,res) => {
     console.log(res.paginatedResults);
+    console.log(res);
     res.status(201).json({
         status: true,
         message: "",
