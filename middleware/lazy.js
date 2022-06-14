@@ -375,7 +375,7 @@ const lazyall = async (req,res,next) => {
     // let shuffledIndex = shuffle([((page-1)*6) + 0,((page-1)*6) + 1,((page-1)*6) + 2,((page-1)*6) + 3,((page-1)*6) + 4,((page-1)*6) + 5]);
     let uuid = req.user.uuid;
    let phrase = req.params.word;
-    if (endIndex < (await User.find({$or:[{"name": {$regex: phrase, $options:'i'}},{"username": {$regex: phrase}}]}).countDocuments().exec() + await Recipe.find({"name": {$regex: phrase, $options:'i'}}).countDocuments().exec() + await Tag.find({"name": {$regex:'^'+phrase, $options:'i'}}).countDocuments().exec())) {
+    if (endIndex < (await User.find({$or:[{"name": {$regex: phrase, $options:'i'}},{"username": {$regex: phrase}}],userUuid: {$ne: uuid}}).countDocuments().exec() + await Recipe.find({"name": {$regex: phrase, $options:'i'},userUuid: {$ne: uuid}}).countDocuments().exec() + await Tag.find({"name": {$regex:'^'+phrase, $options:'i'}}).countDocuments().exec())) {
         results.next = {
           page: page + 1,
           limit: limit
@@ -388,8 +388,8 @@ const lazyall = async (req,res,next) => {
         }
       }
       
-      let users = await User.find({$or:[{"name": {$regex: phrase, $options:'i'}},{"username": {$regex: phrase}}]},'-_id name uuid username profilePic').limit(limit).skip(startIndex).exec();
-      let recs = await Recipe.find({"name": {$regex: phrase, $options:'i'}},'-_id name uuid username recipeImageID').limit(limit).skip(startIndex).exec();
+      let users = await User.find({$or:[{"name": {$regex: phrase, $options:'i'}},{"username": {$regex: phrase}}],userUuid: {$ne: uuid}},'-_id name uuid username profilePic').limit(limit).skip(startIndex).exec();
+      let recs = await Recipe.find({"name": {$regex: phrase, $options:'i'},userUuid: {$ne: uuid}},'-_id name uuid username recipeImageID').limit(limit).skip(startIndex).exec();
       let tags = await Tag.find({"name": {$regex:'^'+phrase, $options:'i'}},'-_id name').limit(limit).skip(startIndex).exec();
 
       if(users.concat(recs.concat(tags)).length == 0){
