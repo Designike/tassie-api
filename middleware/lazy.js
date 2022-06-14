@@ -389,7 +389,7 @@ const lazyall = async (req,res,next) => {
       }
       
       let users = await User.find({$or:[{"name": {$regex: phrase, $options:'i'}},{"username": {$regex: phrase}}]},'-_id name uuid username profilePic').limit(limit).skip(startIndex).exec();
-      let recs = await Recipe.find({"name": {$regex: phrase, $options:'i'}},'-_id name uuid url username').limit(limit).skip(startIndex).exec();
+      let recs = await Recipe.find({"name": {$regex: phrase, $options:'i'}},'-_id name uuid url username recipeImageID').limit(limit).skip(startIndex).exec();
       let tags = await Tag.find({"name": {$regex:'^'+phrase, $options:'i'}},'-_id name').limit(limit).skip(startIndex).exec();
 
       if(users.concat(recs.concat(tags)).length == 0){
