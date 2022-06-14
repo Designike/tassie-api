@@ -8,6 +8,7 @@ const Subscribed = require("../models/subscribed.js");
 const conn = mongoose.connection;
 
 const loadProfile = async (req,res) => {
+    console.log(res.paginatedResults);
     res.status(201).json({
         status: true,
         message: "",

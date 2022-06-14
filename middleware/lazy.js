@@ -779,6 +779,8 @@ const lazysubscribers = async (req,res,next) => {
           if(index == subscribers.length-1) {
             results.subscribers = users;
             res.paginatedResults = results
+            console.log(users);
+            console.log(results);
             next()
           }
         }
