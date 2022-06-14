@@ -736,14 +736,14 @@ const lazysubscribers = async (req,res,next) => {
   try {
   const page = parseInt(req.params.page);
   // console.log(page);
-  const limit = 2;
+  const limit = 10;
   const startIndex = (page - 1)*limit;
   // console.log(startIndex);
   const endIndex = page*limit;
   const results = {}
   const userUuid = req.params.userUuid;
 
-  let x = await Subscribed.aggregate([{$match: {user:userUuid}},{$project: { count: { $size:"$subscribers" }}},{$limit:1}]).exec()
+  let x = await Subscribed.aggregate([{$match: {user:userUuid}},{$project: { count: { $size:"$subscriber" }}},{$limit:1}]).exec()
   // console.log(x.count);
   // let comments = await Post.findOne({userUuid:userUuid,uuid:uuid},'-_id comments')
   // console.log(comments);
@@ -771,7 +771,7 @@ const lazysubscribers = async (req,res,next) => {
       console.log(e)
       res.status(201).json({
           status: false,
-          message: "failed to load feed",
+          message: "failed to load subscribers",
           errors: [],
           data: {subscribers: []},
         })
