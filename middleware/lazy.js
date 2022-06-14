@@ -731,6 +731,54 @@ const lazyrating = async (req,res,next) => {
   
 }
 
+
+const lazysubscribers = async (req,res,next) => {
+  try {
+  const page = parseInt(req.params.page);
+  // console.log(page);
+  const limit = 2;
+  const startIndex = (page - 1)*limit;
+  // console.log(startIndex);
+  const endIndex = page*limit;
+  const results = {}
+  const userUuid = req.params.userUuid;
+
+  let x = await Subscribed.aggregate([{$match: {user:userUuid}},{$project: { count: { $size:"$subscribers" }}},{$limit:1}]).exec()
+  // console.log(x.count);
+  // let comments = await Post.findOne({userUuid:userUuid,uuid:uuid},'-_id comments')
+  // console.log(comments);
+  if (endIndex < x[0].count) {
+      results.next = {
+        page: page + 1,
+        limit: limit
+      }
+    }
+
+    if (startIndex > 0) {
+      results.previous = {
+        page: page - 1,
+        limit: limit
+      }
+    }
+
+      // console.log(startIndex);
+      results.subscribers = await Subscribed.findOne({user:userUuid},{comments:{$slice:[startIndex,limit]}}).exec();
+      console.log("aya jovanu che");
+      console.log(results.results);
+      res.paginatedResults = results
+      next()
+    } catch (e) {
+      console.log(e)
+      res.status(201).json({
+          status: false,
+          message: "failed to load feed",
+          errors: [],
+          data: {subscribers: []},
+        })
+    }
+  
+}
+
 module.exports = {
     lazyfeed,
     lazycomment,
@@ -743,5 +791,6 @@ module.exports = {
     lazyprofilepost,
     lazyprofilerecs,
     lazyreccomment,
-    lazyrating
+    lazyrating,
+    lazysubscribers,
 }
