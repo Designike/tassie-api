@@ -762,11 +762,26 @@ const lazysubscribers = async (req,res,next) => {
     }
 
       // console.log(startIndex);
-      results.subscribers = await Subscribed.findOne({user:userUuid},{comments:{$slice:[startIndex,limit]}}).exec();
-      console.log("aya jovanu che");
-      console.log(results.results);
-      res.paginatedResults = results
-      next()
+      const res = await Subscribed.findOne({user:userUuid},{comments:{$slice:[startIndex,limit]}},'-_id subscriber').exec();
+      const subscribers = res[0].subscriber;
+      let users = [];
+      if(subscribers.length == 0) {
+        next()
+      } else {
+        for (let index = 0; index < subscribers.length; index++) {
+          const user = await User.findOne({uuid: subscribers[index]},'-id name username uuid profilePic');     
+          users.push(user); 
+
+          if(index == subscribers.length-1) {
+            results.subscribers = users;
+            res.paginatedResults = results
+            next()
+          }
+        }
+      }
+      // console.log("aya jovanu che");
+      // console.log(results.results);
+      // res.paginatedResults = results
     } catch (e) {
       console.log(e)
       res.status(201).json({
