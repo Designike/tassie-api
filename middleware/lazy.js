@@ -763,9 +763,9 @@ const lazysubscribers = async (req,res,next) => {
 
       // console.log(startIndex);
       console.log('1');
-      const res = await Subscribed.findOne({user:userUuid},{subscriber:{$slice:[startIndex,limit]}, _id: 0}).exec();
+      const resp = await Subscribed.findOne({user:userUuid},{subscriber:{$slice:[startIndex,limit]}, _id: 0}).exec();
       console.log('2');
-      const subscribers = res.subscriber;
+      const subscribers = resp.subscriber;
       console.log('3');
       let users = [];
       if(subscribers.length == 0) {
