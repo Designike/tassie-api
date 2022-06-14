@@ -762,16 +762,20 @@ const lazysubscribers = async (req,res,next) => {
     }
 
       // console.log(startIndex);
-      const res = await Subscribed.findOne({user:userUuid},{subscriber:{$slice:[startIndex,limit]}, _id: 0, user: 0, subscribed: 0}).exec();
+      console.log('1');
+      const res = await Subscribed.findOne({user:userUuid},{subscriber:{$slice:[startIndex,limit]}, _id: 0}).exec();
+      console.log('2');
       const subscribers = res.subscriber;
+      console.log('3');
       let users = [];
       if(subscribers.length == 0) {
         next()
       } else {
         for (let index = 0; index < subscribers.length; index++) {
-          const user = await User.findOne({uuid: subscribers[index]},'-id name username uuid profilePic');     
+          const user = await User.findOne({uuid: subscribers[index]},'-_id name username uuid profilePic');     
           users.push(user); 
-
+          console.log('4');
+          console.log(index);
           if(index == subscribers.length-1) {
             results.subscribers = users;
             res.paginatedResults = results
