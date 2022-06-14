@@ -762,14 +762,14 @@ const lazysubscribers = async (req,res,next) => {
     }
 
       // console.log(startIndex);
-      const res = await Subscribed.findOne({user:userUuid},{comments:{$slice:[startIndex,limit]}},'-_id subscriber').exec();
+      const res = await Subscribed.findOne({user:userUuid},{comments:{$slice:[startIndex,limit]}},{},'-_id subscriber').exec();
       const subscribers = res[0].subscriber;
       let users = [];
       if(subscribers.length == 0) {
         next()
       } else {
         for (let index = 0; index < subscribers.length; index++) {
-          const user = await User.findOne({uuid: subscribers[index]},'-id name username uuid profilePic');     
+          const user = await User.findOne({uuid: subscribers[index]},{},'-id name username uuid profilePic');     
           users.push(user); 
 
           if(index == subscribers.length-1) {
