@@ -56,7 +56,7 @@ var upload = (req, res, next) => {
               });
             
         } else if (err) {
-            console.log(req.file);
+            // console.log(req.file);
             res.status(201).json({
                 status: false,
                 message: "Error uploading image",

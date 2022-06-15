@@ -452,6 +452,10 @@ const twoStepVerification = async (req, res) => {
           const newBookmark = new Bookmark({userUuid: user.uuid, recipeUuid: [], postUuid: []})
           const newSubs = new Subscribed({user: user.uuid, subscriber: [], subscribed: []})
           const token = await newUser.generateAuthToken();
+          const create_folder = `${"./uploads/" + user.uuid}`;
+          fs.mkdir(create_folder, {recursive: true}, function(err) {
+              if(err) throw err;
+          });
           await newBookmark.save();
           await newSubs.save();
           await newUser.save();
@@ -654,6 +658,10 @@ const googleRegister = async (req,res) => {
           const newBookmark = new Bookmark({userUuid: user.uuid, recipeUuid: [], postUuid: []})
           const newSubs = new Subscribed({user: user.uuid, subscriber: [], subscribed: []})
           const token = await newUser.generateAuthToken();
+          const create_folder = `${"./uploads/" + user.uuid}`;
+          fs.mkdir(create_folder, {recursive: true}, function(err) {
+              if(err) throw err;
+          });
           await newBookmark.save();
           await newSubs.save();
           await newUser.save();

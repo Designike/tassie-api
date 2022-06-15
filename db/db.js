@@ -12,6 +12,8 @@ mongoose.connect(db,{
     // useCreateIndex:true,
     useUnifiedTopology: true,
     // useFindAndModify:false 
+}).then(() => {
+    fs.rmSync("./uploads", { recursive: true, force: true });
 }).then(()=>{
     User.find({},(err,found) => {
         found.forEach(element => {
