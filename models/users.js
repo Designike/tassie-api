@@ -36,7 +36,10 @@ const userSchema=new mongoose.Schema({
         trim:true,
         minLength:4,
         validate(value){
-            if(!validator.isAlphanumeric(value) && !value.includes("-") && !value.includes(".")){
+            // if(!validator.isAlphanumeric(value) && !value.includes("-") && !value.includes(".")){
+                
+            // }
+            if(!(/^[0-9a-zA-Z.-]{4,}$/).test(value)) {
                 throw new TassieCustomError('Username should have minimum 4 characters. It should only include numbers, letters, "." and "-"');
             }
         }

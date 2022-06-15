@@ -68,7 +68,7 @@ const login = async (req, res) => {
       req.body.password
     );
   }else{
-    throw new Error('Incomplete parameters');
+    throw new TassieCustomError('Incomplete parameters');
   }
     const token = await user.generateAuthToken();
     // res.status(200).send({ user, token });
