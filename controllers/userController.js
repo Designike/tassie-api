@@ -9,6 +9,7 @@ const TassieCustomError = require('../errors/tassieCustomError');
 const Bookmark = require("../models/bookmarks.js");
 const Subscribed = require("../models/subscribed.js");
 const bcrypt = require("bcryptjs");
+const fs = require('fs');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
