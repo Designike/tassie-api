@@ -201,7 +201,11 @@ const s3_2 = new AWS.S3({
 
 const uploadPost = async (uuid, file) =>  {
   try {
+    console.log('one');
+    console.log(file.path);
+    console.log(file.path.replace(".","\."));
     const fileStream = fs.createReadStream(file.path)
+    console.log('two');
     const newUuid = uuidv4();
     const postUuid = uuid +'_post_' + newUuid
     const name = "posts/" + uuid + "/" + postUuid + path.extname(file.originalname);
