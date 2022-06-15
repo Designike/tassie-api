@@ -800,6 +800,73 @@ const lazysubscribers = async (req,res,next) => {
   
 }
 
+const lazysubscribeds = async (req,res,next) => {
+  try {
+  const page = parseInt(req.params.page);
+  // console.log(page);
+  const limit = 10;
+  const startIndex = (page - 1)*limit;
+  // console.log(startIndex);
+  const endIndex = page*limit;
+  const results = {}
+  const userUuid = req.params.userUuid;
+
+  let x = await Subscribed.aggregate([{$match: {user:userUuid}},{$project: { count: { $size:"$subscribed" }}},{$limit:1}]).exec()
+  // console.log(x.count);
+  // let comments = await Post.findOne({userUuid:userUuid,uuid:uuid},'-_id comments')
+  // console.log(comments);
+  if (endIndex < x[0].count) {
+      results.next = {
+        page: page + 1,
+        limit: limit
+      }
+    }
+
+    if (startIndex > 0) {
+      results.previous = {
+        page: page - 1,
+        limit: limit
+      }
+    }
+
+      // console.log(startIndex);
+      // console.log('1');
+      const resp = await Subscribed.findOne({user:userUuid},{subscribed:{$slice:[startIndex,limit]}, _id: 0}).exec();
+      // console.log('2');
+      const subscribers = resp.subscribed;
+      // console.log('3');
+      let users = [];
+      if(subscribers.length == 0) {
+        next()
+      } else {
+        for (let index = 0; index < subscribers.length; index++) {
+          const user = await User.findOne({uuid: subscribers[index]},'-_id name username uuid profilePic');     
+          users.push(user); 
+          // console.log('4');
+          // console.log(index);
+          if(index == subscribers.length-1) {
+            results.subscribers = users;
+            res.paginatedResults = results
+            // console.log(users);
+            // console.log(res);
+            next()
+          }
+        }
+      }
+      // console.log("aya jovanu che");
+      // console.log(results.results);
+      // res.paginatedResults = results
+    } catch (e) {
+      console.log(e)
+      res.status(201).json({
+          status: false,
+          message: "failed to load followers",
+          errors: [],
+          data: {subscribers: []},
+        })
+    }
+  
+}
 module.exports = {
     lazyfeed,
     lazycomment,
@@ -814,4 +881,5 @@ module.exports = {
     lazyreccomment,
     lazyrating,
     lazysubscribers,
+    lazysubscribeds
 }
