@@ -374,7 +374,8 @@ const lazyall = async (req,res,next) => {
     const results = {};
     // let shuffledIndex = shuffle([((page-1)*6) + 0,((page-1)*6) + 1,((page-1)*6) + 2,((page-1)*6) + 3,((page-1)*6) + 4,((page-1)*6) + 5]);
     let uuid = req.user.uuid;
-   let phrase = req.params.word;
+    let phrase = req.params.word;
+    console.log(phrase);
     if (endIndex < (await User.find({$or:[{"name": {$regex: phrase, $options:'i'}},{"username": {$regex: phrase}}],userUuid: {$ne: uuid}}).countDocuments().exec() + await Recipe.find({"name": {$regex: phrase, $options:'i'},userUuid: {$ne: uuid}}).countDocuments().exec() + await Tag.find({"name": {$regex:'^'+phrase, $options:'i'}}).countDocuments().exec())) {
         results.next = {
           page: page + 1,
@@ -387,23 +388,25 @@ const lazyall = async (req,res,next) => {
           limit: limit
         }
       }
-      
+      console.log('1A')
       let users = await User.find({$or:[{"name": {$regex: phrase, $options:'i'}},{"username": {$regex: phrase}}],userUuid: {$ne: uuid}},'-_id name uuid username profilePic').limit(limit).skip(startIndex).exec();
+      console.log('2B')
       let recs = await Recipe.find({"name": {$regex: phrase, $options:'i'},userUuid: {$ne: uuid}},'-_id name uuid username recipeImageID').limit(limit).skip(startIndex).exec();
+      console.log('3C')
       let tags = await Tag.find({"name": {$regex:'^'+phrase, $options:'i'}},'-_id name').limit(limit).skip(startIndex).exec();
-
+      console.log('4D')
       if(users.concat(recs.concat(tags)).length == 0){
+          console.log('5E')
           res.paginatedResults = results;
           next();
         } else {
           results.users = users;
           results.recs = recs;
           results.tags = tags;
-
+          console.log('6F')
           res.paginatedResults = results;
           next();
-        }
-        // results.results = 
+        } 
       } catch (e) {
         console.log(e);
         res.status(201).json({
@@ -867,6 +870,73 @@ const lazysubscribeds = async (req,res,next) => {
     }
   
 }
+
+const lazyhashtag = async (req,res,next) => {
+  try {
+    const page = parseInt(req.params.page);
+    const limit = 3;
+    const startIndex = (page - 1)*limit;
+    const endIndex = page*limit;
+    const results = {};
+    let shuffledIndex = [];
+    // let shuffledIndex = shuffle([((page-1)*6) + 0,((page-1)*6) + 1,((page-1)*6) + 2,((page-1)*6) + 3,((page-1)*6) + 4,((page-1)*6) + 5]);
+    let uuid = req.user.uuid;
+   
+    if (endIndex < (await Post.find({}).countDocuments().exec() + await Recipe.find({}).countDocuments().exec())) {
+        results.next = {
+          page: page + 1,
+          limit: limit
+        }
+      }
+      if (startIndex > 0) {
+        results.previous = {
+          page: page - 1,
+          limit: limit
+        }
+      }
+        var temp = await Post.find({userUuid: {$ne: uuid}},'-_id uuid userUuid username profilePic url description createdAt updatedAt postID isPost').sort('-createdAt').limit(limit).skip(startIndex).exec();
+        var temp2 = await Recipe.find({userUuid: {$ne: uuid}}).sort('-createdAt').limit(limit).skip(startIndex).exec();
+        results.results = temp.concat(temp2);
+        // results.results = await Post.find({},'-_id uuid userUuid username profilePic url description createdAt updatedAt isPost').sort('-createdAt').limit(limit).skip(startIndex).exec();
+        let uuids_1 = [];
+        let uuids_2 = [];
+        if(results.results.length == 0){
+          res.paginatedResults = results;
+          next();
+        } else {
+          await results.results.forEach(async element => {
+            if(element.isPost){
+              uuids_1.push(element.uuid);
+            } else {
+              uuids_2.push(element.uuid);
+            }
+            if(results.results.indexOf(element) == results.results.length-1) {
+              let alpha = await Post.aggregate([{$match: {uuid: {$in: uuids_1}}},{$project: {comments: { $size:"$comments" }, likes: { $size:"$likes" },"isLiked" : { "$in" : [ uuid, "$likes" ]}, "isBookmarked" : { "$in" : [ uuid, "$bookmarks" ]}}}]).exec()
+              let beta = await Recipe.aggregate([{$match: {uuid: {$in: uuids_2}}},{$project: {comments: { $size:"$comments" }, likes: { $size:"$likes" },"isLiked" : { "$in" : [ uuid, "$likes" ]}, "isBookmarked" : { "$in" : [ uuid, "$bookmarks" ]}}}]).exec()
+              results.data = alpha.concat(beta);
+              for (let index = 0; index < results.results.length; index++) {
+                // shuffledIndex.push(((page-1)*results.results.length) + index);
+                shuffledIndex.push(((page-1)*req.params.previousLength) + index);
+              }
+              results.indices = shuffle(shuffledIndex);
+              res.paginatedResults = results;
+              console.log(res.paginatedResults);
+              next()
+            }
+          });
+        }
+        // results.results = 
+      } catch (e) {
+        res.status(201).json({
+            status: false,
+            message: "failed to load feed",
+            errors: [],
+            data: {posts: []},
+          })
+      }
+}
+
+
 module.exports = {
     lazyfeed,
     lazycomment,
