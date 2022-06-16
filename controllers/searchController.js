@@ -115,6 +115,7 @@ async function sortQuery(db,query){
 }
 
 const explore = async (req,res) => {
+    console.log(res.paginatedResults);
     res.status(201).json({
         status: true,
         message: "",

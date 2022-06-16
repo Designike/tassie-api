@@ -895,8 +895,9 @@ const lazyhashtag = async (req,res,next) => {
           limit: limit
         }
       }
-        var temp = await Post.find({userUuid: {$ne: uuid}},'-_id uuid userUuid username profilePic url description createdAt updatedAt postID isPost').sort('-createdAt').limit(limit).skip(startIndex).exec();
-        var temp2 = await Recipe.find({userUuid: {$ne: uuid}}).sort('-createdAt').limit(limit).skip(startIndex).exec();
+        var tag = Tag.find({name:'#'+req.params.tag});
+        var temp = await Post.find({userUuid: {$in :tag.post}},'-_id uuid userUuid username profilePic url description createdAt updatedAt postID isPost').sort('-createdAt').limit(limit).skip(startIndex).exec();
+        var temp2 = await Recipe.find({userUuid: {$in :tag.recipe}}).sort('-createdAt').limit(limit).skip(startIndex).exec();
         results.results = temp.concat(temp2);
         // results.results = await Post.find({},'-_id uuid userUuid username profilePic url description createdAt updatedAt isPost').sort('-createdAt').limit(limit).skip(startIndex).exec();
         let uuids_1 = [];
@@ -952,5 +953,6 @@ module.exports = {
     lazyreccomment,
     lazyrating,
     lazysubscribers,
-    lazysubscribeds
+    lazysubscribeds,
+    lazyhashtag,
 }
