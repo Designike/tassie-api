@@ -9,6 +9,7 @@ const TassieCustomError = require('../errors/tassieCustomError');
 const Bookmark = require("../models/bookmarks.js");
 const Subscribed = require("../models/subscribed.js");
 const bcrypt = require("bcryptjs");
+const fs = require('fs');
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -68,7 +69,7 @@ const login = async (req, res) => {
       req.body.password
     );
   }else{
-    throw new Error('Incomplete parameters');
+    throw new TassieCustomError('Incomplete parameters');
   }
     const token = await user.generateAuthToken();
     // res.status(200).send({ user, token });
@@ -452,6 +453,10 @@ const twoStepVerification = async (req, res) => {
           const newBookmark = new Bookmark({userUuid: user.uuid, recipeUuid: [], postUuid: []})
           const newSubs = new Subscribed({user: user.uuid, subscriber: [], subscribed: []})
           const token = await newUser.generateAuthToken();
+          const create_folder = `${"./uploads/" + user.uuid}`;
+          fs.mkdir(create_folder, {recursive: true}, function(err) {
+              if(err) throw err;
+          });
           await newBookmark.save();
           await newSubs.save();
           await newUser.save();
@@ -654,6 +659,10 @@ const googleRegister = async (req,res) => {
           const newBookmark = new Bookmark({userUuid: user.uuid, recipeUuid: [], postUuid: []})
           const newSubs = new Subscribed({user: user.uuid, subscriber: [], subscribed: []})
           const token = await newUser.generateAuthToken();
+          const create_folder = `${"./uploads/" + user.uuid}`;
+          fs.mkdir(create_folder, {recursive: true}, function(err) {
+              if(err) throw err;
+          });
           await newBookmark.save();
           await newSubs.save();
           await newUser.save();
