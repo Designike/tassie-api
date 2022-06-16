@@ -424,6 +424,7 @@ const removeBookmark = async (req, res) => {
 function onlyUnique(value, index, self) {
   return self.indexOf(value) === index;
 }
+
 const addHashtag = async (req, res) => {
   let hashtagString = req.body.desc;
   let hashtag = hashtagString.match(/#\w+/g);
@@ -435,21 +436,16 @@ const addHashtag = async (req, res) => {
     hashtag.forEach(async (tag) => {
       let tag1 = await Tag.findOne({ name: tag });
       if (tag1) {
-        tag1.recipe.push(recipeUuid);
+        let recipes = tag1.recipe;
+        recipes.push(recipeUuid);
+        recipes = recipes.filter(onlyUnique);
+        tag1.recipe = recipes
         await tag1.save();
       } else {
         let tag2 = new Tag({ name: tag, recipe: [recipeUuid], post: [] });
         await tag2.save();
       }
       index++;
-      // if(index == hashtag.length - 1){
-      //     res.status(201).json({
-      //         status: true,
-      //         message: "tagged",
-      //         errors: [],
-      //         data: {},
-      //       });
-      // }
     });
   }
   const rec = await Recipe.findOne({ uuid: req.body.uuid });

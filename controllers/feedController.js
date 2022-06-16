@@ -204,6 +204,23 @@ const createPost = async (req, res) =>{
 const deletePost = async (req,res) => {
     try {
         const postUuid = req.params.uuid;
+        const toDelete = await Post.findOne({uuid:postUuid});
+        let hashtagString = toDelete.desc;
+            let hashtag = hashtagString.match(/#\w+/g);
+            if(hashtag != null){ 
+                hashtag = hashtag.filter(onlyUnique);
+            
+            // let postUuid = req.body.postUuid;
+            let index = 0;
+            hashtag.forEach(async tag => {
+                let tag1 = await Tag.findOne({name: tag});
+                if (tag1) {
+                    tag1.post.pop(postUuid);
+                    await tag1.save();
+                }
+                index++;
+            });
+        }
         const post = await Post.findOneAndDelete({uuid:postUuid});
         if(post) {
             res.status(201).json({
@@ -244,8 +261,10 @@ const editPost = async (req, res) => {
             hashtag.forEach(async tag => {
                 let tag1 = await Tag.findOne({name: tag});
                 if (tag1) {
-                    tag1.post.push(postUuid);
-                    tag1.post = tag1.post.filter(onlyUnique);
+                    let posts = tag1.post;
+                    posts.push(postUuid);
+                    posts = posts.filter(onlyUnique);
+                    tag1.post = posts;
                     await tag1.save();
                 }else{
                     let tag2 = new Tag({name: tag, post: [postUuid], recipe: []});

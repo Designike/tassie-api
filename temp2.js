@@ -84,3 +84,8 @@
 //     getFileStream
 // }
 
+// var lst = [1,1,2,2,3,3,4]
+// async function onlyUnique(value, index, self) {
+//     return self.indexOf(value) === index;
+// }
+// console.log(onlyUnique(lst));
