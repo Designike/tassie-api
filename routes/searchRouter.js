@@ -11,7 +11,7 @@ router.post('/guess',auth,searchController.guess);
 router.get('/lazyGuess/:page/:id', [auth, lazy.lazyguess], searchController.showResults);
 router.get('/lazyExplore/:page/:previousLength',[auth,lazy.lazyexplore],searchController.explore);
 router.get('/lazySearch/:page/:word',[auth,lazy.lazyall],searchController.searchAll);
-router.get('/lazyHashtag/:page/:tag',[auth,lazy.lazyhashtag],searchController.explore);
+router.get('/lazyHashtag/:page/:previousLength/:tag',[auth,lazy.lazyhashtag],searchController.explore);
 // router.get('/searchRecipe/:word',searchController.searchRecipe);
 // router.get('/searchUser/:word',searchController.searchUser);
 // router.get('/searchTag/:word',searchController.searchTag);

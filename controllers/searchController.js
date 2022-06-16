@@ -115,7 +115,7 @@ async function sortQuery(db,query){
 }
 
 const explore = async (req,res) => {
-    console.log(res.paginatedResults);
+    // console.log(res.paginatedResults);
     res.status(201).json({
         status: true,
         message: "",
@@ -125,7 +125,7 @@ const explore = async (req,res) => {
 }
 
 const searchAll = async (req,res) => {
-  console.log(res.paginatedResults);
+  // console.log(res.paginatedResults);
   res.status(201).json({
       status: true,
       message: "",

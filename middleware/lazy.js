@@ -882,7 +882,10 @@ const lazyhashtag = async (req,res,next) => {
     let shuffledIndex = [];
     // let shuffledIndex = shuffle([((page-1)*6) + 0,((page-1)*6) + 1,((page-1)*6) + 2,((page-1)*6) + 3,((page-1)*6) + 4,((page-1)*6) + 5]);
     let uuid = req.user.uuid;
-   
+    let x = '#'+req.params.tag;
+    // console.log(x);
+    var tag = await Tag.findOne({name:x});
+    // console.log(tag);
     if (endIndex < (await Post.find({}).countDocuments().exec() + await Recipe.find({}).countDocuments().exec())) {
         results.next = {
           page: page + 1,
@@ -895,10 +898,13 @@ const lazyhashtag = async (req,res,next) => {
           limit: limit
         }
       }
-        var tag = Tag.find({name:'#'+req.params.tag});
-        var temp = await Post.find({userUuid: {$in :tag.post}},'-_id uuid userUuid username profilePic url description createdAt updatedAt postID isPost').sort('-createdAt').limit(limit).skip(startIndex).exec();
-        var temp2 = await Recipe.find({userUuid: {$in :tag.recipe}}).sort('-createdAt').limit(limit).skip(startIndex).exec();
+        // console.log(tag.post);
+        var temp = await Post.find({uuid: {$in :tag.post}},'-_id uuid userUuid username profilePic url description createdAt updatedAt postID isPost').sort('-createdAt').limit(limit).skip(startIndex).exec();
+        // console.log(temp);
+        var temp2 = await Recipe.find({uuid: {$in :tag.recipe}}).sort('-createdAt').limit(limit).skip(startIndex).exec();
+        // console.log(temp2);
         results.results = temp.concat(temp2);
+        // console.log(results.results);
         // results.results = await Post.find({},'-_id uuid userUuid username profilePic url description createdAt updatedAt isPost').sort('-createdAt').limit(limit).skip(startIndex).exec();
         let uuids_1 = [];
         let uuids_2 = [];
@@ -920,9 +926,10 @@ const lazyhashtag = async (req,res,next) => {
                 // shuffledIndex.push(((page-1)*results.results.length) + index);
                 shuffledIndex.push(((page-1)*req.params.previousLength) + index);
               }
+              // console.log(shuffledIndex);
               results.indices = shuffle(shuffledIndex);
               res.paginatedResults = results;
-              console.log(res.paginatedResults);
+              // console.log(res.paginatedResults);
               next()
             }
           });
