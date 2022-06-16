@@ -393,11 +393,12 @@ const lazyall = async (req,res,next) => {
       console.log('2B')
       let recs = await Recipe.find({"name": {$regex: phrase, $options:'i'},userUuid: {$ne: uuid}},'-_id name uuid username recipeImageID').limit(limit).skip(startIndex).exec();
       console.log('3C')
-      let tags = await Tag.find({"name": {$regex:'^'+phrase, $options:'i'}},'-_id name').limit(limit).skip(startIndex).exec();
+      let tags = await Tag.find({"name": {$regex:'^#'+phrase, $options:'i'}},'-_id name').limit(limit).skip(startIndex).exec();
       console.log('4D')
       if(users.concat(recs.concat(tags)).length == 0){
           console.log('5E')
           res.paginatedResults = results;
+          console.log(results);
           next();
         } else {
           results.users = users;
