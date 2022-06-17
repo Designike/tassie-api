@@ -165,50 +165,50 @@ const updateRecipe = async (req, res) => {
     } else {
       const uuid = req.body.uuid;
       let recs = await Recipe.findOne({ uuid: req.body.uuid });
-      console.log('1 hello');
-      console.log(req.body);
-    if(req.body.desc != undefined) {
-      console.log('2');
-      console.log('henlo');
-      console.log(recs.desc);
-      console.log(req,body.desc);
-      let hashtagDeleteString = recs.desc;
-      let oldhashtags = hashtagDeleteString.match(/#\w+/g);
-      console.log(3);
-      let hashtagString = req.body.desc;
-      let hashtag = hashtagString.match(/#\w+/g);
-      const toDeleteHashtags = await oldhashtags.filter(element => !hashtag.includes(element));
-      const toAddHashtags = await hashtag.filter(element => !oldhashtags.includes(element));
-      console.log('4');
-      console.log(toDeleteHashtags);
-      console.log(toAddHashtags);
-      console.log('5');
-      toDeleteHashtags.forEach(async tag => {
-      console.log('6A');
-          let tag1 = await Tag.findOne({name: tag});
-          console.log(tag1);
-          if (tag1) {
-              console.log(uuid);
-              tag1.recipe.pop(uuid);
-              console.log(tag1.recipe);
-              await tag1.save();
-          }
-      });
-      toAddHashtags.forEach(async tag => {
-        console.log('running');
-          let tag1 = await Tag.findOne({name: tag});
-          if (tag1) {
-              let recips = tag1.recipe;
-              recips.push(uuid);
-              recips = recips.filter(onlyUnique);
-              tag1.recipe = recips;
-              await tag1.save();
-          }else{
-              let tag2 = new Tag({name: tag, recipe: [uuid], post: []});
-              await tag2.save();
-          }
-      });
-  }
+      // console.log('1 hello');
+      // console.log(req.body);
+    // if(req.body.desc != undefined) {
+    //   console.log('2');
+    //   console.log('henlo');
+    //   console.log(recs.desc);
+    //   console.log(req,body.desc);
+      // let hashtagDeleteString = recs.desc;
+      // let oldhashtags = hashtagDeleteString.match(/#\w+/g);
+      // console.log(3);
+      // let hashtagString = req.body.desc;
+      // let hashtag = hashtagString.match(/#\w+/g);
+      // const toDeleteHashtags = await oldhashtags.filter(element => !hashtag.includes(element));
+      // const toAddHashtags = await hashtag.filter(element => !oldhashtags.includes(element));
+      // console.log('4');
+      // console.log(toDeleteHashtags);
+      // console.log(toAddHashtags);
+      // console.log('5');
+      // toDeleteHashtags.forEach(async tag => {
+      // console.log('6A');
+      //     let tag1 = await Tag.findOne({name: tag});
+      //     console.log(tag1);
+      //     if (tag1) {
+      //         console.log(uuid);
+      //         tag1.recipe.pop(uuid);
+      //         console.log(tag1.recipe);
+      //         await tag1.save();
+      //     }
+      // });
+      // toAddHashtags.forEach(async tag => {
+      //   console.log('running');
+      //     let tag1 = await Tag.findOne({name: tag});
+      //     if (tag1) {
+      //         let recips = tag1.recipe;
+      //         recips.push(uuid);
+      //         recips = recips.filter(onlyUnique);
+      //         tag1.recipe = recips;
+      //         await tag1.save();
+      //     }else{
+      //         let tag2 = new Tag({name: tag, recipe: [uuid], post: []});
+      //         await tag2.save();
+      //     }
+      // });
+  // }
       updates.forEach((update) => (recs[update] = req.body[update]));
       await recs.save();
       res.status(201).json({
@@ -489,32 +489,71 @@ function onlyUnique(value, index, self) {
 
 const addHashtag = async (req, res) => {
 try{
+  const uuid = req.body.uuid;
+  let recs = await Recipe.findOne({ uuid: req.body.uuid });
+  let hashtagDeleteString = recs.desc;
+  let oldhashtags = hashtagDeleteString.match(/#\w+/g);
+  console.log(3);
   let hashtagString = req.body.desc;
   let hashtag = hashtagString.match(/#\w+/g);
-  if (hashtag != null) {
-    hashtag = hashtag.filter(onlyUnique);
-
-    let recipeUuid = req.body.uuid;
-    let index = 0;
-    hashtag.forEach(async (tag) => {
-      let tag1 = await Tag.findOne({ name: tag });
+  const toDeleteHashtags = await oldhashtags.filter(element => !hashtag.includes(element));
+  const toAddHashtags = await hashtag.filter(element => !oldhashtags.includes(element));
+  console.log('4');
+  console.log(toDeleteHashtags);
+  console.log(toAddHashtags);
+  console.log('5');
+  toDeleteHashtags.forEach(async tag => {
+  console.log('6A');
+      let tag1 = await Tag.findOne({name: tag});
+      console.log(tag1);
       if (tag1) {
-        let recipes = tag1.recipe;
-        recipes.push(recipeUuid);
-        recipes = recipes.filter(onlyUnique);
-        tag1.recipe = recipes
-        await tag1.save();
-      } else {
-        let tag2 = new Tag({ name: tag, recipe: [recipeUuid], post: [] });
-        await tag2.save();
+          console.log(uuid);
+          tag1.recipe.pop(uuid);
+          console.log(tag1.recipe);
+          await tag1.save();
       }
-      index++;
-    });
-  }
-  const rec = await Recipe.findOne({ uuid: req.body.uuid });
+  });
+  toAddHashtags.forEach(async tag => {
+    console.log('running');
+      let tag1 = await Tag.findOne({name: tag});
+      if (tag1) {
+          let recips = tag1.recipe;
+          recips.push(uuid);
+          recips = recips.filter(onlyUnique);
+          tag1.recipe = recips;
+          await tag1.save();
+      }else{
+          let tag2 = new Tag({name: tag, recipe: [uuid], post: []});
+          await tag2.save();
+      }
+  });
+
+  // let hashtagString = req.body.desc;
+  // let hashtag = hashtagString.match(/#\w+/g);
+  // if (hashtag != null) {
+  //   hashtag = hashtag.filter(onlyUnique);
+
+  //   let recipeUuid = req.body.uuid;
+  //   let index = 0;
+  //   hashtag.forEach(async (tag) => {
+  //     let tag1 = await Tag.findOne({ name: tag });
+  //     if (tag1) {
+  //       let recipes = tag1.recipe;
+  //       recipes.push(recipeUuid);
+  //       recipes = recipes.filter(onlyUnique);
+  //       tag1.recipe = recipes
+  //       await tag1.save();
+  //     } else {
+  //       let tag2 = new Tag({ name: tag, recipe: [recipeUuid], post: [] });
+  //       await tag2.save();
+  //     }
+  //     index++;
+  //   });
+  // }
+  // const rec = await Recipe.findOne({ uuid: req.body.uuid });
   // console.log('2a');
-  rec.desc = req.body.desc;
-  rec.save((err) => {
+  recs.desc = req.body.desc;
+  recs.save((err) => {
     if (!err) {
       res.status(201).json({
         status: true,
