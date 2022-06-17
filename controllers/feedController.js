@@ -205,7 +205,7 @@ const deletePost = async (req,res) => {
     try {
         const postUuid = req.params.uuid;
         const toDelete = await Post.findOne({uuid:postUuid});
-        let hashtagString = toDelete.desc;
+        let hashtagString = toDelete.description;
             let hashtag = hashtagString.match(/#\w+/g);
             if(hashtag != null){ 
                 hashtag = hashtag.filter(onlyUnique);
