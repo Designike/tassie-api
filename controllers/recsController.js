@@ -164,21 +164,25 @@ const updateRecipe = async (req, res) => {
       // }
     } else {
       const uuid = req.body.uuid;
-      const recs = await Recipe.findOne({ uuid: req.body.uuid });
+      let recs = await Recipe.findOne({ uuid: req.body.uuid });
+      console.log('1A');
     if(req.body.desc){
+      console.log('2');
+      console.log(recs.desc);
+      console.log(req,body.desc);
       let hashtagDeleteString = recs.desc;
       let oldhashtags = hashtagDeleteString.match(/#\w+/g);
-
+      console.log(3);
       let hashtagString = req.body.desc;
       let hashtag = hashtagString.match(/#\w+/g);
       const toDeleteHashtags = oldhashtags.filter(element => !hashtag.includes(element));
-      const toAddHashtags = hashtag.filter(element => !oldhashtags.includes(element))
-
+      const toAddHashtags = hashtag.filter(element => !oldhashtags.includes(element));
+      console.log('4');
       console.log(toDeleteHashtags);
       console.log(toAddHashtags);
-
+      console.log('5');
       toDeleteHashtags.forEach(async tag => {
-      console.log('1A');
+      console.log('6A');
           let tag1 = await Tag.findOne({name: tag});
           console.log(tag1);
           if (tag1) {
