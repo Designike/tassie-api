@@ -167,7 +167,7 @@ const updateRecipe = async (req, res) => {
       let recs = await Recipe.findOne({ uuid: req.body.uuid });
       console.log('1 hello');
       console.log(req.body);
-    if(req.body.desc){
+    if(req.body.desc != undefined) {
       console.log('2');
       console.log('henlo');
       console.log(recs.desc);
