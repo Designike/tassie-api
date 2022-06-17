@@ -174,13 +174,17 @@ const updateRecipe = async (req, res) => {
       const toDeleteHashtags = oldhashtags.filter(element => !hashtag.includes(element));
       const toAddHashtags = hashtag.filter(element => !oldhashtags.includes(element))
 
-      // console.log(toDeleteHashtags);
-      // console.log(toAddHashtags);
+      console.log(toDeleteHashtags);
+      console.log(toAddHashtags);
 
       toDeleteHashtags.forEach(async tag => {
+      console.log('1A');
           let tag1 = await Tag.findOne({name: tag});
+          console.log(tag1);
           if (tag1) {
+              console.log(uuid);
               tag1.recipe.pop(uuid);
+              console.log(tag1.recipe);
               await tag1.save();
           }
       });
