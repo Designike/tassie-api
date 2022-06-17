@@ -477,6 +477,7 @@ function onlyUnique(value, index, self) {
 }
 
 const addHashtag = async (req, res) => {
+try{
   let hashtagString = req.body.desc;
   let hashtag = hashtagString.match(/#\w+/g);
   if (hashtag != null) {
@@ -520,6 +521,15 @@ const addHashtag = async (req, res) => {
       });
     }
   });
+}catch(err){
+    console.log(err);
+    res.status(201).json({
+      status: false,
+      message: "Error while saving",
+      errors: [err],
+      data: {},
+    });
+  }
 };
 
 const getHashtag = async (req, res) => {
