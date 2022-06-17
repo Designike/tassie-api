@@ -257,6 +257,13 @@ const editPost = async (req, res) => {
 
     let hashtagString = req.body.desc;
     let hashtag = hashtagString.match(/#\w+/g);
+    
+    if(oldhashtags == null) {
+        oldhashtags = [];
+      }
+      if(hashtag == null) {
+        hashtag = [];
+      }
     const toDeleteHashtags = oldhashtags.filter(element => !hashtag.includes(element));
     const toAddHashtags = hashtag.filter(element => !oldhashtags.includes(element))
 

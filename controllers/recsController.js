@@ -453,6 +453,14 @@ try{
 
   let hashtagString = req.body.desc;
   let hashtag = hashtagString.match(/#\w+/g);
+  
+  if(oldhashtags == null) {
+    oldhashtags = [];
+  }
+  if(hashtag == null) {
+    hashtag = [];
+  }
+
   const toDeleteHashtags = await oldhashtags.filter(element => !hashtag.includes(element));
   const toAddHashtags = await hashtag.filter(element => !oldhashtags.includes(element));
 
