@@ -165,9 +165,10 @@ const updateRecipe = async (req, res) => {
     } else {
       const uuid = req.body.uuid;
       let recs = await Recipe.findOne({ uuid: req.body.uuid });
-      console.log('1A');
+      console.log('1 hello');
     if(req.body.desc){
       console.log('2');
+      console.log('henlo');
       console.log(recs.desc);
       console.log(req,body.desc);
       let hashtagDeleteString = recs.desc;
@@ -175,8 +176,8 @@ const updateRecipe = async (req, res) => {
       console.log(3);
       let hashtagString = req.body.desc;
       let hashtag = hashtagString.match(/#\w+/g);
-      const toDeleteHashtags = oldhashtags.filter(element => !hashtag.includes(element));
-      const toAddHashtags = hashtag.filter(element => !oldhashtags.includes(element));
+      const toDeleteHashtags = await oldhashtags.filter(element => !hashtag.includes(element));
+      const toAddHashtags = await hashtag.filter(element => !oldhashtags.includes(element));
       console.log('4');
       console.log(toDeleteHashtags);
       console.log(toAddHashtags);
@@ -193,6 +194,7 @@ const updateRecipe = async (req, res) => {
           }
       });
       toAddHashtags.forEach(async tag => {
+        console.log('running');
           let tag1 = await Tag.findOne({name: tag});
           if (tag1) {
               let recips = tag1.recipe;
