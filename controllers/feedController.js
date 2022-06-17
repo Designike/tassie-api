@@ -250,50 +250,61 @@ const deletePost = async (req,res) => {
 
 
 const editPost = async (req, res) => {
-    
+    let postUuid = req.body.postUuid;
+    const post = await Post.findOne({uuid:postUuid});
+    let hashtagDeleteString = post.description;
+    let oldhashtags = hashtagDeleteString.match(/#\w+/g);
+
     let hashtagString = req.body.desc;
-            let hashtag = hashtagString.match(/#\w+/g);
-            if(hashtag != null){ 
-                hashtag = hashtag.filter(onlyUnique);
-            
-            let postUuid = req.body.postUuid;
-            let index = 0;
-            hashtag.forEach(async tag => {
-                let tag1 = await Tag.findOne({name: tag});
-                if (tag1) {
-                    let posts = tag1.post;
-                    posts.push(postUuid);
-                    posts = posts.filter(onlyUnique);
-                    tag1.post = posts;
-                    await tag1.save();
-                }else{
-                    let tag2 = new Tag({name: tag, post: [postUuid], recipe: []});
-                    await tag2.save();
-                }
-                index++;
-            });
+    let hashtag = hashtagString.match(/#\w+/g);
+    const toDeleteHashtags = oldhashtags.filter(element => !hashtag.includes(element));
+    const toAddHashtags = hashtag.filter(element => !oldhashtags.includes(element))
+
+    // console.log(toDeleteHashtags);
+    // console.log(toAddHashtags);
+
+    toDeleteHashtags.forEach(async tag => {
+        let tag1 = await Tag.findOne({name: tag});
+        if (tag1) {
+            tag1.post.pop(postUuid);
+            await tag1.save();
         }
-            let post = await Post.findOne({uuid:req.body.postUuid});
-            post.description = req.body.desc;
-            post.save((err)=>{
-                if(!err){
-                    res.status(201).json({
-                        status: true,
-                        message: "Saved successfully",
-                        errors: [],
-                        data: {},
-                      });
-                }
-                else{
-                    console.log(err);
-                    res.status(201).json({
-                        status: false,
-                        message: "Error while saving",
-                        errors: [err],
-                        data: {},
-                      });
-                }
-            })
+    });
+    toAddHashtags.forEach(async tag => {
+        let tag1 = await Tag.findOne({name: tag});
+        if (tag1) {
+            let posts = tag1.post;
+            posts.push(postUuid);
+            posts = posts.filter(onlyUnique);
+            tag1.post = posts;
+            await tag1.save();
+        }else{
+            let tag2 = new Tag({name: tag, post: [postUuid], recipe: []});
+            await tag2.save();
+        }
+    });
+
+    // let post = await Post.findOne({uuid:req.body.postUuid});
+    post.description = req.body.desc;
+    post.save((err)=>{
+        if(!err){
+            res.status(201).json({
+                status: true,
+                message: "Saved successfully",
+                errors: [],
+                data: {},
+                });
+        }
+        else{
+            console.log(err);
+            res.status(201).json({
+                status: false,
+                message: "Error while saving",
+                errors: [err],
+                data: {},
+                });
+        }
+    })
 }
 
 
