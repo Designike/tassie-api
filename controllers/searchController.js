@@ -4,21 +4,68 @@ const Tag = require("../models/tag.js");
 const User = require("../models/users.js");
 
 const guess = async (req,res) => {
+  try {
+    
+  
     // var limit = 20;
     // var start = req.body.start;
-    var veg = req.body.veg;
-    var flavour = req.body.flavour;
+    // var veg = req.body.veg;
+    // var flavour = req.body.flavour;
     var ingredients = req.body.ingredients;
-    var time = req.body.maxTime;
-    var course = req.body.course;
+    // var time = req.body.maxTime;
+    // var course = req.body.course;
     var meal = req.body.meal;
+    let options = {
+
+    };
+    // console.log(req.body);
+    let opts = Object.keys(req.body);
+    // console.log(opts);
+    if (opts.includes('ingredients')) {
+    opts = opts.filter(element => element != 'ingredients');
+    }
+    if (opts.includes('maxTime')) {
+      opts = opts.filter(element => element != 'maxTime');
+      options['time'] = {
+        $lte: req.body.maxTime,
+      };
+      // console.log(options);
+    }
+    // console.log(opts);
+    // console.log('1A');
+    if (opts.includes('meal')) {
+      // console.log('1B');
+      opts = opts.filter(element => element != 'meal');
+      // console.log(meal);
+      if(meal[0] == true) {
+        options['isBreakfast'] = true;
+      }
+      // console.log('3C');
+      if(meal[1] == true) {
+        options['isLunch'] = true;
+      }
+      // console.log('4D');
+      if(meal[2] == true) {
+        options['isDinner'] = true;
+      }
+      // console.log('5E');
+      if(meal[3] == true) {
+        options['isCraving'] = true;
+      }
+    }
+    // console.log('6F');
+    // console.log(opts);
+    opts.forEach((update) => (options[update] = req.body[update]));
+    // console.log(options);
     var ans;
     // console.log(req.body);
     // var tag = [];
-    const recipe = await Recipe.find({veg:veg, course:course, flavour:flavour, time:{$lte:time}, '$or':[{isBreakfast:meal[0]}, {isLunch:meal[1]}, {isDinner:meal[2]}, {isCraving:meal[3]}]}, '-_id uuid recipeImageID name userUuid username profilePic');
+    const recipe = await Recipe.find(options, '-_id uuid recipeImageID name userUuid username profilePic');
+    // const recipe = await Recipe.find({veg:veg, course:course, flavour:flavour, time:{$lte:time}, '$or':[{isBreakfast:meal[0]}, {isLunch:meal[1]}, {isDinner:meal[2]}, {isCraving:meal[3]}]}, '-_id uuid recipeImageID name userUuid username profilePic');
+
     // console.log(recipe);
     if(recipe.length > 0){
-        console.log('inside');
+        // console.log('inside');
     if(ingredients.length != 0){
       ans = await sortQuery(recipe,ingredients);
       // ans.expires = Date.now();
@@ -29,7 +76,7 @@ const guess = async (req,res) => {
     // console.log(ans);
     var expires = new Date(); 
     expires.setSeconds(expires.getSeconds() + (60*45));
-    const newSuggest = new Suggestion({suggest: ans[0],expires:expires});
+    const newSuggest = new Suggestion({suggest: ans,expires:expires});
     await newSuggest.save((err, doc)=>{
       // console.log(doc._id.toString());
       res.status(201).json({
@@ -49,6 +96,15 @@ const guess = async (req,res) => {
             data: {},
           });
     }
+  } catch (error) {
+    console.log(error);
+    res.status(201).json({
+      status: false,
+      message: "Server error",
+      errors: [],
+      data: {},
+    });
+  }
 }
 
 // function sortQuery(db,query){
