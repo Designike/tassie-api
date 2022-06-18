@@ -6,7 +6,7 @@ const User = require("../models/users.js");
 const guess = async (req,res) => {
   try {
     
-  
+    console.log(req.body);
     // var limit = 20;
     // var start = req.body.start;
     // var veg = req.body.veg;
@@ -63,7 +63,7 @@ const guess = async (req,res) => {
     const recipe = await Recipe.find(options, '-_id uuid recipeImageID name userUuid username profilePic');
     // const recipe = await Recipe.find({veg:veg, course:course, flavour:flavour, time:{$lte:time}, '$or':[{isBreakfast:meal[0]}, {isLunch:meal[1]}, {isDinner:meal[2]}, {isCraving:meal[3]}]}, '-_id uuid recipeImageID name userUuid username profilePic');
 
-    // console.log(recipe);
+    console.log(recipe);
     if(recipe.length > 0){
         // console.log('inside');
     if(ingredients.length != 0){
@@ -73,7 +73,7 @@ const guess = async (req,res) => {
       ans = recipe;
       // ans.expires = Date.now();
     }
-    // console.log(ans);
+    console.log(ans);
     var expires = new Date(); 
     expires.setSeconds(expires.getSeconds() + (60*45));
     const newSuggest = new Suggestion({suggest: ans,expires:expires});
