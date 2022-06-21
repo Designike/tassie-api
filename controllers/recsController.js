@@ -2,6 +2,7 @@ const Bookmark = require("../models/bookmarks.js");
 const Tag = require("../models/tag.js");
 // const Recs = require("../models/recipe.js");
 const Subscribed = require("../models/subscribed.js");
+const ExtraIngredients = require("../models/extraIngredients.js");
 const { v4: uuidv4 } = require("uuid");
 const Recipe = require("../models/recipe.js");
 const { deleteFile, uploadRecipe, renameFile } = require("./driveController");
@@ -186,6 +187,25 @@ const updateRecipe = async (req, res) => {
     });
   }
 };
+
+async function addIngredient(ingredients, flags) {
+  try{  
+  ingredients = ingredients.filter((i) => flags[ingredients.indexOf(i)]);
+  let ing = await ExtraIngredients.findOne({});
+  if (ing == null) {
+    ing = new ExtraIngredients({
+      ingredients: ingredients,
+    });
+    await ing.save();
+  } else {
+    ing.ingredients = ing.ingredients.concat(ingredients);
+    await ing.save();
+  }
+} catch(error) {
+  console.error(error);
+}
+}
+
 
 const deleteRecipe = async (req, res) => {
   try {

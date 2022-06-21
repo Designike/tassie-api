@@ -3,6 +3,7 @@ const Bookmark = require("../models/bookmarks.js");
 const Post = require("../models/post.js");
 const Subscribed = require("../models/subscribed.js");
 const { uploadPost } = require("../controllers/driveController.js");
+const { deleteFile  } = require("./driveController");
 const { v4: uuidv4 } = require("uuid");
 const e = require("express");
 const Tag = require("../models/tag.js");
@@ -221,8 +222,9 @@ const deletePost = async (req,res) => {
                 index++;
             });
         }
-        const post = await Post.findOneAndDelete({uuid:postUuid});
-        if(post) {
+        await Post.findOneAndDelete({uuid:postUuid});
+        const del = await deleteFile("posts/" + req.user.uuid + "/" + postUuid + ".jpg");
+        if(del.status == true) {
             res.status(201).json({
                 status: true,
                 message: "Deleted successfully",
