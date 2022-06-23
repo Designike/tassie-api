@@ -6,7 +6,7 @@ const ExtraIngredients = require("../models/extraIngredients.js");
 const { v4: uuidv4 } = require("uuid");
 const Recipe = require("../models/recipe.js");
 const { deleteFile, uploadRecipe, renameFile } = require("./driveController");
-const ingredients = require("../ingredients.json");
+const ingredients = require("../ing.json");
 const fs = require("fs");
 
 const loadRecs = (req, res) => {
