@@ -94,10 +94,7 @@
 //     console.log((new Date()).toLocaleString());
 // }
 // temp();
-const {downloadIngredient} = require('./controllers/driveController');
-const {temp} = require('./middleware/lazy');
-const fs = require('fs');
-const mongoose=require('./db/db.js')
+
 
 // var test = ;
 
@@ -117,7 +114,7 @@ const mongoose=require('./db/db.js')
 // writeStream.end();
 // downloadIngredient('download/old.json');
 // temp(1);
-setInterval(function(){ temp(1);}, 5000);
+// setInterval(function(){ temp(1);}, 5000);
 // let data =  fs.readFileSync('./old.json');
         
 // let jsonData = JSON.parse(data);

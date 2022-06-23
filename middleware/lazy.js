@@ -29,25 +29,18 @@ function shuffle(array) {
   return array;
 }
 
-const temp = async (page) => {
-  if(page == 1) {
-
-    // if(await toUpdate){
-    //   console.log('updating ...');
-    //   await updateIngredients();
-    // } else {
-    //   console.log('ingredients already updated');
-    // }
-    toUpdate.then(async value => {
-      if(value) {
-        console.log('updating ...');
-      await updateIngredients();
-      } else {
-        console.log('ingredients already updated');
-      }
-    })
-  }
-}
+// const temp = async (page) => {
+//   if(page == 1) {
+//     toUpdate().then( value => {
+//       if(value) {
+//         console.log('updating ...');
+//       updateIngredients();
+//       }
+//     }, err => {
+//       console.log('ingredients already updated');
+//     })
+//   }
+// }
 const lazyfeed = async (req,res,next) => {
   try {
     const page = parseInt(req.params.page);
@@ -61,14 +54,14 @@ const lazyfeed = async (req,res,next) => {
     let uuid = req.user.uuid;
 
     if(page == 1) {
-
-      if(await toUpdate){
-        console.log('updating ...');
-        await updateIngredients();
-      } else {
+      toUpdate().then(value => {
+        if(value) {
+          console.log('updating ...');
+          updateIngredients();
+        }
+      }, err => {
         console.log('ingredients already updated');
-      }
-      
+      })
     }
 
     const found = await Subscribed.findOne({user:uuid},'-_id subscribed');
@@ -995,5 +988,4 @@ module.exports = {
     lazysubscribers,
     lazysubscribeds,
     lazyhashtag,
-    temp
 }

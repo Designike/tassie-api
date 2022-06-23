@@ -394,25 +394,19 @@ const downloadIngredient =  async (path) => {
   return new Promise((resolve, reject) => {
     let writeStream = fs.createWriteStream(path);
   
-  console.log("writeStream");
-  var fileStream = s3.getObject(options).createReadStream().on('end', () => {
-    console.log('running');
-    writeStream.on('finish', () => {
-        console.log('downloaded old file');
-        writeStream.end();
-        resolve(true);
-    });
-    
-  }).on('error', 
-    reject
-  ).pipe(writeStream);
+    var fileStream = s3.getObject(options).createReadStream().on('end', () => {
+      writeStream.on('finish', () => {
+          console.log('downloaded old file');
+          writeStream.end();
+          resolve(true);
+      });
+      
+    }).on('error', 
+      reject
+    ).pipe(writeStream);
 
-    
-  
   });
-  // console.log(fileStream);
   
-  // console.log(response);
 } catch (error) {
   console.log(error);
   return {error: error, status: false};
