@@ -89,3 +89,36 @@
 //     return self.indexOf(value) === index;
 // }
 // console.log(onlyUnique(lst));
+
+// function temp(){
+//     console.log((new Date()).toLocaleString());
+// }
+// temp();
+const {downloadIngredient} = require('./controllers/driveController');
+const {temp} = require('./middleware/lazy');
+const fs = require('fs');
+const mongoose=require('./db/db.js')
+
+// var test = ;
+
+// const fs = require('fs');
+
+// let writeStream = fs.createWriteStream('secret.json');
+
+// // write some data with a base64 encoding
+// writeStream.write(downloadIngredient());
+
+// // the finish event is emitted when all data has been flushed from the stream
+// writeStream.on('finish', () => {
+//     console.log('wrote all data to file');
+// });
+
+// // close the stream
+// writeStream.end();
+// downloadIngredient('download/old.json');
+// temp(1);
+setInterval(function(){ temp(1);}, 5000);
+// let data =  fs.readFileSync('./old.json');
+        
+// let jsonData = JSON.parse(data);
+// console.log(jsonData);

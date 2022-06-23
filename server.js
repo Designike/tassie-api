@@ -11,10 +11,10 @@ const app=express()
 const port=process.env.PORT||3000
 
 app.use(express.json())
-app.use('/user', userRouter) 
-app.use('/feed', feedRouter) 
+app.use('/user', userRouter)
+app.use('/feed', feedRouter)
 app.use('/recs', recipeRouter)
-app.use('/drive', driveRouter) 
+app.use('/drive', driveRouter)
 app.use('/search',searchRouter)
 app.use('/profile',profileRouter)
 

@@ -101,7 +101,11 @@ const updateRecipe = async (req, res) => {
     //     delete updates.folder;
     // }
     if (updates.imgName != undefined) {
-      delete updates.imgName;
+      // delete updates.imgName;
+      updates = updates.filter(element => element != 'imgName');
+    }
+    if (updates.newIngFlags != undefined) {
+      updates = updates.filter(element => element != 'newIngFlags');
     }
     if (req.file) {
       const imgName = req.body.imgName;
@@ -165,6 +169,9 @@ const updateRecipe = async (req, res) => {
       // }
     } else {
       const uuid = req.body.uuid;
+      const newflags = req.body.newIngFlags;
+      console.log(newflags);
+      addIngredient(newflags);
       let recs = await Recipe.findOne({ uuid: req.body.uuid });
       
       updates.forEach((update) => (recs[update] = req.body[update]));
@@ -188,9 +195,12 @@ const updateRecipe = async (req, res) => {
   }
 };
 
-async function addIngredient(ingredients, flags) {
-  try{  
-  ingredients = ingredients.filter((i) => flags[ingredients.indexOf(i)]);
+async function addIngredient(flags) {
+  try{
+  let ingredients = [];
+  Object.keys(flags).forEach(async (index) => {
+    ingredients.push(flags[index]);
+  });
   let ing = await ExtraIngredients.findOne({});
   if (ing == null) {
     ing = new ExtraIngredients({

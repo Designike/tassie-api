@@ -308,6 +308,7 @@ const getFileStream = async (req, res) => {
   }
   
 }
+
 const deleteChildren = async (dir) => {
   if(dir != null && dir != undefined && dir != '/' && dir != '' && dir != 'assets/' && dir != 'posts/' && dir != 'recipes/' && dir != 'profileImages/') {
 
@@ -371,7 +372,78 @@ const renameFile = async (userUuid, recipeUuid, oldFile, newFile) => {
   }
 }
 
+const downloadIngredient =  async (path) => {
+  try{
+  var options = {
+    Bucket : bucketName,
+    Key : process.env.INGREDIENT_KEY,
+  };
+
+  // let writeStream = fs.createWriteStream(path);
+  
+  // console.log("writeStream");
+  // var fileStream = s3.getObject(options).createReadStream().on('end', () => {
+  //   console.log('running');
+  //   writeStream.on('finish', () => {
+  //       console.log('downloaded old file');
+  //       writeStream.end();
+        
+  //   });
+    
+  // }).pipe(writeStream);
+  return new Promise((resolve, reject) => {
+    let writeStream = fs.createWriteStream(path);
+  
+  console.log("writeStream");
+  var fileStream = s3.getObject(options).createReadStream().on('end', () => {
+    console.log('running');
+    writeStream.on('finish', () => {
+        console.log('downloaded old file');
+        writeStream.end();
+        resolve(true);
+    });
+    
+  }).on('error', 
+    reject
+  ).pipe(writeStream);
+
+    
+  
+  });
+  // console.log(fileStream);
+  
+  // console.log(response);
+} catch (error) {
+  console.log(error);
+  return {error: error, status: false};
+}
+}
+
+const uploadIngredient = async (file) =>  {
+  try {
+    const fileStream = fs.createReadStream(file);
+    // const newUuid = uuidv4();
+    // const dpUuid = uuid +'_dp_' + newUuid;
+    const name = process.env.INGREDIENT_KEY;
+
+    const uploadParams = {
+      Bucket: bucketName,
+      Body: fileStream,
+      Key: name
+    }
+
+    const response = await s3.upload(uploadParams).promise();
+    console.log('updated file sync success');
+      return {status: true};
+    
+    // console.log(response);
+  } catch (error) {
+    console.log(error);
+    return {error: error, status: false};
+  }
+  
+}
 module.exports = {
     // generatePublicUrl, createFolder, drivePostUpload, deleteFile, createRecipeFolder, driveRecipeUpload,
-     uploadPost, uploadRecipe, getFileStream, deleteFile, renameFile, uploadProfileImage
+     uploadPost, uploadRecipe, getFileStream, deleteFile, renameFile, uploadProfileImage, downloadIngredient, uploadIngredient
 };

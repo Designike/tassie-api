@@ -6,6 +6,8 @@ const Suggestion = require("../models/suggestion.js");
 const Tag = require("../models/tag.js");
 const Bookmark = require("../models/bookmarks.js");
 const mongoose=require('mongoose');
+const {toUpdate} = require('../fetchVariable');
+const updateIngredients = require('../controllers/updateIngredients');
 // const Recipe = require("../models/recipe.js");
 
 
@@ -27,7 +29,25 @@ function shuffle(array) {
   return array;
 }
 
+const temp = async (page) => {
+  if(page == 1) {
 
+    // if(await toUpdate){
+    //   console.log('updating ...');
+    //   await updateIngredients();
+    // } else {
+    //   console.log('ingredients already updated');
+    // }
+    toUpdate.then(async value => {
+      if(value) {
+        console.log('updating ...');
+      await updateIngredients();
+      } else {
+        console.log('ingredients already updated');
+      }
+    })
+  }
+}
 const lazyfeed = async (req,res,next) => {
   try {
     const page = parseInt(req.params.page);
@@ -39,6 +59,18 @@ const lazyfeed = async (req,res,next) => {
     const results = {};
     // console.log(endIndex);
     let uuid = req.user.uuid;
+
+    if(page == 1) {
+
+      if(await toUpdate){
+        console.log('updating ...');
+        await updateIngredients();
+      } else {
+        console.log('ingredients already updated');
+      }
+      
+    }
+
     const found = await Subscribed.findOne({user:uuid},'-_id subscribed');
     // console.log(found);
     if(!found || found.subscribed.length == 0) {
@@ -105,6 +137,7 @@ const lazyfeed = async (req,res,next) => {
         
         
       } catch (e) {
+        console.log(e);
         // res.status(500).json({ message: e.message })
         res.status(201).json({
             status: false,
@@ -962,4 +995,5 @@ module.exports = {
     lazysubscribers,
     lazysubscribeds,
     lazyhashtag,
+    temp
 }
