@@ -7,6 +7,7 @@ const { v4: uuidv4 } = require("uuid");
 const Recipe = require("../models/recipe.js");
 const { deleteFile, uploadRecipe, renameFile } = require("./driveController");
 const ingredients = require("../ingredients.json");
+const fs = require("fs");
 
 const loadRecs = (req, res) => {
   // console.log(res.paginatedResults);
@@ -383,19 +384,42 @@ const renameImages = async (req, res) => {
   
 }
 
-const getIng = (req, res) => {
+const getIng = async (req, res) => {
   try {
-    res.status(201).json({
-      status: true,
-      message: "deleted",
-      errors: [],
-      data: { ingredients: ingredients },
+    if (fs.existsSync('ing.json')) {
+      res.status(201).json({
+        status: true,
+        message: "fetched",
+        errors: [],
+        data: { ingredients: ingredients },
+      });
+    } else {
+      downloadIngredient('ing.json').then(async (promise) => {
+        if(promise) {
+          res.status(201).json({
+            status: true,
+            message: "fetched",
+            errors: [],
+            data: { ingredients: ingredients },
+          });
+        }
+        
+     }, err => {
+      res.status(201).json({
+        status: false,
+        message: "unable to fetch data",
+        errors: [err],
+        data: {},
+      });
     });
+      
+    }
+    
   } catch (error) {
     res.status(201).json({
       status: false,
       message: "unable to fetch data",
-      errors: [],
+      errors: [error],
       data: {},
     });
   }

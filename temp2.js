@@ -112,10 +112,10 @@
 
 // // close the stream
 // writeStream.end();
-// downloadIngredient('download/old.json');
+// downloadIngredient('download/ing.json');
 // temp(1);
 // setInterval(function(){ temp(1);}, 5000);
-// let data =  fs.readFileSync('./old.json');
+// let data =  fs.readFileSync('./ing.json');
         
 // let jsonData = JSON.parse(data);
 // console.log(jsonData);
