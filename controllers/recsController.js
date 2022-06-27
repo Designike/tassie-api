@@ -173,9 +173,13 @@ const updateRecipe = async (req, res) => {
     } else {
       console.log('4');
       const uuid = req.body.uuid;
-      const newflags = req.body.newIngFlags;
-      console.log(newflags);
-      addIngredient(newflags);
+      if (updates.newIngFlags != undefined) {
+        updates = updates.filter(element => element != 'newIngFlags');
+        const newflags = req.body.newIngFlags;
+        console.log(newflags);
+        addIngredient(newflags);
+      }
+      
       console.log('5');
       let recs = await Recipe.findOne({ uuid: req.body.uuid });
       console.log('6');
