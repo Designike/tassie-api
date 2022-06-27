@@ -209,7 +209,7 @@ async function addIngredient(flags) {
 
   let ingredients = [];
   Object.keys(flags).forEach(async (index) => {
-    ingredients.push(flags[index]);
+    ingredients.push(flags[index].toLowerCase());
   });
   let ing = await ExtraIngredients.findOne({});
   if (ing == null) {

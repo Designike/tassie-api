@@ -15,8 +15,8 @@ const update = async () => {
             let jsonData = JSON.parse(data);
             // console.log(jsonData);
             const extra = await ExtraIngredients.findOne({});
-            jsonData = jsonData.concat(extra.ingredients);
-            jsonData = jsonData.filter(onlyUnique);
+            jsonData = jsonData.concat((extra.ingredients).filter(onlyUnique));
+            // jsonData = jsonData.filter(onlyUnique);
             let data2 = JSON.stringify(jsonData);
             console.log(extra.ingredients);
             fs.writeFileSync('ing.json', data2);
