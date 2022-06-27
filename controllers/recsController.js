@@ -88,7 +88,7 @@ const createRecipe = async (req, res) => {
 };
 
 const updateRecipe = async (req, res) => {
-  // console.log(req.body);
+  console.log(req.body);
   // console.log(flavour);
   // console.log(ingredients);
   // console.log(course);
@@ -96,7 +96,7 @@ const updateRecipe = async (req, res) => {
   try {
     let updates = Object.keys(req.body);
 
-
+    console.log('1');
 
     // if(updates.folder != undefined) {
     //     delete updates.folder;
@@ -108,7 +108,9 @@ const updateRecipe = async (req, res) => {
     if (updates.newIngFlags != undefined) {
       updates = updates.filter(element => element != 'newIngFlags');
     }
+    console.log('2');
     if (req.file) {
+      console.log('3');
       const imgName = req.body.imgName;
       // const folder = req.body.folder;
       // const uploadImg = await driveRecipeUpload(imgName, req.file, folder);
@@ -169,13 +171,16 @@ const updateRecipe = async (req, res) => {
       //     })
       // }
     } else {
+      console.log('4');
       const uuid = req.body.uuid;
       const newflags = req.body.newIngFlags;
       console.log(newflags);
       addIngredient(newflags);
+      console.log('5');
       let recs = await Recipe.findOne({ uuid: req.body.uuid });
-      
+      console.log('6');
       updates.forEach((update) => (recs[update] = req.body[update]));
+      console.log('7');
       await recs.save();
       res.status(201).json({
         status: true,
