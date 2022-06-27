@@ -197,7 +197,7 @@ const updateRecipe = async (req, res) => {
 };
 
 async function addIngredient(flags) {
-  try{
+
   let ingredients = [];
   Object.keys(flags).forEach(async (index) => {
     ingredients.push(flags[index]);
@@ -212,9 +212,7 @@ async function addIngredient(flags) {
     ing.ingredients = ing.ingredients.concat(ingredients);
     await ing.save();
   }
-} catch(error) {
-  console.error(error);
-}
+
 }
 
 
